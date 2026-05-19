@@ -1635,6 +1635,32 @@ function todayStr(){return new Date().toISOString().split('T')[0];}
 function formatTime(iso){if(!iso)return'–';return new Date(iso).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});}
 function formatHours(ms){if(!ms||ms<=0)return'0h00m';const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);return h+'h'+String(m).padStart(2,'0')+'m';}
 function calcMs(entry,exit){if(!entry||!exit)return 0;return new Date(exit)-new Date(entry);}
+
+// Calculate worked ms subtracting pausas defined in the coach's horario for that day
+function calcMsNet(entry,exit,coachId){
+  if(!entry||!exit)return 0;
+  const raw=new Date(exit)-new Date(entry);
+  const date=entry.split('T')[0];
+  const h=horarios[coachId];
+  if(!h||!h.dias)return raw;
+  const dayOfWeek=new Date(date+'T12:00:00').getDay();
+  const key=JS_DAY_TO_KEY[dayOfWeek];
+  const dia=h.dias[key];
+  if(!dia||!dia.ativo||!dia.pausas||dia.pausas.length===0)return raw;
+  let pausaMs=0;
+  dia.pausas.forEach(p=>{
+    if(!p.ini||!p.fim)return;
+    const pIni=new Date(date+'T'+p.ini+':00');
+    const pFim=new Date(date+'T'+p.fim+':00');
+    const recEntry=new Date(entry);
+    const recExit=new Date(exit);
+    // Overlap between record and pausa
+    const overlapStart=Math.max(pIni,recEntry);
+    const overlapEnd=Math.min(pFim,recExit);
+    if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
+  });
+  return Math.max(0,raw-pausaMs);
+}
 function getStatus(coachId){const today=todayStr();const recs=records.filter(r=>r.coachId===coachId&&r.date===today);if(recs.length===0)return'out';const last=recs[recs.length-1];return last.exit?'out':'in';}
 function timeToMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;}
 function datesBetween(start,end){const dates=[];let cur=new Date(start+'T12:00:00');const endD=new Date(end+'T12:00:00');while(cur<=endD){dates.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}return dates;}
@@ -1887,7 +1913,7 @@ function renderMonthly(){
   const active=[...new Set(mRecs.map(r=>r.coachId))].length;
   let html=`<div class="stats-row" style="margin-bottom:24px">${statCard('Dias com Registos',days)}${statCard('Total Horas Mês',formatHours(totalMs),true)}${statCard('Colaboradores Ativos',active)}</div>`;
   html+=`<div class="section-title">Resumo por Colaborador</div><div class="table-wrap" style="margin-bottom:28px"><table><thead><tr><th>Colaborador</th><th>Horas</th><th>Dias</th><th>Média/Dia</th><th>Faltas</th></tr></thead><tbody>`;
-  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMs(r.entry,r.exit),0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
+  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMsNet(r.entry,r.exit,c.id),0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
   Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMs(r.entry,r.exit);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Total Dia</th></tr></thead><tbody>`;
@@ -1906,7 +1932,7 @@ async function openCoachMonthSummary(coachId, ms){
   const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.date<=cutoff&&r.exit);
   const mFaltas=faltas.filter(f=>f.coachId===coachId&&f.date.startsWith(ms));
   const mFerias=feriasPlaneadas.filter(f=>f.coachId===coachId&&f.inicio.startsWith(ms));
-  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMs(r.entry,r.exit));
+  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMsNet(r.entry,r.exit,coachId));
   const dias=[...new Set(mRecs.map(r=>r.date))].length;
   const avgMs=dias>0?totalMs/dias:0;
   const baseHoras=Math.floor(totalMs/3600000);
@@ -2180,7 +2206,7 @@ async function saveExtrasDB(){
 }
 function initSig(){sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');sigCanvas.width=sigCanvas.offsetWidth;sigCanvas.height=150;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.strokeStyle='#000';sigCtx.lineWidth=2;sigCtx.lineCap='round';const pos=e=>{const r=sigCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};sigCanvas.onmousedown=sigCanvas.ontouchstart=e=>{e.preventDefault();sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};sigCanvas.onmousemove=sigCanvas.ontouchmove=e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();};sigCanvas.onmouseup=sigCanvas.ontouchend=()=>{sigDrawing=false;};}
 function clearSig(){if(!sigCtx)return;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);}
-function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const ms2=calcMs(r.entry,r.exit);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
+function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const ms2=calcMsNet(r.entry,r.exit,coachId);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
 
 function doExport(fmt){
   const coach=coaches.find(c=>c.id===exportCoachId);
@@ -2330,16 +2356,145 @@ function renderFeriasPane(){document.getElementById('ferias-month-label').textCo
 // ══════════════════════════════════════════════════
 const DIAS_SEMANA=['Segunda','Terça','Quarta','Quinta','Sexta','Sábado','Domingo'];
 const DIAS_KEY=['seg','ter','qua','qui','sex','sab','dom'];
-function calcHorasSemana(coachId){const h=horarios[coachId];if(!h||!h.dias)return 0;let total=0;for(const key of DIAS_KEY){const dia=h.dias[key];if(!dia||!dia.ativo)continue;if(dia.manha?.entrada&&dia.manha?.saida){total+=timeToMins(dia.manha.saida)-timeToMins(dia.manha.entrada);}if(dia.tarde?.ativo&&dia.tarde?.entrada&&dia.tarde?.saida){total+=timeToMins(dia.tarde.saida)-timeToMins(dia.tarde.entrada);}}return total;}
+function calcHorasSemana(coachId){
+  const h=horarios[coachId];if(!h||!h.dias)return 0;
+  let total=0;
+  for(const key of DIAS_KEY){
+    const dia=h.dias[key];if(!dia||!dia.ativo)continue;
+    if(dia.manha?.entrada&&dia.manha?.saida){total+=timeToMins(dia.manha.saida)-timeToMins(dia.manha.entrada);}
+    if(dia.tarde?.ativo&&dia.tarde?.entrada&&dia.tarde?.saida){total+=timeToMins(dia.tarde.saida)-timeToMins(dia.tarde.entrada);}
+    (dia.pausas||[]).forEach(p=>{if(p.ini&&p.fim)total-=timeToMins(p.fim)-timeToMins(p.ini);});
+  }
+  return Math.max(0,total);
+}
+
 function fmtHorasSemana(mins){if(!mins||mins<=0)return'–';const h=Math.floor(mins/60),m=mins%60;return m>0?`${h}h${String(m).padStart(2,'0')}m`:`${h}h`;}
 function renderHorarios(){const tbody=document.getElementById('horarios-body');tbody.innerHTML=coaches.map(c=>{const h=horarios[c.id];const diasAtivos=h?DIAS_KEY.filter(d=>h.dias&&h.dias[d]&&h.dias[d].ativo):[];const resumo=diasAtivos.length>0?diasAtivos.map(d=>DIAS_SEMANA[DIAS_KEY.indexOf(d)].substring(0,3)).join(', '):'–';const horasSemMins=calcHorasSemana(c.id);return`<tr><td><strong>${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-size:.82rem;color:var(--accent)">${resumo}</td><td>${horasSemMins>0?`<span style="font-family:'DM Mono',monospace;font-size:.95rem;color:var(--accent);font-weight:700">${fmtHorasSemana(horasSemMins)}</span>`:'<span style="color:var(--muted);font-size:.82rem">Sem horário</span>'}</td><td style="font-family:'DM Mono',monospace">${h?h.tolerancia+'m':'–'}</td><td><button class="btn-add" style="font-size:.78rem;padding:6px 12px" onclick="openHorarioModal('${c.id}')">${h?'✏️ Editar':'+ Definir'}</button>${h?`<button class="delete-btn" onclick="removeHorario('${c.id}')">Remover</button>`:''}</td></tr>`;}).join('');}
 
-function openHorarioModal(coachId){const coach=coaches.find(c=>c.id===coachId);const h=horarios[coachId];document.getElementById('horario-coach-id').value=coachId;document.getElementById('horario-modal-sub').textContent=coach.name+' — '+coach.role;document.getElementById('horario-tolerancia').value=h?h.tolerancia:15;const tbody=document.getElementById('horario-dias-body');tbody.innerHTML=DIAS_KEY.map((key,i)=>{const dia=h&&h.dias&&h.dias[key]?h.dias[key]:{ativo:false,manha:{entrada:'',saida:''},tarde:{ativo:false,entrada:'',saida:''}};const manha=dia.manha||{entrada:'',saida:''};const tarde=dia.tarde||{ativo:false,entrada:'',saida:''};return`<tr><td colspan="3" style="padding:5px 0"><div id="dia-card-${key}" style="background:var(--surface2);border:2px solid ${dia.ativo?'var(--accent)':'var(--border)'};border-radius:10px;padding:14px;transition:all .15s"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${dia.ativo?'14px':'0'}"><span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.05rem;text-transform:uppercase">${DIAS_SEMANA[i]}</span><div onclick="toggleDiaCard('${key}')" style="display:flex;align-items:center;gap:8px;cursor:pointer"><span id="dia-label-${key}" style="font-size:.7rem;font-family:'DM Mono',monospace;color:${dia.ativo?'var(--accent)':'var(--muted)'}">${dia.ativo?'ATIVO':'INATIVO'}</span><div style="width:46px;height:26px;border-radius:13px;background:${dia.ativo?'var(--accent)':'var(--border)'};position:relative;transition:background .15s" id="dia-toggle-bg-${key}"><div style="width:20px;height:20px;border-radius:50%;background:#000;position:absolute;top:3px;${dia.ativo?'right:3px':'left:3px'};transition:all .15s" id="dia-toggle-dot-${key}"></div></div></div><input type="checkbox" id="dia-ativo-${key}" ${dia.ativo?'checked':''} onchange="toggleDiaRow('${key}')" style="display:none"></div><div id="dia-fields-${key}" style="display:${dia.ativo?'block':'none'}"><div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;letter-spacing:.06em">MANHÃ</div><div style="display:flex;gap:8px;align-items:center;margin-bottom:12px"><input type="time" id="dia-manha-entrada-${key}" value="${manha.entrada}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none"><span style="color:var(--muted)">→</span><input type="time" id="dia-manha-saida-${key}" value="${manha.saida}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none"></div><label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px"><input type="checkbox" id="dia-tarde-ativo-${key}" ${tarde.ativo?'checked':''} onchange="toggleTarde('${key}')" style="accent-color:var(--accent);width:18px;height:18px"><span style="font-size:.82rem;color:var(--muted)">Tem turno da tarde</span></label><div id="tarde-row-${key}" style="display:${tarde.ativo&&dia.ativo?'block':'none'}"><div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;letter-spacing:.06em">TARDE</div><div style="display:flex;gap:8px;align-items:center"><input type="time" id="dia-tarde-entrada-${key}" value="${tarde.entrada}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none"><span style="color:var(--muted)">→</span><input type="time" id="dia-tarde-saida-${key}" value="${tarde.saida}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none"></div></div></div></div></td></tr>`;}).join('');document.getElementById('horario-modal').classList.add('open');}
+function openHorarioModal(coachId){
+  const coach=coaches.find(c=>c.id===coachId);
+  const h=horarios[coachId];
+  document.getElementById('horario-coach-id').value=coachId;
+  document.getElementById('horario-modal-sub').textContent=coach.name+' — '+coach.role;
+  document.getElementById('horario-tolerancia').value=h?h.tolerancia:15;
+  const tbody=document.getElementById('horario-dias-body');
+  tbody.innerHTML=DIAS_KEY.map((key,i)=>{
+    const dia=h&&h.dias&&h.dias[key]?h.dias[key]:{ativo:false,manha:{entrada:'',saida:''},tarde:{ativo:false,entrada:'',saida:''},pausas:[]};
+    const manha=dia.manha||{entrada:'',saida:''};
+    const tarde=dia.tarde||{ativo:false,entrada:'',saida:''};
+    const pausas=dia.pausas||[];
+    const pausasHTML=pausas.map((p,pi)=>`
+      <div id="pausa-row-${key}-${pi}" style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+        <input type="time" id="pausa-ini-${key}-${pi}" value="${p.ini}" style="flex:1;padding:7px;background:var(--surface);border:1px solid rgba(255,59,59,.4);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none">
+        <span style="color:var(--muted);font-size:.8rem">→</span>
+        <input type="time" id="pausa-fim-${key}-${pi}" value="${p.fim}" style="flex:1;padding:7px;background:var(--surface);border:1px solid rgba(255,59,59,.4);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none">
+        <button onclick="removePausa('${key}',${pi})" style="background:rgba(255,59,59,.15);border:1px solid rgba(255,59,59,.3);color:var(--danger);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:.85rem;flex-shrink:0">✕</button>
+      </div>`).join('');
+    return`<tr><td colspan="3" style="padding:5px 0">
+    <div id="dia-card-${key}" style="background:var(--surface2);border:2px solid ${dia.ativo?'var(--accent)':'var(--border)'};border-radius:10px;padding:14px;transition:all .15s">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${dia.ativo?'14px':'0'}">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.05rem;text-transform:uppercase">${DIAS_SEMANA[i]}</span>
+        <div onclick="toggleDiaCard('${key}')" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <span id="dia-label-${key}" style="font-size:.7rem;font-family:'DM Mono',monospace;color:${dia.ativo?'var(--accent)':'var(--muted)'}">${dia.ativo?'ATIVO':'INATIVO'}</span>
+          <div style="width:46px;height:26px;border-radius:13px;background:${dia.ativo?'var(--accent)':'var(--border)'};position:relative;transition:background .15s" id="dia-toggle-bg-${key}">
+            <div style="width:20px;height:20px;border-radius:50%;background:#000;position:absolute;top:3px;${dia.ativo?'right:3px':'left:3px'};transition:all .15s" id="dia-toggle-dot-${key}"></div>
+          </div>
+        </div>
+        <input type="checkbox" id="dia-ativo-${key}" ${dia.ativo?'checked':''} onchange="toggleDiaRow('${key}')" style="display:none">
+      </div>
+      <div id="dia-fields-${key}" style="display:${dia.ativo?'block':'none'}">
+        <div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;letter-spacing:.06em">MANHÃ</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+          <input type="time" id="dia-manha-entrada-${key}" value="${manha.entrada}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none">
+          <span style="color:var(--muted)">→</span>
+          <input type="time" id="dia-manha-saida-${key}" value="${manha.saida}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none">
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">
+          <input type="checkbox" id="dia-tarde-ativo-${key}" ${tarde.ativo?'checked':''} onchange="toggleTarde('${key}')" style="accent-color:var(--accent);width:18px;height:18px">
+          <span style="font-size:.82rem;color:var(--muted)">Tem turno da tarde</span>
+        </label>
+        <div id="tarde-row-${key}" style="display:${tarde.ativo&&dia.ativo?'block':'none'}">
+          <div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;letter-spacing:.06em">TARDE</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+            <input type="time" id="dia-tarde-entrada-${key}" value="${tarde.entrada}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none">
+            <span style="color:var(--muted)">→</span>
+            <input type="time" id="dia-tarde-saida-${key}" value="${tarde.saida}" style="flex:1;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.88rem;outline:none">
+          </div>
+        </div>
+        <div style="border-top:1px solid rgba(255,59,59,.2);padding-top:10px;margin-top:4px">
+          <div style="font-size:.68rem;color:var(--danger);font-family:'DM Mono',monospace;margin-bottom:8px;letter-spacing:.06em;display:flex;align-items:center;justify-content:space-between">
+            <span>☕ PAUSAS (tempo não contabilizado)</span>
+            <button onclick="addPausa('${key}')" style="background:rgba(255,59,59,.15);border:1px solid rgba(255,59,59,.3);color:var(--danger);border-radius:6px;padding:3px 10px;cursor:pointer;font-size:.75rem;font-family:'DM Mono',monospace">+ Pausa</button>
+          </div>
+          <div id="pausas-list-${key}">${pausasHTML}</div>
+        </div>
+      </div>
+    </div></td></tr>`;
+  }).join('');
+  document.getElementById('horario-modal').classList.add('open');
+}
+
+function addPausa(key){
+  const list=document.getElementById('pausas-list-'+key);
+  const pi=list.children.length;
+  const div=document.createElement('div');
+  div.id=`pausa-row-${key}-${pi}`;
+  div.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:6px';
+  div.innerHTML=`
+    <input type="time" id="pausa-ini-${key}-${pi}" style="flex:1;padding:7px;background:var(--surface);border:1px solid rgba(255,59,59,.4);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none">
+    <span style="color:var(--muted);font-size:.8rem">→</span>
+    <input type="time" id="pausa-fim-${key}-${pi}" style="flex:1;padding:7px;background:var(--surface);border:1px solid rgba(255,59,59,.4);border-radius:7px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none">
+    <button onclick="this.parentElement.remove()" style="background:rgba(255,59,59,.15);border:1px solid rgba(255,59,59,.3);color:var(--danger);border-radius:6px;padding:5px 9px;cursor:pointer;font-size:.85rem;flex-shrink:0">✕</button>`;
+  list.appendChild(div);
+}
+
+function removePausa(key,pi){
+  const row=document.getElementById(`pausa-row-${key}-${pi}`);
+  if(row)row.remove();
+}
 
 function toggleDiaCard(key){const cb=document.getElementById('dia-ativo-'+key);cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'));const ativo=cb.checked;document.getElementById('dia-card-'+key).style.border='2px solid '+(ativo?'var(--accent)':'var(--border)');document.getElementById('dia-label-'+key).style.color=ativo?'var(--accent)':'var(--muted)';document.getElementById('dia-label-'+key).textContent=ativo?'ATIVO':'INATIVO';document.getElementById('dia-toggle-bg-'+key).style.background=ativo?'var(--accent)':'var(--border)';document.getElementById('dia-toggle-dot-'+key).style.left=ativo?'':'3px';document.getElementById('dia-toggle-dot-'+key).style.right=ativo?'3px':'';document.getElementById('dia-fields-'+key).style.display=ativo?'block':'none';}
 function toggleDiaRow(key){const ativo=document.getElementById('dia-ativo-'+key).checked;if(!ativo){document.getElementById('tarde-row-'+key).style.display='none';const tc=document.getElementById('dia-tarde-ativo-'+key);if(tc)tc.checked=false;}}
 function toggleTarde(key){const ativo=document.getElementById('dia-ativo-'+key).checked;const tardeAtivo=document.getElementById('dia-tarde-ativo-'+key).checked;document.getElementById('tarde-row-'+key).style.display=ativo&&tardeAtivo?'block':'none';}
-async function saveHorario(){const coachId=document.getElementById('horario-coach-id').value;const tolerancia=parseInt(document.getElementById('horario-tolerancia').value)||15;const dias={};let totalMins=0;for(const key of DIAS_KEY){const ativo=document.getElementById('dia-ativo-'+key).checked;const manhaEntrada=document.getElementById('dia-manha-entrada-'+key).value;const manhaSaida=document.getElementById('dia-manha-saida-'+key).value;const tardeAtivo=document.getElementById('dia-tarde-ativo-'+key).checked;const tardeEntrada=document.getElementById('dia-tarde-entrada-'+key).value;const tardeSaida=document.getElementById('dia-tarde-saida-'+key).value;dias[key]={ativo,manha:{entrada:manhaEntrada,saida:manhaSaida},tarde:{ativo:tardeAtivo,entrada:tardeEntrada,saida:tardeSaida}};if(ativo){if(manhaEntrada&&manhaSaida){const[eh,em]=manhaEntrada.split(':').map(Number);const[sh,sm]=manhaSaida.split(':').map(Number);totalMins+=(sh*60+sm)-(eh*60+em);}if(tardeAtivo&&tardeEntrada&&tardeSaida){const[eh,em]=tardeEntrada.split(':').map(Number);const[sh,sm]=tardeSaida.split(':').map(Number);totalMins+=(sh*60+sm)-(eh*60+em);}}}horarios[coachId]={dias,tolerancia};await saveHorarioDB(coachId,horarios[coachId]);if(totalMins>0){const coach=coaches.find(c=>c.id===coachId);if(coach){coach.horasSemana=parseFloat((totalMins/60).toFixed(1));await saveCoach(coach,false);}}renderHorarios();closeModal('horario-modal');}
+async function saveHorario(){
+  const coachId=document.getElementById('horario-coach-id').value;
+  const tolerancia=parseInt(document.getElementById('horario-tolerancia').value)||15;
+  const dias={};let totalMins=0;
+  for(const key of DIAS_KEY){
+    const ativo=document.getElementById('dia-ativo-'+key).checked;
+    const manhaEntrada=document.getElementById('dia-manha-entrada-'+key).value;
+    const manhaSaida=document.getElementById('dia-manha-saida-'+key).value;
+    const tardeAtivo=document.getElementById('dia-tarde-ativo-'+key).checked;
+    const tardeEntrada=document.getElementById('dia-tarde-entrada-'+key).value;
+    const tardeSaida=document.getElementById('dia-tarde-saida-'+key).value;
+    // Collect pausas
+    const pausasList=document.getElementById('pausas-list-'+key);
+    const pausas=[];
+    if(pausasList){
+      [...pausasList.children].forEach(row=>{
+        const idParts=row.id.split('-');// pausa-row-key-pi
+        const pi=idParts[idParts.length-1];
+        const iniEl=document.getElementById(`pausa-ini-${key}-${pi}`);
+        const fimEl=document.getElementById(`pausa-fim-${key}-${pi}`);
+        if(iniEl&&fimEl&&iniEl.value&&fimEl.value)pausas.push({ini:iniEl.value,fim:fimEl.value});
+      });
+    }
+    dias[key]={ativo,manha:{entrada:manhaEntrada,saida:manhaSaida},tarde:{ativo:tardeAtivo,entrada:tardeEntrada,saida:tardeSaida},pausas};
+    if(ativo){
+      let dayMins=0;
+      if(manhaEntrada&&manhaSaida){const[eh,em]=manhaEntrada.split(':').map(Number);const[sh,sm]=manhaSaida.split(':').map(Number);dayMins+=(sh*60+sm)-(eh*60+em);}
+      if(tardeAtivo&&tardeEntrada&&tardeSaida){const[eh,em]=tardeEntrada.split(':').map(Number);const[sh,sm]=tardeSaida.split(':').map(Number);dayMins+=(sh*60+sm)-(eh*60+em);}
+      // Subtract pausas
+      pausas.forEach(p=>{if(p.ini&&p.fim){const[ih,im]=p.ini.split(':').map(Number);const[fh,fm]=p.fim.split(':').map(Number);dayMins-=(fh*60+fm)-(ih*60+im);}});
+      totalMins+=Math.max(0,dayMins);
+    }
+  }
+  horarios[coachId]={dias,tolerancia};
+  await saveHorarioDB(coachId,horarios[coachId]);
+  if(totalMins>0){const coach=coaches.find(c=>c.id===coachId);if(coach){coach.horasSemana=parseFloat((totalMins/60).toFixed(1));await saveCoach(coach,false);}}
+  renderHorarios();closeModal('horario-modal');
+}
+
 async function removeHorario(coachId){if(!confirm('Remover horário?'))return;await deleteHorarioDB(coachId);delete horarios[coachId];renderHorarios();}
 function checkHorario(coachId,tipo){const h=horarios[coachId];if(!h||!h.dias)return null;const now=new Date();const dayKey=JS_DAY_TO_KEY[now.getDay()];const diaH=h.dias[dayKey];if(!diaH||!diaH.ativo)return null;const nowMins=now.getHours()*60+now.getMinutes();const tol=h.tolerancia||15;const manhaEntMins=diaH.manha?.entrada?timeToMins(diaH.manha.entrada):null;const manhaSaiMins=diaH.manha?.saida?timeToMins(diaH.manha.saida):null;const tardeEntMins=diaH.tarde?.ativo&&diaH.tarde?.entrada?timeToMins(diaH.tarde.entrada):null;const tardeSaiMins=diaH.tarde?.ativo&&diaH.tarde?.saida?timeToMins(diaH.tarde.saida):null;let referenciaStr=null,diff=999;if(tipo==='entry'){const dM=manhaEntMins!==null?Math.abs(nowMins-manhaEntMins):999;const dT=tardeEntMins!==null?Math.abs(nowMins-tardeEntMins):999;if(dM<=dT){referenciaStr=diaH.manha.entrada;diff=dM;}else{referenciaStr=diaH.tarde.entrada;diff=dT;}}else{const dM=manhaSaiMins!==null?Math.abs(nowMins-manhaSaiMins):999;const dT=tardeSaiMins!==null?Math.abs(nowMins-tardeSaiMins):999;if(dM<=dT){referenciaStr=diaH.manha.saida;diff=dM;}else{referenciaStr=diaH.tarde.saida;diff=dT;}}if(diff>tol){const sinal=nowMins>timeToMins(referenciaStr)?'depois':'antes';return'⚠️ Fora do horário! Definido: '+referenciaStr+' ('+diff+' min '+sinal+')';}return null;}
 
