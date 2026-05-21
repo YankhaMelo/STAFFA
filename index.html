@@ -1636,6 +1636,8 @@ function formatTime(iso){if(!iso)return'–';return new Date(iso).toLocaleTimeSt
 function formatHours(ms){if(!ms||ms<=0)return'0h00m';const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);return h+'h'+String(m).padStart(2,'0')+'m';}
 function calcMs(entry,exit){if(!entry||!exit)return 0;return new Date(exit)-new Date(entry);}
 
+const JS_DAY_TO_KEY=['dom','seg','ter','qua','qui','sex','sab'];
+
 // Calculate worked ms subtracting pausas defined in the coach's horario for that day
 function calcMsNet(entry,exit,coachId){
   if(!entry||!exit)return 0;
@@ -1654,7 +1656,6 @@ function calcMsNet(entry,exit,coachId){
     const pFim=new Date(date+'T'+p.fim+':00');
     const recEntry=new Date(entry);
     const recExit=new Date(exit);
-    // Overlap between record and pausa
     const overlapStart=Math.max(pIni,recEntry);
     const overlapEnd=Math.min(pFim,recExit);
     if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
@@ -1664,7 +1665,6 @@ function calcMsNet(entry,exit,coachId){
 function getStatus(coachId){const today=todayStr();const recs=records.filter(r=>r.coachId===coachId&&r.date===today);if(recs.length===0)return'out';const last=recs[recs.length-1];return last.exit?'out':'in';}
 function timeToMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;}
 function datesBetween(start,end){const dates=[];let cur=new Date(start+'T12:00:00');const endD=new Date(end+'T12:00:00');while(cur<=endD){dates.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}return dates;}
-const JS_DAY_TO_KEY=['dom','seg','ter','qua','qui','sex','sab'];
 function workingDaysBetween(start,end,coachId){const all=datesBetween(start,end);const h=horarios[coachId];if(!h||!h.dias)return all.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();const key=JS_DAY_TO_KEY[dow];return gymHorario[key]?.ativo!==false;});return all.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();const key=JS_DAY_TO_KEY[dow];return h.dias[key]?.ativo===true;});}
 function statCard(label,value,yellow){return`<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value${yellow?' yellow':''}">${value}</div></div>`;}
 
