@@ -1639,25 +1639,32 @@ function calcMs(entry,exit){if(!entry||!exit)return 0;return new Date(exit)-new 
 const JS_DAY_TO_KEY=['dom','seg','ter','qua','qui','sex','sab'];
 
 // Calculate worked ms subtracting pausas defined in the coach's horario for that day
-function calcMsNet(entry,exit,coachId){
+function calcMsNet(entry,exit,coachId,recordDate){
   if(!entry||!exit)return 0;
   const raw=new Date(exit)-new Date(entry);
-  const date=entry.split('T')[0];
   const h=horarios[coachId];
   if(!h||!h.dias)return raw;
+  // Use recordDate if provided, otherwise extract from entry string
+  const date=recordDate||entry.substring(0,10);
   const dayOfWeek=new Date(date+'T12:00:00').getDay();
   const key=JS_DAY_TO_KEY[dayOfWeek];
   const dia=h.dias[key];
   if(!dia||!dia.ativo||!dia.pausas||dia.pausas.length===0)return raw;
+  // Convert entry/exit to local HH:MM for comparison
+  const entryLocal=new Date(entry);
+  const exitLocal=new Date(exit);
   let pausaMs=0;
   dia.pausas.forEach(p=>{
     if(!p.ini||!p.fim)return;
-    const pIni=new Date(date+'T'+p.ini+':00');
-    const pFim=new Date(date+'T'+p.fim+':00');
-    const recEntry=new Date(entry);
-    const recExit=new Date(exit);
-    const overlapStart=Math.max(pIni,recEntry);
-    const overlapEnd=Math.min(pFim,recExit);
+    // Build pausa times on the same date in local time
+    const [pIniH,pIniM]=p.ini.split(':').map(Number);
+    const [pFimH,pFimM]=p.fim.split(':').map(Number);
+    const pIni=new Date(date+'T00:00:00');
+    pIni.setHours(pIniH,pIniM,0,0);
+    const pFim=new Date(date+'T00:00:00');
+    pFim.setHours(pFimH,pFimM,0,0);
+    const overlapStart=Math.max(pIni,entryLocal);
+    const overlapEnd=Math.min(pFim,exitLocal);
     if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
   });
   return Math.max(0,raw-pausaMs);
@@ -1913,7 +1920,7 @@ function renderMonthly(){
   const active=[...new Set(mRecs.map(r=>r.coachId))].length;
   let html=`<div class="stats-row" style="margin-bottom:24px">${statCard('Dias com Registos',days)}${statCard('Total Horas Mês',formatHours(totalMs),true)}${statCard('Colaboradores Ativos',active)}</div>`;
   html+=`<div class="section-title">Resumo por Colaborador</div><div class="table-wrap" style="margin-bottom:28px"><table><thead><tr><th>Colaborador</th><th>Horas</th><th>Dias</th><th>Média/Dia</th><th>Faltas</th></tr></thead><tbody>`;
-  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMsNet(r.entry,r.exit,c.id),0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
+  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMsNet(r.entry,r.exit,c.id,r.date),0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
   Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMs(r.entry,r.exit);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Total Dia</th></tr></thead><tbody>`;
@@ -1932,7 +1939,7 @@ async function openCoachMonthSummary(coachId, ms){
   const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.date<=cutoff&&r.exit);
   const mFaltas=faltas.filter(f=>f.coachId===coachId&&f.date.startsWith(ms));
   const mFerias=feriasPlaneadas.filter(f=>f.coachId===coachId&&f.inicio.startsWith(ms));
-  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMsNet(r.entry,r.exit,coachId));
+  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMsNet(r.entry,r.exit,coachId,r.date));
   const dias=[...new Set(mRecs.map(r=>r.date))].length;
   const avgMs=dias>0?totalMs/dias:0;
   const baseHoras=Math.floor(totalMs/3600000);
@@ -2206,7 +2213,7 @@ async function saveExtrasDB(){
 }
 function initSig(){sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');sigCanvas.width=sigCanvas.offsetWidth;sigCanvas.height=150;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.strokeStyle='#000';sigCtx.lineWidth=2;sigCtx.lineCap='round';const pos=e=>{const r=sigCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};sigCanvas.onmousedown=sigCanvas.ontouchstart=e=>{e.preventDefault();sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};sigCanvas.onmousemove=sigCanvas.ontouchmove=e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();};sigCanvas.onmouseup=sigCanvas.ontouchend=()=>{sigDrawing=false;};}
 function clearSig(){if(!sigCtx)return;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);}
-function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const ms2=calcMsNet(r.entry,r.exit,coachId);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
+function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const ms2=calcMsNet(r.entry,r.exit,coachId,r.date);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
 
 function doExport(fmt){
   const coach=coaches.find(c=>c.id===exportCoachId);
