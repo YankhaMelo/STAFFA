@@ -2148,7 +2148,7 @@ function renderExtrasSummary(){
   const coach=coaches.find(c=>c.id===exportCoachId);
   const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');
   const mRecs=records.filter(r=>r.coachId===exportCoachId&&r.date.startsWith(ms)&&r.exit);
-  let baseMs=0;mRecs.forEach(r=>baseMs+=calcMsNet(r.entry,r.exit,coachId,r.date));
+  let baseMs=0;mRecs.forEach(r=>baseMs+=calcMsNet(r.entry,r.exit,exportCoachId,r.date));
   const baseHoras=Math.floor(baseMs/3600000);
   const baseValor=baseHoras*(coach?.valorHora||0);
   const extrasTotal=currentExtras.reduce((a,e)=>a+e.valorEuros,0);
