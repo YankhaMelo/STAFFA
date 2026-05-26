@@ -1659,7 +1659,7 @@ function calcMsNet(entry,exit,coachId,recordDate){
   const dayOfWeek=new Date(date+'T12:00:00').getDay();
   const key=JS_DAY_TO_KEY[dayOfWeek];
   const dia=h.dias[key];
-  if(!dia||!dia.ativo||!dia.pausas||dia.pausas.length===0)return raw;
+  if(!dia||!dia.pausas||dia.pausas.length===0)return raw;
   // Convert entry/exit to local HH:MM for comparison
   const entryLocal=new Date(entry);
   const exitLocal=new Date(exit);
