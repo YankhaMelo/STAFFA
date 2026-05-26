@@ -2283,6 +2283,7 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   }
 
   const tableRows=[];
+  const coachId=coach.id;
   Object.keys(byDay).sort().forEach(day=>{const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let dMs=0;turnos.forEach(r=>{dMs+=calcMsNet(r.entry,r.exit,coachId,r.date);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'})+'('+dateObj.toLocaleDateString('pt-PT',{weekday:'short'})+')';turnos.forEach((r,i)=>{const tMs=calcMsNet(r.entry,r.exit,coachId,r.date);const turnoLabel=(new Date(r.entry).getHours()<13?'Manha':'Tarde')+(r.tipo==='substituicao'?' (Sub)':'');tableRows.push([i===0?dateStr:'',turnoLabel,formatTime(r.entry),formatTime(r.exit),formatHours(tMs),i===0?formatHours(dMs):'']);});});
   tableRows.push(['','','','TOTAL MES','',formatHours(totalMs)]);
 
