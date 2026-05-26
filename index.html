@@ -2235,6 +2235,7 @@ function doExport(fmt){
 }
 
 function exportXLSX(coach,byDay,totalMs,days,monthLabel,extras){
+  const coachId=coach.id;
   const rows=[['5.7CrossFit — Registo de Horas'],['Colaborador:',coach.name],['Função:',coach.role],['Mês:',monthLabel],['Total de Horas:',formatHours(totalMs)],['Dias Trabalhados:',days],[],['Data','Dia da Semana','Turno','Entrada','Saída','H. Turno','Total Dia']];
   Object.keys(byDay).sort().forEach(day=>{const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let dMs=0;turnos.forEach(r=>{dMs+=calcMsNet(r.entry,r.exit,coachId,r.date);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});turnos.forEach((r,i)=>{const tMs=calcMsNet(r.entry,r.exit,coachId,r.date);rows.push([i===0?dateStr:'',i===0?weekday:'',new Date(r.entry).getHours()<13?'Manhã':'Tarde',formatTime(r.entry),formatTime(r.exit),formatHours(tMs),i===0?formatHours(dMs):'']);});});
   rows.push([]);rows.push(['TOTAL DE HORAS DO MÊS:','','','','','',formatHours(totalMs)]);
