@@ -2322,7 +2322,7 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
       const turnoLabel=(new Date(r.entry).getHours()<13?'Manha':'Tarde')+(r.tipo==='substituicao'?' (Sub)':'');
       // Show pausa times for this record
       let pausaStr='–';
-      if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+'→'+p.fim).join(', ');}
+      if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+' → '+p.fim).join('\n');}
       tableRows.push([i===0?dateStr:'',turnoLabel,formatTime(r.entry),formatTime(r.exit),formatHours(tMs),pausaStr,i===0?formatHours(dMs):'']);
     });
   });
