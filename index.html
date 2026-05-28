@@ -2265,6 +2265,9 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   const subHoras=Math.floor(subMs/3600000);
   const extrasTotal=extras?extras.reduce((a,e)=>a+e.valorEuros,0):0;
 
+  const tableRows=[];
+  const coachId=coach.id;
+
   // Calculate total pausas ms for this month
   let totalPausaMs=0;
   const ms0=currentYear+'-'+String(currentMonth+1).padStart(2,'0');
@@ -2305,8 +2308,6 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
     startY+=boxH+4;
   }
 
-  const tableRows=[];
-  const coachId=coach.id;
   const pausasPorDia={};
   Object.keys(byDay).sort().forEach(day=>{
     const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));
