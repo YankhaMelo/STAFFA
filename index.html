@@ -2322,13 +2322,13 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
       const turnoLabel=(new Date(r.entry).getHours()<13?'Manha':'Tarde')+(r.tipo==='substituicao'?' (Sub)':'');
       // Show pausa times for this record
       let pausaStr='–';
-      if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+' → '+p.fim).join('\n');}
+      if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+' a '+p.fim).join('  ');}
       tableRows.push([i===0?dateStr:'',turnoLabel,formatTime(r.entry),formatTime(r.exit),formatHours(tMs),pausaStr,i===0?formatHours(dMs):'']);
     });
   });
   tableRows.push(['','','','TOTAL MES','','',formatHours(totalMs)]);
 
-  doc.autoTable({startY,head:[['Data','Turno','Entrada','Saida','H. Turno','Pausas','Total Dia']],body:tableRows.length>0?tableRows:[['Sem registos','','','','','','']],styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[0,0,0],textColor:[255,214,0],fontStyle:'bold'},alternateRowStyles:{fillColor:[250,250,250]},columnStyles:{0:{cellWidth:38},1:{cellWidth:20},2:{cellWidth:20},3:{cellWidth:20},4:{cellWidth:20},5:{cellWidth:18},6:{cellWidth:24}},margin:{left:14,right:14},didParseCell:function(data){if(data.row.index===tableRows.length-1){data.cell.styles.fillColor=[0,0,0];data.cell.styles.textColor=[255,214,0];data.cell.styles.fontStyle='bold';}}});
+  doc.autoTable({startY,head:[['Data','Turno','Entrada','Saida','H. Turno','Pausas','Total Dia']],body:tableRows.length>0?tableRows:[['Sem registos','','','','','','']],styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[0,0,0],textColor:[255,214,0],fontStyle:'bold'},alternateRowStyles:{fillColor:[250,250,250]},columnStyles:{0:{cellWidth:36},1:{cellWidth:18},2:{cellWidth:18},3:{cellWidth:18},4:{cellWidth:18},5:{cellWidth:30},6:{cellWidth:22}},margin:{left:14,right:14},didParseCell:function(data){if(data.row.index===tableRows.length-1){data.cell.styles.fillColor=[0,0,0];data.cell.styles.textColor=[255,214,0];data.cell.styles.fontStyle='bold';}}});
 
   let afterY=doc.lastAutoTable.finalY+10;
 
