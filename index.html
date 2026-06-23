@@ -1681,6 +1681,91 @@ function calcMsNet(entry,exit,coachId,recordDate){
 }
 function getStatus(coachId){const today=todayStr();const recs=records.filter(r=>r.coachId===coachId&&r.date===today);if(recs.length===0)return'out';const last=recs[recs.length-1];return last.exit?'out':'in';}
 function timeToMins(t){if(!t)return 0;const[h,m]=t.split(':').map(Number);return h*60+m;}
+
+// Find the closest scheduled shift (manha/tarde) for entry/exit comparison
+function getScheduledShift(coachId,recordDate,entry,exit){
+  const h=horarios[coachId];if(!h||!h.dias)return null;
+  const dayOfWeek=new Date(recordDate+'T12:00:00').getDay();
+  const key=JS_DAY_TO_KEY[dayOfWeek];
+  const dia=h.dias[key];
+  if(!dia)return null;
+  const entryMins=new Date(entry).getHours()*60+new Date(entry).getMinutes();
+  const shifts=[];
+  if(dia.manha?.entrada&&dia.manha?.saida)shifts.push({entrada:dia.manha.entrada,saida:dia.manha.saida});
+  if(dia.tarde?.ativo&&dia.tarde?.entrada&&dia.tarde?.saida)shifts.push({entrada:dia.tarde.entrada,saida:dia.tarde.saida});
+  if(shifts.length===0)return null;
+  // Pick the shift whose entrada is closest to the actual entry time
+  let closest=shifts[0],minDiff=Math.abs(entryMins-timeToMins(shifts[0].entrada));
+  for(let i=1;i<shifts.length;i++){const d=Math.abs(entryMins-timeToMins(shifts[i].entrada));if(d<minDiff){minDiff=d;closest=shifts[i];}}
+  return closest;
+}
+
+// Calculate payroll ms: clamps entry/exit to scheduled shift (cuts early-entry and late-exit excess),
+// subtracts pausas, and for substituicoes uses the substituted coach's schedule.
+// Returns {ms, cutMs, cutInfo} where cutMs is how much was clamped away (for highlighting)
+function calcMsPayroll(record){
+  if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
+  const date=record.date||record.entry.substring(0,10);
+  const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
+  const shift=getScheduledShift(scheduleCoachId,date,record.entry,record.exit);
+  const rawEntry=new Date(record.entry);
+  const rawExit=new Date(record.exit);
+  const rawMs=rawExit-rawEntry;
+
+  if(!shift){
+    // No schedule defined for this day — count actual time worked (minus pausas if any)
+    return{ms:Math.max(0,calcMsNet(record.entry,record.exit,scheduleCoachId,date)),cutMs:0,cutInfo:null};
+  }
+
+  // Build scheduled entry/exit as Date objects on the record's date
+  const [sEh,sEm]=shift.entrada.split(':').map(Number);
+  const [sXh,sXm]=shift.saida.split(':').map(Number);
+  const schedEntry=new Date(date+'T00:00:00');schedEntry.setHours(sEh,sEm,0,0);
+  const schedExit=new Date(date+'T00:00:00');schedExit.setHours(sXh,sXm,0,0);
+
+  // Clamp: if entered earlier than scheduled, count from scheduled start (cut early excess)
+  // if entered later than scheduled, count from actual entry (no cut, already late)
+  const effectiveEntry=rawEntry<schedEntry?schedEntry:rawEntry;
+  // if exited later than scheduled, count until scheduled end (cut late excess)
+  // if exited earlier than scheduled, count until actual exit (no cut)
+  const effectiveExit=rawExit>schedExit?schedExit:rawExit;
+
+  let ms=Math.max(0,effectiveExit-effectiveEntry);
+  // Subtract pausas (using overlap with the effective worked window)
+  const h=horarios[scheduleCoachId];
+  if(h&&h.dias){
+    const dayOfWeek=new Date(date+'T12:00:00').getDay();
+    const key=JS_DAY_TO_KEY[dayOfWeek];
+    const dia=h.dias[key];
+    if(dia&&dia.pausas&&dia.pausas.length>0){
+      let pausaMs=0;
+      dia.pausas.forEach(p=>{
+        if(!p.ini||!p.fim)return;
+        const [pIniH,pIniM]=p.ini.split(':').map(Number);
+        const [pFimH,pFimM]=p.fim.split(':').map(Number);
+        const pIni=new Date(date+'T00:00:00');pIni.setHours(pIniH,pIniM,0,0);
+        const pFim=new Date(date+'T00:00:00');pFim.setHours(pFimH,pFimM,0,0);
+        const overlapStart=Math.max(pIni,effectiveEntry);
+        const overlapEnd=Math.min(pFim,effectiveExit);
+        if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
+      });
+      ms=Math.max(0,ms-pausaMs);
+    }
+  }
+
+  const cutEarlyMs=Math.max(0,schedEntry-rawEntry); // entrou antes do previsto
+  const cutLateMs=Math.max(0,rawExit-schedExit); // saiu depois do previsto
+  const cutMs=cutEarlyMs+cutLateMs;
+  let cutInfo=null;
+  if(cutMs>0){
+    const parts=[];
+    if(cutEarlyMs>0)parts.push('entrou '+formatHours(cutEarlyMs)+' antes');
+    if(cutLateMs>0)parts.push('saiu '+formatHours(cutLateMs)+' depois');
+    cutInfo=parts.join(', ');
+  }
+
+  return{ms,cutMs,cutInfo};
+}
 function datesBetween(start,end){const dates=[];let cur=new Date(start+'T12:00:00');const endD=new Date(end+'T12:00:00');while(cur<=endD){dates.push(cur.toISOString().split('T')[0]);cur.setDate(cur.getDate()+1);}return dates;}
 function workingDaysBetween(start,end,coachId){const all=datesBetween(start,end);const h=horarios[coachId];if(!h||!h.dias)return all.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();const key=JS_DAY_TO_KEY[dow];return gymHorario[key]?.ativo!==false;});return all.filter(d=>{const dow=new Date(d+'T12:00:00').getDay();const key=JS_DAY_TO_KEY[dow];return h.dias[key]?.ativo===true;});}
 function statCard(label,value,yellow){return`<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value${yellow?' yellow':''}">${value}</div></div>`;}
@@ -1895,7 +1980,7 @@ function renderAdmin(){
 
   const tbody=document.getElementById('records-body');
   if(todayRecs.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Sem registos hoje</td></tr>';}
-  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const ms=r.exit?calcMs(r.entry,r.exit):null;return`<tr><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(coaches.find(c=>c.id===r.subCoachId)?.name||'?')+'</span>':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${ms?formatHours(ms):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
+  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(coaches.find(c=>c.id===r.subCoachId)?.name||'?')+'</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
 
   const ms2=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   document.getElementById('coaches-manage-body').innerHTML=coaches.map(c=>{
@@ -1930,11 +2015,11 @@ function renderMonthly(){
   const active=[...new Set(mRecs.map(r=>r.coachId))].length;
   let html=`<div class="stats-row" style="margin-bottom:24px">${statCard('Dias com Registos',days)}${statCard('Total Horas Mês',formatHours(totalMs),true)}${statCard('Colaboradores Ativos',active)}</div>`;
   html+=`<div class="section-title">Resumo por Colaborador</div><div class="table-wrap" style="margin-bottom:28px"><table><thead><tr><th>Colaborador</th><th>Horas</th><th>Dias</th><th>Média/Dia</th><th>Faltas</th></tr></thead><tbody>`;
-  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMsNet(r.entry,r.exit,c.id,r.date),0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
+  coaches.forEach(c=>{const cRecs=mRecs.filter(r=>r.coachId===c.id);if(cRecs.length===0)return;const cMs=cRecs.reduce((a,r)=>a+calcMsPayroll(r).ms,0);const cDays=[...new Set(cRecs.map(r=>r.date))].length;const cFaltas=faltas.filter(f=>f.coachId===c.id&&f.date.startsWith(ms));html+=`<tr><td style="cursor:pointer" onclick="openCoachMonthSummary('${c.id}','${ms}')"><strong style="color:var(--accent);text-decoration:underline;text-underline-offset:3px">${c.name}</strong><br><span style="font-size:.75rem;color:var(--muted)">${c.role}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${formatHours(cMs)}</td><td style="font-family:'DM Mono',monospace">${cDays}</td><td style="font-family:'DM Mono',monospace">${formatHours(cDays>0?cMs/cDays:0)}</td><td>${cFaltas.length>0?'<span class="badge badge-danger">'+cFaltas.length+'</span>':'<span class="badge badge-out">0</span>'}</td></tr>`;});
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
-  Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMsNet(r.entry,r.exit,r.coachId,r.date);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
+  Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMsPayroll(r).ms;});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Pausas</th><th>Total Dia</th></tr></thead><tbody>`;
-  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;let coachDayPausaMs=0;turnos.forEach(r=>{coachDayMs+=calcMsNet(r.entry,r.exit,coachId,r.date);coachDayPausaMs+=calcMs(r.entry,r.exit)-calcMsNet(r.entry,r.exit,coachId,r.date);});turnos.forEach((r,i)=>{const tMs=calcMsNet(r.entry,r.exit,coachId,r.date);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
+  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
   html+='</tbody></table></div></div>';});
   container.innerHTML=html;
 }
@@ -1949,7 +2034,7 @@ async function openCoachMonthSummary(coachId, ms){
   const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.date<=cutoff&&r.exit);
   const mFaltas=faltas.filter(f=>f.coachId===coachId&&f.date.startsWith(ms));
   const mFerias=feriasPlaneadas.filter(f=>f.coachId===coachId&&f.inicio.startsWith(ms));
-  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMsNet(r.entry,r.exit,coachId,r.date));
+  let totalMs=0;mRecs.forEach(r=>totalMs+=calcMsPayroll(r).ms);
   const dias=[...new Set(mRecs.map(r=>r.date))].length;
   const avgMs=dias>0?totalMs/dias:0;
   const baseHoras=Math.floor(totalMs/3600000);
@@ -2148,7 +2233,7 @@ function renderExtrasSummary(){
   const coach=coaches.find(c=>c.id===exportCoachId);
   const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');
   const mRecs=records.filter(r=>r.coachId===exportCoachId&&r.date.startsWith(ms)&&r.exit);
-  let baseMs=0;mRecs.forEach(r=>baseMs+=calcMsNet(r.entry,r.exit,exportCoachId,r.date));
+  let baseMs=0;mRecs.forEach(r=>baseMs+=calcMsPayroll(r).ms);
   const baseHoras=Math.floor(baseMs/3600000);
   const baseValor=baseHoras*(coach?.valorHora||0);
   const extrasTotal=currentExtras.reduce((a,e)=>a+e.valorEuros,0);
@@ -2223,7 +2308,7 @@ async function saveExtrasDB(){
 }
 function initSig(){sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');sigCanvas.width=sigCanvas.offsetWidth;sigCanvas.height=150;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.strokeStyle='#000';sigCtx.lineWidth=2;sigCtx.lineCap='round';const pos=e=>{const r=sigCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};sigCanvas.onmousedown=sigCanvas.ontouchstart=e=>{e.preventDefault();sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};sigCanvas.onmousemove=sigCanvas.ontouchmove=e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();};sigCanvas.onmouseup=sigCanvas.ontouchend=()=>{sigDrawing=false;};}
 function clearSig(){if(!sigCtx)return;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);}
-function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const ms2=calcMsNet(r.entry,r.exit,coachId,r.date);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
+function getMonthData(coachId){const ms=currentYear+'-'+String(currentMonth+1).padStart(2,'0');const recs=records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms)&&r.exit);const byDay={};recs.forEach(r=>{if(!byDay[r.date])byDay[r.date]=[];byDay[r.date].push(r);});let totalMs=0,subMs=0,normalMs=0;recs.forEach(r=>{const{ms:ms2}=calcMsPayroll(r);totalMs+=ms2;if(r.tipo==='substituicao')subMs+=ms2;else normalMs+=ms2;});return{recs,byDay,totalMs,normalMs,subMs,days:Object.keys(byDay).length};}
 
 function doExport(fmt){
   const coach=coaches.find(c=>c.id===exportCoachId);
@@ -2237,7 +2322,7 @@ function doExport(fmt){
 function exportXLSX(coach,byDay,totalMs,days,monthLabel,extras){
   const coachId=coach.id;
   const rows=[['5.7CrossFit — Registo de Horas'],['Colaborador:',coach.name],['Função:',coach.role],['Mês:',monthLabel],['Total de Horas:',formatHours(totalMs)],['Dias Trabalhados:',days],[],['Data','Dia da Semana','Turno','Entrada','Saída','H. Turno','Total Dia']];
-  Object.keys(byDay).sort().forEach(day=>{const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let dMs=0;turnos.forEach(r=>{dMs+=calcMsNet(r.entry,r.exit,coachId,r.date);});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});turnos.forEach((r,i)=>{const tMs=calcMsNet(r.entry,r.exit,coachId,r.date);rows.push([i===0?dateStr:'',i===0?weekday:'',new Date(r.entry).getHours()<13?'Manhã':'Tarde',formatTime(r.entry),formatTime(r.exit),formatHours(tMs),i===0?formatHours(dMs):'']);});});
+  Object.keys(byDay).sort().forEach(day=>{const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let dMs=0;turnos.forEach(r=>{dMs+=calcMsPayroll(r).ms;});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});turnos.forEach((r,i)=>{const tMs=calcMsPayroll(r).ms;rows.push([i===0?dateStr:'',i===0?weekday:'',new Date(r.entry).getHours()<13?'Manhã':'Tarde',formatTime(r.entry),formatTime(r.exit),formatHours(tMs),i===0?formatHours(dMs):'']);});});
   rows.push([]);rows.push(['TOTAL DE HORAS DO MÊS:','','','','','',formatHours(totalMs)]);
   // Extras section
   if(extras&&extras.length>0){
@@ -2272,7 +2357,7 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   let totalPausaMs=0;
   const ms0=currentYear+'-'+String(currentMonth+1).padStart(2,'0');
   records.filter(r=>r.coachId===coachId&&r.date.startsWith(ms0)&&r.exit).forEach(r=>{
-    totalPausaMs+=Math.max(0,calcMs(r.entry,r.exit)-calcMsNet(r.entry,r.exit,coachId,r.date));
+    totalPausaMs+=Math.max(0,calcMs(r.entry,r.exit)-calcMsPayroll(r).ms);
   });
 
   [{label:'Total de Horas',val:formatHours(totalMs)},{label:'Dias Trabalhados',val:String(days)},{label:'Mês',val:monthLabel}].forEach((b,i)=>{const x=14+i*60,y=52;doc.setFillColor(245,245,245);doc.roundedRect(x,y,56,16,2,2,'F');doc.setTextColor(120,120,120);doc.setFontSize(6);doc.text(b.label.toUpperCase(),x+4,y+6);doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(b.val,x+4,y+12);});
@@ -2309,28 +2394,35 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   }
 
   const pausasPorDia={};
+  const cutRowIndexes=[]; // track which body rows had time cut, for red highlighting
   Object.keys(byDay).sort().forEach(day=>{
     const turnos=byDay[day].sort((a,b)=>new Date(a.entry)-new Date(b.entry));
-    let dMs=0;turnos.forEach(r=>{dMs+=calcMsNet(r.entry,r.exit,coachId,r.date);});
+    let dMs=0;turnos.forEach(r=>{const{ms}=calcMsPayroll(r);dMs+=ms;});
     const dateObj=new Date(day+'T12:00:00');
     const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'})+'('+dateObj.toLocaleDateString('pt-PT',{weekday:'short'})+')';
     const dayKey=JS_DAY_TO_KEY[dateObj.getDay()];
     const pausas=(horarios[coachId]?.dias?.[dayKey]?.pausas||[]).filter(p=>p.ini&&p.fim);
     if(pausas.length>0)pausasPorDia[day]=pausas;
     turnos.forEach((r,i)=>{
-      const tMs=calcMsNet(r.entry,r.exit,coachId,r.date);
+      const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);
       const turnoLabel=(new Date(r.entry).getHours()<13?'Manha':'Tarde')+(r.tipo==='substituicao'?' (Sub)':'');
       // Show pausa times for this record
       let pausaStr='–';
       if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+' a '+p.fim).join('  ');}
+      if(cutMs>0)cutRowIndexes.push(tableRows.length);
       tableRows.push([i===0?dateStr:'',turnoLabel,formatTime(r.entry),formatTime(r.exit),formatHours(tMs),pausaStr,i===0?formatHours(dMs):'']);
     });
   });
   tableRows.push(['','','','TOTAL MES','','',formatHours(totalMs)]);
 
-  doc.autoTable({startY,head:[['Data','Turno','Entrada','Saida','H. Turno','Pausas','Total Dia']],body:tableRows.length>0?tableRows:[['Sem registos','','','','','','']],styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[0,0,0],textColor:[255,214,0],fontStyle:'bold'},alternateRowStyles:{fillColor:[250,250,250]},columnStyles:{0:{cellWidth:36},1:{cellWidth:18},2:{cellWidth:18},3:{cellWidth:18},4:{cellWidth:18},5:{cellWidth:30},6:{cellWidth:22}},margin:{left:14,right:14},didParseCell:function(data){if(data.row.index===tableRows.length-1){data.cell.styles.fillColor=[0,0,0];data.cell.styles.textColor=[255,214,0];data.cell.styles.fontStyle='bold';}}});
+  doc.autoTable({startY,head:[['Data','Turno','Entrada','Saida','H. Turno','Pausas','Total Dia']],body:tableRows.length>0?tableRows:[['Sem registos','','','','','','']],styles:{fontSize:9,cellPadding:3},headStyles:{fillColor:[0,0,0],textColor:[255,214,0],fontStyle:'bold'},alternateRowStyles:{fillColor:[250,250,250]},columnStyles:{0:{cellWidth:36},1:{cellWidth:18},2:{cellWidth:18},3:{cellWidth:18},4:{cellWidth:18},5:{cellWidth:30},6:{cellWidth:22}},margin:{left:14,right:14},didParseCell:function(data){if(data.row.index===tableRows.length-1){data.cell.styles.fillColor=[0,0,0];data.cell.styles.textColor=[255,214,0];data.cell.styles.fontStyle='bold';}else if(cutRowIndexes.includes(data.row.index)){data.cell.styles.fillColor=[255,235,200];if(data.column.index===2||data.column.index===3){data.cell.styles.textColor=[200,100,0];data.cell.styles.fontStyle='bold';}}}});
 
-  let afterY=doc.lastAutoTable.finalY+10;
+  let afterY=doc.lastAutoTable.finalY+6;
+  if(cutRowIndexes.length>0){
+    doc.setFontSize(7);doc.setFont('helvetica','italic');doc.setTextColor(200,100,0);
+    doc.text('🔶 Linhas a laranja: picagem fora do horário definido — apenas o horário previsto foi contabilizado.',14,afterY);
+    afterY+=8;
+  }
 
   // EXTRAS TABLE in PDF
   if(extras&&extras.length>0){
