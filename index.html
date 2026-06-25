@@ -1709,70 +1709,52 @@ function getScheduledShift(coachId,recordDate,entry,exit){
   return closest;
 }
 
-// Calculate payroll ms: clamps entry/exit to scheduled shift (cuts early-entry and late-exit excess),
-// subtracts pausas, and for substituicoes uses the substituted coach's schedule.
-// Returns {ms, cutMs, cutInfo} where cutMs is how much was clamped away (for highlighting)
+// Calculate payroll ms: clamps entry/exit to scheduled shift only if day has active schedule,
+// subtracts pausas. Returns {ms, cutMs, cutInfo}
 function calcMsPayroll(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
-
-  // Check if coach is escalado for this day (weekend rotation)
-  const dateObj=new Date(date+'T12:00:00');
-  const dow=dateObj.getDay();
-  const isWeekend=(dow===0||dow===6);
-  if(isWeekend){
-    // Check if this coach is escalado for this date
-    const isEscalado=grupos.some(g=>getCoachEscalado(g.id,dateObj)===record.coachId);
-    if(isEscalado){
-      // Count actual hours minus pausas, no clamping
-      const ms=Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date));
-      return{ms,cutMs:0,cutInfo:null};
-    }
-  }
-
   const shift=getScheduledShift(scheduleCoachId,date,record.entry,record.exit);
   const rawEntry=new Date(record.entry);
   const rawExit=new Date(record.exit);
-  const rawMs=rawExit-rawEntry;
 
-  if(!shift){
-    // No schedule defined for this day — count actual time worked (minus pausas if any)
+  // Check if this day is active in the coach's schedule
+  const h=horarios[scheduleCoachId];
+  const dayOfWeek=new Date(date+'T12:00:00').getDay();
+  const key=JS_DAY_TO_KEY[dayOfWeek];
+  const diaAtivo=h&&h.dias&&h.dias[key]&&h.dias[key].ativo===true;
+
+  if(!shift||!diaAtivo){
+    // No active schedule for this day — count actual time worked minus pausas, no clamping
     return{ms:Math.max(0,calcMsNet(record.entry,record.exit,scheduleCoachId,date)),cutMs:0,cutInfo:null};
   }
 
-  // Build scheduled entry/exit as Date objects on the record's date
+  // Build scheduled entry/exit
   const [sEh,sEm]=shift.entrada.split(':').map(Number);
   const [sXh,sXm]=shift.saida.split(':').map(Number);
   const schedEntry=new Date(date+'T00:00:00');schedEntry.setHours(sEh,sEm,0,0);
   const schedExit=new Date(date+'T00:00:00');schedExit.setHours(sXh,sXm,0,0);
 
-  // Clamp: if entered earlier than scheduled, count from scheduled start (cut early excess)
   const effectiveEntry=rawEntry<schedEntry?schedEntry:rawEntry;
-  // if exited later than scheduled, count until scheduled end (cut late excess)
   const effectiveExit=rawExit>schedExit?schedExit:rawExit;
 
   let ms=Math.max(0,effectiveExit-effectiveEntry);
+
   // Subtract pausas
-  const h=horarios[scheduleCoachId];
-  if(h&&h.dias){
-    const dayOfWeek=new Date(date+'T12:00:00').getDay();
-    const key=JS_DAY_TO_KEY[dayOfWeek];
-    const dia=h.dias[key];
-    if(dia&&dia.pausas&&dia.pausas.length>0){
-      let pausaMs=0;
-      dia.pausas.forEach(p=>{
-        if(!p.ini||!p.fim)return;
-        const [pIniH,pIniM]=p.ini.split(':').map(Number);
-        const [pFimH,pFimM]=p.fim.split(':').map(Number);
-        const pIni=new Date(date+'T00:00:00');pIni.setHours(pIniH,pIniM,0,0);
-        const pFim=new Date(date+'T00:00:00');pFim.setHours(pFimH,pFimM,0,0);
-        const overlapStart=Math.max(pIni,effectiveEntry);
-        const overlapEnd=Math.min(pFim,effectiveExit);
-        if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
-      });
-      ms=Math.max(0,ms-pausaMs);
-    }
+  if(h&&h.dias&&h.dias[key]&&h.dias[key].pausas){
+    let pausaMs=0;
+    h.dias[key].pausas.forEach(p=>{
+      if(!p.ini||!p.fim)return;
+      const [pIniH,pIniM]=p.ini.split(':').map(Number);
+      const [pFimH,pFimM]=p.fim.split(':').map(Number);
+      const pIni=new Date(date+'T00:00:00');pIni.setHours(pIniH,pIniM,0,0);
+      const pFim=new Date(date+'T00:00:00');pFim.setHours(pFimH,pFimM,0,0);
+      const overlapStart=Math.max(pIni,effectiveEntry);
+      const overlapEnd=Math.min(pFim,effectiveExit);
+      if(overlapEnd>overlapStart)pausaMs+=overlapEnd-overlapStart;
+    });
+    ms=Math.max(0,ms-pausaMs);
   }
 
   const cutEarlyMs=Math.max(0,schedEntry-rawEntry);
