@@ -1133,7 +1133,16 @@ tr:hover td { background:#141414; }
         <div class="extras-panel-title">⭐ Horas & Trabalhos Extras</div>
         <div id="extras-list"></div>
         <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px;align-items:end">
-          <div class="form-group" style="margin:0"><label>Descrição</label><input type="text" id="extra-desc" placeholder="Ex: Aula extra, Limpeza, Evento..."></div>
+          <div class="form-group" style="margin:0"><label>Tipo de Extra</label>
+            <select id="extra-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+              <option value="">-- Selecionar --</option>
+              <option value="Programação de Aulas">Programação de Aulas</option>
+              <option value="Personal Planning">Personal Planning</option>
+              <option value="Personal Coaching">Personal Coaching</option>
+              <option value="Coach Development">Coach Development</option>
+              <option value="Ajudas de Custo">Ajudas de Custo</option>
+            </select>
+          </div>
           <div>
             <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace">Tipo</label>
             <select id="extra-tipo" onchange="toggleExtraTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;width:130px">
@@ -1707,6 +1716,21 @@ function calcMsPayroll(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
+
+  // Check if coach is escalado for this day (weekend rotation)
+  const dateObj=new Date(date+'T12:00:00');
+  const dow=dateObj.getDay();
+  const isWeekend=(dow===0||dow===6);
+  if(isWeekend){
+    // Check if this coach is escalado for this date
+    const isEscalado=grupos.some(g=>getCoachEscalado(g.id,dateObj)===record.coachId);
+    if(isEscalado){
+      // Count actual hours minus pausas, no clamping
+      const ms=Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date));
+      return{ms,cutMs:0,cutInfo:null};
+    }
+  }
+
   const shift=getScheduledShift(scheduleCoachId,date,record.entry,record.exit);
   const rawEntry=new Date(record.entry);
   const rawExit=new Date(record.exit);
@@ -1724,14 +1748,12 @@ function calcMsPayroll(record){
   const schedExit=new Date(date+'T00:00:00');schedExit.setHours(sXh,sXm,0,0);
 
   // Clamp: if entered earlier than scheduled, count from scheduled start (cut early excess)
-  // if entered later than scheduled, count from actual entry (no cut, already late)
   const effectiveEntry=rawEntry<schedEntry?schedEntry:rawEntry;
   // if exited later than scheduled, count until scheduled end (cut late excess)
-  // if exited earlier than scheduled, count until actual exit (no cut)
   const effectiveExit=rawExit>schedExit?schedExit:rawExit;
 
   let ms=Math.max(0,effectiveExit-effectiveEntry);
-  // Subtract pausas (using overlap with the effective worked window)
+  // Subtract pausas
   const h=horarios[scheduleCoachId];
   if(h&&h.dias){
     const dayOfWeek=new Date(date+'T12:00:00').getDay();
@@ -1753,8 +1775,8 @@ function calcMsPayroll(record){
     }
   }
 
-  const cutEarlyMs=Math.max(0,schedEntry-rawEntry); // entrou antes do previsto
-  const cutLateMs=Math.max(0,rawExit-schedExit); // saiu depois do previsto
+  const cutEarlyMs=Math.max(0,schedEntry-rawEntry);
+  const cutLateMs=Math.max(0,rawExit-schedExit);
   const cutMs=cutEarlyMs+cutLateMs;
   let cutInfo=null;
   if(cutMs>0){
@@ -2200,7 +2222,7 @@ function addExtra(){
   const desc=document.getElementById('extra-desc').value.trim();
   const tipo=document.getElementById('extra-tipo').value;
   const val=parseFloat(document.getElementById('extra-val').value);
-  if(!desc){alert('Descreve o extra.');return;}
+  if(!desc){alert('Seleciona o tipo de extra.');return;}
   if(!val||val<=0){alert('Insere um valor válido.');return;}
   const coach=coaches.find(c=>c.id===exportCoachId);
   let valorEuros=0;
@@ -2211,9 +2233,10 @@ function addExtra(){
   document.getElementById('extra-val').value='';
   renderExtrasList();
   renderExtrasSummary();
+  saveExtrasDB(); // auto-save
 }
 
-function removeExtra(idx){currentExtras.splice(idx,1);renderExtrasList();renderExtrasSummary();}
+function removeExtra(idx){currentExtras.splice(idx,1);renderExtrasList();renderExtrasSummary();saveExtrasDB();}
 
 function renderExtrasList(){
   const list=document.getElementById('extras-list');
