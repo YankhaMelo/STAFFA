@@ -1520,7 +1520,20 @@ async function loadGyms() {
   }
 }
 
-function selectGym(id,name){selectedGymId=id;document.getElementById('login-step-gym').style.display='none';document.getElementById('login-step-pin').style.display='block';document.getElementById('login-gym-selected').textContent=name;document.getElementById('login-pin').value='';document.getElementById('login-pin-error').style.display='none';setTimeout(()=>document.getElementById('login-pin').focus(),100);}
+async function selectGym(id,name){
+  selectedGymId=id;
+  document.getElementById('login-loading-gyms').style.display='flex';
+  document.getElementById('gym-selector').style.display='none';
+  try{
+    const {data,error}=await sb.from('gyms').select('*').eq('id',id).single();
+    if(error)throw error;
+    await loginWithGym(data);
+  }catch(e){
+    document.getElementById('login-loading-gyms').style.display='none';
+    document.getElementById('gym-selector').style.display='grid';
+    alert('Erro ao entrar. Tenta novamente.');
+  }
+}
 function backToGymSelect(){selectedGymId=null;document.getElementById('login-step-gym').style.display='block';document.getElementById('login-step-pin').style.display='none';}
 
 async function doLogin() {
