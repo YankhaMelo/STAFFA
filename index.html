@@ -1193,6 +1193,8 @@ tr:hover td { background:#141414; }
               <option value="Coach Development">Coach Development</option>
               <option value="Ajudas de Custo">Ajudas de Custo</option>
               <option value="Hybrid Day">Hybrid Day</option>
+              <option value="Meeting Staff">Meeting Staff</option>
+              <option value="Content Manager">Content Manager</option>
             </select>
           </div>
           <div>
@@ -1765,14 +1767,26 @@ function getScheduledShift(coachId,recordDate,entry,exit){
   const dia=h.dias[key];
   if(!dia)return null;
   const entryMins=new Date(entry).getHours()*60+new Date(entry).getMinutes();
+  const exitMins=exit?new Date(exit).getHours()*60+new Date(exit).getMinutes():entryMins;
   const shifts=[];
   if(dia.manha?.entrada&&dia.manha?.saida)shifts.push({entrada:dia.manha.entrada,saida:dia.manha.saida});
   if(dia.tarde?.ativo&&dia.tarde?.entrada&&dia.tarde?.saida)shifts.push({entrada:dia.tarde.entrada,saida:dia.tarde.saida});
   if(shifts.length===0)return null;
-  // Pick the shift whose entrada is closest to the actual entry time
-  let closest=shifts[0],minDiff=Math.abs(entryMins-timeToMins(shifts[0].entrada));
-  for(let i=1;i<shifts.length;i++){const d=Math.abs(entryMins-timeToMins(shifts[i].entrada));if(d<minDiff){minDiff=d;closest=shifts[i];}}
-  return closest;
+  // Pick the shift that best overlaps with the actual worked period
+  let best=shifts[0],bestScore=-Infinity;
+  for(const s of shifts){
+    const sEntry=timeToMins(s.entrada);
+    const sExit=timeToMins(s.saida);
+    // Score = overlap between actual period and scheduled period
+    const overlapStart=Math.max(entryMins,sEntry);
+    const overlapEnd=Math.min(exitMins,sExit);
+    const overlap=Math.max(0,overlapEnd-overlapStart);
+    // Penalize by distance from entry
+    const dist=Math.abs(entryMins-sEntry);
+    const score=overlap*10-dist;
+    if(score>bestScore){bestScore=score;best=s;}
+  }
+  return best;
 }
 
 // Calculate payroll ms: clamps entry/exit to scheduled shift only if day has active schedule,
