@@ -1182,6 +1182,11 @@ tr:hover td { background:#141414; }
     <div id="exp-pane-extras" style="display:none">
       <div class="extras-panel">
         <div class="extras-panel-title">⭐ Horas & Trabalhos Extras</div>
+        <!-- Sugestões recorrentes -->
+        <div id="extras-sugestoes-wrap" style="display:none;margin-bottom:16px">
+          <div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">💡 Sugestões Recorrentes</div>
+          <div id="extras-sugestoes-list"></div>
+        </div>
         <div id="extras-list"></div>
         <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px;align-items:end">
           <div class="form-group" style="margin:0"><label>Tipo de Extra</label>
@@ -1211,6 +1216,7 @@ tr:hover td { background:#141414; }
         </div>
         <button onclick="addExtra()" style="margin-top:12px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Extra</button>
         <button onclick="saveExtrasDB()" style="margin-top:8px;width:100%;padding:10px;background:var(--success);color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">💾 Guardar Extras</button>
+        <button onclick="openRecorrentesModal()" style="margin-top:8px;width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;cursor:pointer">🔄 Gerir Extras Recorrentes</button>
         <div class="extra-total-row" id="extras-total-row" style="display:none">
           <div class="extra-total-label">Total Extras</div>
           <div class="extra-total-val" id="extras-total-val">0.00 €</div>
@@ -1424,6 +1430,47 @@ tr:hover td { background:#141414; }
   <div class="modal modal-wide" style="max-width:560px;text-align:left;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="closeModal('coach-month-modal')">✕</button>
     <div id="coach-month-content"></div>
+  </div>
+</div>
+
+<!-- MODAL: EXTRAS RECORRENTES -->
+<div class="modal-overlay" id="recorrentes-modal">
+  <div class="modal modal-wide" style="max-height:90vh;overflow-y:auto;text-align:left">
+    <button class="modal-close" onclick="closeModal('recorrentes-modal')">✕</button>
+    <h2>🔄 Extras Recorrentes</h2>
+    <p>Estes extras aparecem como sugestão todos os meses</p>
+    <div id="recorrentes-list" style="margin-bottom:16px"></div>
+    <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:8px">
+      <div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Adicionar Novo Recorrente</div>
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end">
+        <div class="form-group" style="margin:0"><label>Tipo</label>
+          <select id="rec-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+            <option value="">-- Selecionar --</option>
+            <option value="Programação de Aulas">Programação de Aulas</option>
+            <option value="Personal Planning">Personal Planning</option>
+            <option value="Personal Coaching">Personal Coaching</option>
+            <option value="Coach Development">Coach Development</option>
+            <option value="Ajudas de Custo">Ajudas de Custo</option>
+            <option value="Hybrid Day">Hybrid Day</option>
+            <option value="Meeting Staff">Meeting Staff</option>
+            <option value="Content Manager">Content Manager</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace">Tipo</label>
+          <select id="rec-tipo" onchange="toggleRecTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;width:130px">
+            <option value="horas">⏱ Horas Extra</option>
+            <option value="fixo">💰 Valor Fixo</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace" id="rec-val-label">Horas</label>
+          <input type="number" id="rec-val" placeholder="0" min="0" step="0.5" style="width:100px;padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:.95rem;outline:none;">
+        </div>
+      </div>
+      <button onclick="addRecorrente()" style="margin-top:10px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Recorrente</button>
+    </div>
+    <button class="btn-secondary" style="margin-top:10px" onclick="closeModal('recorrentes-modal')">Fechar</button>
   </div>
 </div>
 
@@ -2339,20 +2386,118 @@ function renderExtrasSummary(){
 // ══════════════════════════════════════════════════
 // EXPORT
 // ══════════════════════════════════════════════════
+// ── EXTRAS RECORRENTES ──
+let extrasRecorrentes=[];
+
+async function loadExtrasRecorrentesFromDB(coachId){
+  try{
+    const url=SUPABASE_URL+'/rest/v1/extras_recorrentes?select=*&gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&apikey='+SUPABASE_ANON;
+    const res=await fetch(url,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    if(!res.ok)return;
+    const data=await res.json();
+    extrasRecorrentes=(data||[]).map(e=>({id:e.id,desc:e.descricao,tipo:e.tipo,val:e.val,valorEuros:e.valor_euros}));
+  }catch(e){console.error('Erro ao carregar recorrentes:',e);}
+}
+
+async function saveRecorrenteDB(rec){
+  const row={id:rec.id,gym_id:GYM_ID,coach_id:exportCoachId,descricao:rec.desc,tipo:rec.tipo,val:rec.val,valor_euros:rec.valorEuros};
+  await fetch(SUPABASE_URL+'/rest/v1/extras_recorrentes',{method:'POST',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},body:JSON.stringify(row)});
+}
+
+async function deleteRecorrenteDB(id){
+  await fetch(SUPABASE_URL+'/rest/v1/extras_recorrentes?id=eq.'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}});
+}
+
+function toggleRecTipo(){
+  const tipo=document.getElementById('rec-tipo').value;
+  document.getElementById('rec-val-label').textContent=tipo==='horas'?'Horas':'Valor (€)';
+}
+
+async function openRecorrentesModal(){
+  await loadExtrasRecorrentesFromDB(exportCoachId);
+  renderRecorrentesList();
+  document.getElementById('recorrentes-modal').classList.add('open');
+}
+
+function renderRecorrentesList(){
+  const list=document.getElementById('recorrentes-list');
+  if(extrasRecorrentes.length===0){
+    list.innerHTML='<div style="color:var(--muted);font-size:.85rem;font-family:\'DM Mono\',monospace;padding:8px 0;text-align:center">Sem extras recorrentes definidos</div>';
+    return;
+  }
+  const coach=coaches.find(c=>c.id===exportCoachId);
+  list.innerHTML=extrasRecorrentes.map((e,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px">
+      <div style="flex:1">
+        <div style="font-size:.88rem;font-weight:600">${e.desc}</div>
+        <div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace">${e.tipo==='horas'?e.val+'h × '+(coach?.valorHora||0)+'€/h':''} = ${e.valorEuros.toFixed(2)} €/mês</div>
+      </div>
+      <button onclick="deleteRecorrente('${e.id}',${i})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1rem">🗑</button>
+    </div>`).join('');
+}
+
+async function addRecorrente(){
+  const desc=document.getElementById('rec-desc').value;
+  const tipo=document.getElementById('rec-tipo').value;
+  const val=parseFloat(document.getElementById('rec-val').value);
+  if(!desc){alert('Seleciona o tipo.');return;}
+  if(!val||val<=0){alert('Insere um valor válido.');return;}
+  const coach=coaches.find(c=>c.id===exportCoachId);
+  const valorEuros=tipo==='horas'?(coach?.valorHora||0)*val:val;
+  const rec={id:crypto.randomUUID(),desc,tipo,val,valorEuros};
+  await saveRecorrenteDB(rec);
+  extrasRecorrentes.push(rec);
+  document.getElementById('rec-desc').value='';
+  document.getElementById('rec-val').value='';
+  renderRecorrentesList();
+  renderSugestoes();
+}
+
+async function deleteRecorrente(id,idx){
+  if(!confirm('Remover este extra recorrente?'))return;
+  await deleteRecorrenteDB(id);
+  extrasRecorrentes.splice(idx,1);
+  renderRecorrentesList();
+  renderSugestoes();
+}
+
+function renderSugestoes(){
+  const wrap=document.getElementById('extras-sugestoes-wrap');
+  const list=document.getElementById('extras-sugestoes-list');
+  // Filter out already added extras
+  const pending=extrasRecorrentes.filter(r=>!currentExtras.find(e=>e.desc===r.desc));
+  if(pending.length===0){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML=pending.map((r,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);border-radius:8px;margin-bottom:6px">
+      <div style="flex:1;font-size:.85rem">${r.desc} <span style="color:var(--success);font-family:'DM Mono',monospace;font-size:.8rem">+${r.valorEuros.toFixed(2)} €</span></div>
+      <button onclick="aplicarSugestao(${extrasRecorrentes.indexOf(r)})" style="padding:5px 12px;background:var(--accent);color:#000;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer">✅ Adicionar</button>
+    </div>`).join('');
+}
+
+async function aplicarSugestao(idx){
+  const r=extrasRecorrentes[idx];
+  currentExtras.push({desc:r.desc,tipo:r.tipo,val:r.val,valorEuros:r.valorEuros});
+  renderExtrasList();
+  renderExtrasSummary();
+  renderSugestoes();
+  await saveExtrasDB();
+}
+
 async function openExportModal(coachId){
   exportCoachId=coachId; currentExtras=[];
   const coach=coaches.find(c=>c.id===coachId);
   document.getElementById('exp-name').textContent=coach.name;
   document.getElementById('exp-sub').textContent=MONTHS_PT[currentMonth]+' '+currentYear+' · '+coach.role;
-  // Reset tabs
   document.getElementById('exp-tab-base').classList.add('active');
   document.getElementById('exp-tab-extras').classList.remove('active');
   document.getElementById('exp-pane-base').style.display='block';
   document.getElementById('exp-pane-extras').style.display='none';
-  // Load extras from DB
   await loadExtrasFromDB(coachId);
+  await loadExtrasRecorrentesFromDB(coachId);
   renderExtrasList();
   renderExtrasSummary();
+  renderSugestoes();
   document.getElementById('export-modal').classList.add('open');
   setTimeout(initSig,100);
 }
