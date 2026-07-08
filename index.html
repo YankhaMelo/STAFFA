@@ -2636,9 +2636,21 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
     turnos.forEach((r,i)=>{
       const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);
       const turnoLabel=(new Date(r.entry).getHours()<13?'Manha':'Tarde')+(r.tipo==='substituicao'?' (Sub)':'');
-      // Show pausa times for this record
+      // Show only pausas that overlap with this specific record's time window
       let pausaStr='–';
-      if(pausas.length>0){pausaStr=pausas.map(p=>p.ini+' a '+p.fim).join('  ');}
+      if(pausas.length>0){
+        const recEntry=new Date(r.entry);
+        const recExit=new Date(r.exit);
+        const relevantPausas=pausas.filter(p=>{
+          if(!p.ini||!p.fim)return false;
+          const [pIniH,pIniM]=p.ini.split(':').map(Number);
+          const [pFimH,pFimM]=p.fim.split(':').map(Number);
+          const pIni=new Date(day+'T00:00:00');pIni.setHours(pIniH,pIniM,0,0);
+          const pFim=new Date(day+'T00:00:00');pFim.setHours(pFimH,pFimM,0,0);
+          return pFim>recEntry&&pIni<recExit;
+        });
+        if(relevantPausas.length>0)pausaStr=relevantPausas.map(p=>p.ini+' a '+p.fim).join('  ');
+      }
       if(cutMs>0)cutRowIndexes.push(tableRows.length);
       tableRows.push([i===0?dateStr:'',turnoLabel,formatTime(r.entry),formatTime(r.exit),formatHours(tMs),pausaStr,i===0?formatHours(dMs):'']);
     });
