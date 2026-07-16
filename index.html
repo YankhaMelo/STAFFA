@@ -1863,8 +1863,17 @@ function calcMsPayroll(record){
   const schedEntry=new Date(date+'T00:00:00');schedEntry.setHours(sEh,sEm,0,0);
   const schedExit=new Date(date+'T00:00:00');schedExit.setHours(sXh,sXm,0,0);
 
-  const effectiveEntry=rawEntry<schedEntry?schedEntry:rawEntry;
-  const effectiveExit=rawExit>schedExit?schedExit:rawExit;
+  const tol=(h?.tolerancia||15)*60*1000;
+
+  // Always count the scheduled hours (not real hours)
+  const effectiveEntry=schedEntry;
+  const effectiveExit=schedExit;
+
+  // Only mark as cut if outside tolerance
+  const entryOutside=Math.abs(rawEntry-schedEntry)>tol&&rawEntry<schedEntry;
+  const exitOutside=Math.abs(rawExit-schedExit)>tol&&rawExit>schedExit;
+  const cutEarlyMs=entryOutside?Math.max(0,schedEntry-rawEntry):0;
+  const cutLateMs=exitOutside?Math.max(0,rawExit-schedExit):0;
 
   let ms=Math.max(0,effectiveExit-effectiveEntry);
 
@@ -1884,8 +1893,6 @@ function calcMsPayroll(record){
     ms=Math.max(0,ms-pausaMs);
   }
 
-  const cutEarlyMs=Math.max(0,schedEntry-rawEntry);
-  const cutLateMs=Math.max(0,rawExit-schedExit);
   const cutMs=cutEarlyMs+cutLateMs;
   let cutInfo=null;
   if(cutMs>0){
