@@ -624,6 +624,7 @@ tr:hover td { background:#141414; }
       <button class="nav-tab active" onclick="showPage('picagem',this)">Registo Diário</button>
       <button class="nav-tab" onclick="showPage('eventos',this)">Eventos</button>
       <button class="nav-tab" onclick="showPage('limpezas',this)">🧹 Limpezas</button>
+      <button class="nav-tab" onclick="showPage('substituicoes',this)">🔄 Substituições</button>
       <button class="nav-tab admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)" style="display:none">Dashboard</button>
       <button class="nav-tab admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">Administração</button>
       <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
@@ -666,6 +667,52 @@ tr:hover td { background:#141414; }
     <p>Carrega no teu cartão de ponto para dares entrada e saída</p>
   </div>
   <div class="coaches-grid" id="coaches-grid"></div>
+</div>
+
+<!-- SUBSTITUIÇÕES -->
+<div class="page" id="page-substituicoes">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🔄 Substituições</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Gestão de substituições entre coaches</p>
+    </div>
+    <button class="btn-add" onclick="openSubModal()">+ Nova Substituição</button>
+  </div>
+
+  <!-- Filtros -->
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="sub-filter-wrap">
+    <button class="coach-filter-btn active" onclick="setSubFilter('todos',this)">Todos</button>
+    <button class="coach-filter-btn" onclick="setSubFilter('futuros',this)">📅 Futuros</button>
+    <button class="coach-filter-btn" onclick="setSubFilter('passados',this)">✅ Passados</button>
+  </div>
+
+  <div class="table-wrap">
+    <table><thead><tr><th>Data</th><th>Hora</th><th>Turma</th><th>Coach Ausente</th><th>Coach Substituto</th><th>Obs</th><th>Ações</th></tr></thead>
+    <tbody id="sub-body"></tbody></table>
+  </div>
+</div>
+
+<!-- MODAL: SUBSTITUIÇÃO -->
+<div class="modal-overlay" id="sub-modal">
+  <div class="modal modal-wide" style="text-align:left">
+    <button class="modal-close" onclick="closeModal('sub-modal')">✕</button>
+    <h2 id="sub-modal-title">Nova Substituição</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group"><label>Data</label><input type="date" id="sub-date"></div>
+      <div class="form-group"><label>Hora</label><input type="time" id="sub-hora" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;"></div>
+    </div>
+    <div class="form-group"><label>Turma</label><input type="text" id="sub-turma" placeholder="Ex: CF, HYROX, LIFE60+, WL..."></div>
+    <div class="form-group"><label>Coach Ausente</label>
+      <select id="sub-ausente" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select>
+    </div>
+    <div class="form-group"><label>Coach Substituto</label>
+      <select id="sub-substituto" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select>
+    </div>
+    <div class="form-group"><label>Observações (opcional)</label><input type="text" id="sub-obs" placeholder="Ex: aula de 1h"></div>
+    <input type="hidden" id="sub-edit-id">
+    <button class="btn-scan" onclick="saveSub()">Guardar</button>
+    <button class="btn-secondary" onclick="closeModal('sub-modal')">Cancelar</button>
+  </div>
 </div>
 
 <!-- LIMPEZAS -->
@@ -1669,6 +1716,7 @@ async function loginWithGym(gym) {
 async function loadAllData() {
   try {
     await loadLimpezas();
+    await loadSubstituicoes();
     const [coachesRes,recordsRes,faltasRes,horariosRes,gruposRes,feriasRes,eventosRes,evPresRes,avalsRes]=await Promise.all([
       sb.from('coaches').select('*').eq('gym_id',GYM_ID).order('name'),
       sb.from('records').select('*').eq('gym_id',GYM_ID),
@@ -3066,7 +3114,7 @@ async function clearData(){if(!confirm('⚠️ Apagar TODOS os dados? Irreversí
 // ══════════════════════════════════════════════════
 // NAV & PIN
 // ══════════════════════════════════════════════════
-function showPage(page,btn){if(page==='admin'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}if(page==='dashboard'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}}
+function showPage(page,btn){if(page==='admin'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}if(page==='dashboard'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 function unlockAdminNav(){document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
@@ -3223,6 +3271,99 @@ function exportAvaliacaoPDF(avalId){
   doc.text('5.7CrossFit · Ficha de Avaliação · '+dataStr,14,292);
   doc.text('Score: '+score+'%',196,292,{align:'right'});
   doc.save('57CF_Avaliacao_'+(coach?.name||'coach').replace(/ /g,'_')+'_'+dataStr.replace(/\//g,'-')+'.pdf');
+}
+
+// ══════════════════════════════════════════════════
+// SUBSTITUIÇÕES
+// ══════════════════════════════════════════════════
+let substituicoes=[];
+let subFilter='todos';
+
+async function loadSubstituicoes(){
+  try{
+    const {data}=await sb.from('substituicoes').select('*').eq('gym_id',GYM_ID);
+    substituicoes=(data||[]).map(s=>({id:s.id,coachId:s.coach_id,substituiId:s.substitui_id,date:s.date,hora:s.hora_inicio,turma:s.turma||'',obs:s.obs||''}));
+  }catch(e){console.error('Erro ao carregar substituições:',e);}
+}
+
+async function saveSubDB(s,isNew){
+  const row={id:s.id,gym_id:GYM_ID,coach_id:s.coachId,substitui_id:s.substituiId,date:s.date,hora_inicio:s.hora,turma:s.turma||null,obs:s.obs||null};
+  if(isNew)await sb.from('substituicoes').insert(row);
+  else await sb.from('substituicoes').update(row).eq('id',s.id);
+}
+async function deleteSubDB(id){await sb.from('substituicoes').delete().eq('id',id);}
+
+function setSubFilter(f,btn){
+  subFilter=f;
+  document.querySelectorAll('#sub-filter-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderSubstituicoes();
+}
+
+function openSubModal(editId){
+  const s=editId?substituicoes.find(x=>x.id===editId):null;
+  document.getElementById('sub-modal-title').textContent=s?'Editar Substituição':'Nova Substituição';
+  document.getElementById('sub-date').value=s?s.date:todayStr();
+  document.getElementById('sub-hora').value=s?s.hora:'';
+  document.getElementById('sub-turma').value=s?s.turma:'';
+  document.getElementById('sub-obs').value=s?s.obs:'';
+  document.getElementById('sub-edit-id').value=editId||'';
+  const opts='<option value="">-- Selecionar --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('sub-ausente').innerHTML=opts;
+  document.getElementById('sub-substituto').innerHTML=opts;
+  if(s){document.getElementById('sub-ausente').value=s.substituiId;document.getElementById('sub-substituto').value=s.coachId;}
+  document.getElementById('sub-modal').classList.add('open');
+}
+
+async function saveSub(){
+  const date=document.getElementById('sub-date').value;
+  const hora=document.getElementById('sub-hora').value;
+  const turma=document.getElementById('sub-turma').value.trim();
+  const ausente=document.getElementById('sub-ausente').value;
+  const substituto=document.getElementById('sub-substituto').value;
+  const obs=document.getElementById('sub-obs').value.trim();
+  const editId=document.getElementById('sub-edit-id').value;
+  if(!date||!hora||!ausente||!substituto){alert('Preenche todos os campos obrigatórios.');return;}
+  const s={id:editId||crypto.randomUUID(),coachId:substituto,substituiId:ausente,date,hora,turma,obs};
+  await saveSubDB(s,!editId);
+  if(editId){const idx=substituicoes.findIndex(x=>x.id===editId);if(idx>=0)substituicoes[idx]=s;else substituicoes.push(s);}
+  else substituicoes.push(s);
+  closeModal('sub-modal');
+  renderSubstituicoes();
+}
+
+async function deleteSub(id){
+  if(!confirm('Remover esta substituição?'))return;
+  await deleteSubDB(id);
+  substituicoes=substituicoes.filter(s=>s.id!==id);
+  renderSubstituicoes();
+}
+
+function renderSubstituicoes(){
+  const today=todayStr();
+  let data=[...substituicoes].sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora));
+  if(subFilter==='futuros')data=data.filter(s=>s.date>=today);
+  else if(subFilter==='passados')data=data.filter(s=>s.date<today);
+  const tbody=document.getElementById('sub-body');
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem substituições registadas</td></tr>';return;}
+  tbody.innerHTML=data.map(s=>{
+    const ausente=coaches.find(c=>c.id===s.substituiId);
+    const substituto=coaches.find(c=>c.id===s.coachId);
+    const dateStr=new Date(s.date+'T12:00:00').toLocaleDateString('pt-PT',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
+    const isPast=s.date<today;
+    return`<tr style="${isPast?'opacity:.7':''}">
+      <td style="font-family:'DM Mono',monospace">${dateStr}</td>
+      <td style="font-family:'DM Mono',monospace;color:var(--accent)">${s.hora}</td>
+      <td><span class="badge badge-info">${s.turma||'–'}</span></td>
+      <td><strong>${ausente?.name||'?'}</strong></td>
+      <td><strong style="color:var(--success)">${substituto?.name||'?'}</strong></td>
+      <td style="color:var(--muted);font-size:.82rem">${s.obs||'–'}</td>
+      <td>
+        <button class="btn-add" style="font-size:.72rem;padding:5px 10px;margin-right:4px" onclick="openSubModal('${s.id}')">✏️</button>
+        <button class="delete-btn" onclick="deleteSub('${s.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
 // ══════════════════════════════════════════════════
