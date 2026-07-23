@@ -1890,6 +1890,11 @@ function calcMsPayroll(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
+  // For substituicoes, always count real hours minus pausas
+  if(record.tipo==='substituicao'){
+    return{ms:Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date)),cutMs:0,cutInfo:null};
+  }
+
   const shift=getScheduledShift(scheduleCoachId,date,record.entry,record.exit);
   const rawEntry=new Date(record.entry);
   const rawExit=new Date(record.exit);
