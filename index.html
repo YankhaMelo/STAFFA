@@ -1045,14 +1045,18 @@ tr:hover td { background:#141414; }
       </div>
     </div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px">Tipo de Registo</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
       <button id="btn-tipo-normal" class="btn-tipo active" onclick="selectTipo('normal')">
-        <div style="font-size:1.4rem;margin-bottom:4px">📋</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">Horário Normal</div>
+        <div style="font-size:1.2rem;margin-bottom:4px">📋</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Normal</div>
       </button>
       <button id="btn-tipo-sub" class="btn-tipo" onclick="selectTipo('substituicao')">
-        <div style="font-size:1.4rem;margin-bottom:4px">🔄</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">Substituição</div>
+        <div style="font-size:1.2rem;margin-bottom:4px">🔄</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Substituição</div>
+      </button>
+      <button id="btn-tipo-hybrid" class="btn-tipo" onclick="selectTipo('hybrid')">
+        <div style="font-size:1.2rem;margin-bottom:4px">🌀</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Hybrid Day</div>
       </button>
     </div>
     <div id="sub-fields" style="display:none;margin-bottom:16px">
@@ -1345,6 +1349,7 @@ tr:hover td { background:#141414; }
           <select id="fix-tipo" style="flex:1;min-width:100px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;outline:none;">
             <option value="normal">Normal</option>
             <option value="substituicao">🔄 Substituição</option>
+            <option value="hybrid">🌀 Hybrid Day</option>
           </select>
           <select id="fix-sub-coach" style="display:none;flex:1;min-width:120px;padding:10px;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;outline:none;"></select>
           <button onclick="addManualRecord()" style="padding:10px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;cursor:pointer;font-size:1rem;">+</button>
@@ -1890,8 +1895,8 @@ function calcMsPayroll(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
-  // For substituicoes, always count real hours minus pausas
-  if(record.tipo==='substituicao'){
+  // For substituicoes e hybrid days, always count real hours minus pausas (sem clamp ao horário estipulado)
+  if(record.tipo==='substituicao'||record.tipo==='hybrid'){
     return{ms:Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date)),cutMs:0,cutInfo:null};
   }
 
@@ -2075,7 +2080,7 @@ function openQR(coachId){
   sel.innerHTML='<option value="">-- Selecionar coach --</option>'+coaches.filter(c=>c.id!==coachId).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('qr-modal').classList.add('open');
 }
-function selectTipo(tipo){tipoRegisto=tipo;document.getElementById('btn-tipo-normal').classList.toggle('active',tipo==='normal');document.getElementById('btn-tipo-sub').classList.toggle('active',tipo==='substituicao');document.getElementById('sub-fields').style.display=tipo==='substituicao'?'block':'none';}
+function selectTipo(tipo){tipoRegisto=tipo;document.getElementById('btn-tipo-normal').classList.toggle('active',tipo==='normal');document.getElementById('btn-tipo-sub').classList.toggle('active',tipo==='substituicao');document.getElementById('btn-tipo-hybrid').classList.toggle('active',tipo==='hybrid');document.getElementById('sub-fields').style.display=tipo==='substituicao'?'block':'none';}
 
 function confirmRegisto(){
   const coach=coaches.find(c=>c.id===activeCoachId);
@@ -2085,7 +2090,7 @@ function confirmRegisto(){
   const resultDiv=document.getElementById('scan-result');
 
   // Verificar horário
-  if(tipoRegisto!=='substituicao'){
+  if(tipoRegisto==='normal'){
     const horarioAviso=checkHorario(activeCoachId,!isIn?'entry':'exit');
     if(horarioAviso){
       if(!confirm(horarioAviso+'\n\nPretendes registar na mesma?'))return;
@@ -2123,7 +2128,7 @@ function confirmRegisto(){
     resultDiv.className='scan-result entrada';
     document.getElementById('sr-label').textContent='ENTRADA REGISTADA';
     document.getElementById('sr-value').textContent=coach.name+' — '+formatTime(now);
-    document.getElementById('sr-hours').textContent=tipoRegisto==='substituicao'&&subCoach?'Substituição de '+subCoach.name+' registada! 💪':(RECEPCAO.includes(coach.name)?'Mais um dia a aturar pessoas 😂 Bom trabalho! 💪':'Bom trabalho coach! 💪');
+    document.getElementById('sr-hours').textContent=tipoRegisto==='substituicao'&&subCoach?'Substituição de '+subCoach.name+' registada! 💪':tipoRegisto==='hybrid'?'Hybrid Day registado! 🌀':(RECEPCAO.includes(coach.name)?'Mais um dia a aturar pessoas 😂 Bom trabalho! 💪':'Bom trabalho coach! 💪');
   } else {
     const rec=records.find(r=>r.coachId===activeCoachId&&r.date===today&&!r.exit);
     if(rec){
@@ -2171,7 +2176,7 @@ function renderAdmin(){
 
   const tbody=document.getElementById('records-body');
   if(todayRecs.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Sem registos hoje</td></tr>';}
-  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(coaches.find(c=>c.id===r.subCoachId)?.name||'?')+'</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
+  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(coaches.find(c=>c.id===r.subCoachId)?.name||'?')+'</span>':''}${r.tipo==='hybrid'?'<br><span style="font-size:.72rem;color:#a78bfa">🌀 Hybrid Day</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
 
   const ms2=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   document.getElementById('coaches-manage-body').innerHTML=coaches.map(c=>{
@@ -2210,7 +2215,7 @@ function renderMonthly(){
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
   Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMsPayroll(r).ms;});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Pausas</th><th>Total Dia</th></tr></thead><tbody>`;
-  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
+  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}${r.tipo==='hybrid'?'<br>🌀 Hybrid':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
   html+='</tbody></table></div></div>';});
   container.innerHTML=html;
 }
