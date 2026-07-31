@@ -2581,10 +2581,15 @@ async function loadExtrasFromDB(coachId){
   try {
     const url=SUPABASE_URL+'/rest/v1/extras?select=*&gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes+'&apikey='+SUPABASE_ANON;
     const res=await fetch(url,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
-    if(!res.ok)return;
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      console.error('loadExtrasFromDB failed:',res.status,errBody);
+      showToast('⚠️','Erro ao Carregar Extras','Não foi possível ler os extras guardados ('+res.status+'). Verifica a tabela "extras" no Supabase.','danger',8000);
+      return;
+    }
     const data=await res.json();
     currentExtras=(data||[]).map(e=>({id:e.id,desc:e.descricao,tipo:e.tipo,val:e.val,valorEuros:e.valor_euros}));
-  } catch(e){console.error('Erro ao carregar extras:',e);}
+  } catch(e){console.error('Erro ao carregar extras:',e);showToast('⚠️','Erro ao Carregar Extras','Erro de ligação: '+e.message,'danger',8000);}
 }
 
 async function saveExtrasDB(){
@@ -2593,22 +2598,40 @@ async function saveExtrasDB(){
   showNetStatus('saving','⏳ A guardar extras...');
   try {
     // Delete existing extras for this coach/month
-    await fetch(SUPABASE_URL+'/rest/v1/extras?gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes,{
+    const delRes=await fetch(SUPABASE_URL+'/rest/v1/extras?gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes,{
       method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}
     });
+    if(!delRes.ok){
+      const errBody=await delRes.text().catch(()=>'');
+      showNetStatus('offline','❌ Erro ao guardar');
+      showToast('⚠️','Erro ao Guardar Extras','Falha ao limpar extras anteriores ('+delRes.status+'). Verifica a tabela "extras" no Supabase.','danger',8000);
+      console.error('saveExtrasDB DELETE failed:',delRes.status,errBody);
+      return;
+    }
     // Insert new extras
     if(currentExtras.length>0){
       const rows=currentExtras.map(e=>({gym_id:GYM_ID,coach_id:coachId,mes,descricao:e.desc,tipo:e.tipo,val:e.val,valor_euros:e.valorEuros}));
-      await fetch(SUPABASE_URL+'/rest/v1/extras',{
+      const insRes=await fetch(SUPABASE_URL+'/rest/v1/extras',{
         method:'POST',
         headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
         body:JSON.stringify(rows)
       });
+      if(!insRes.ok){
+        const errBody=await insRes.text().catch(()=>'');
+        showNetStatus('offline','❌ Erro ao guardar');
+        showToast('⚠️','Erro ao Guardar Extras','O Supabase recusou o pedido ('+insRes.status+'). Verifica a tabela "extras" e as políticas RLS.','danger',8000);
+        console.error('saveExtrasDB INSERT failed:',insRes.status,errBody);
+        return;
+      }
     }
     showNetStatus('saved','✅ Extras guardados!');
     setTimeout(hideNetStatus,2000);
     showToast('💾','Extras Guardados!','Os extras de '+MONTHS_PT[currentMonth]+' ficaram gravados.','success',4000);
-  } catch(e){showNetStatus('offline','❌ Erro ao guardar');console.error(e);}
+  } catch(e){
+    showNetStatus('offline','❌ Erro ao guardar');
+    showToast('⚠️','Erro ao Guardar Extras','Erro de ligação: '+e.message,'danger',8000);
+    console.error(e);
+  }
 }
 function initSig(){sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');sigCanvas.width=sigCanvas.offsetWidth;sigCanvas.height=150;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.strokeStyle='#000';sigCtx.lineWidth=2;sigCtx.lineCap='round';const pos=e=>{const r=sigCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};sigCanvas.onmousedown=sigCanvas.ontouchstart=e=>{e.preventDefault();sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};sigCanvas.onmousemove=sigCanvas.ontouchmove=e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();};sigCanvas.onmouseup=sigCanvas.ontouchend=()=>{sigDrawing=false;};}
 function clearSig(){if(!sigCtx)return;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);}
