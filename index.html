@@ -1341,6 +1341,7 @@ tr:hover td { background:#141414; }
     <p>Ajuste ou adicione registos manualmente</p>
     <div class="form-group"><label>Colaborador</label><select id="fix-coach" onchange="renderFixRecords()"><option value="">-- Selecionar --</option></select></div>
     <div class="form-group"><label>Data</label><input type="date" id="fix-date" onchange="renderFixRecords()"></div>
+    <div id="fix-month-summary" style="display:none;background:var(--surface2);border:1px solid var(--accent);border-radius:9px;padding:12px 16px;margin-bottom:16px"></div>
     <div id="fix-records-wrap" style="display:none">
       <div class="section-title" style="margin-top:8px">Registos do Dia</div>
       <div id="fix-records-list"></div>
@@ -2851,6 +2852,30 @@ function renderFixManualSubcoaches(){
   }).join('');
 }
 
+function renderFixMonthSummary(coachId,date){
+  const coach=coaches.find(c=>c.id===coachId);
+  const box=document.getElementById('fix-month-summary');
+  if(!coach){box.style.display='none';return;}
+  const ms=date.substring(0,7); // YYYY-MM
+  const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.exit);
+  let totalMs=0,subMs=0,hybridMs=0;
+  mRecs.forEach(r=>{const{ms:m}=calcMsPayroll(r);totalMs+=m;if(r.tipo==='substituicao')subMs+=m;else if(r.tipo==='hybrid')hybridMs+=m;});
+  const diasTrabalhados=[...new Set(mRecs.map(r=>r.date))].length;
+  const mesLabel=MONTHS_PT[parseInt(ms.split('-')[1])-1]+' '+ms.split('-')[0];
+  box.style.display='block';
+  box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">${coach.name.split(' ')[0]} · ${mesLabel}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
+    </div>
+    <div style="text-align:right;font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace">
+      ${diasTrabalhados} dia${diasTrabalhados!==1?'s':''} trabalhado${diasTrabalhados!==1?'s':''}
+      ${subMs>0?`<br><span style="color:#ff9900">🔄 Sub: ${formatHours(subMs)}</span>`:''}
+      ${hybridMs>0?`<br><span style="color:#a78bfa">🌀 Hybrid: ${formatHours(hybridMs)}</span>`:''}
+    </div>
+  </div>`;
+}
+
 function renderFixRecords(){
   const coachId=document.getElementById('fix-coach').value;
   const date=document.getElementById('fix-date').value;
@@ -2860,6 +2885,7 @@ function renderFixRecords(){
     fixManualSubCoaches=fixManualSubCoaches.filter(id=>id!==coachId);
     renderFixManualSubcoaches();
   }
+  renderFixMonthSummary(coachId,date);
   // Registos
   const recs=records.filter(r=>r.coachId===coachId&&r.date===date);
   const list=document.getElementById('fix-records-list');
