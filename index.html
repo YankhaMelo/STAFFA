@@ -1773,8 +1773,12 @@ async function deleteCoachDB(id){await sb.from('coaches').delete().eq('id',id);}
 async function saveRecord(record){
   const row={id:record.id,gym_id:GYM_ID,coach_id:record.coachId,date:record.date,entry:record.entry,exit:record.exit||null,tipo:record.tipo||'normal',sub_coach_id:(record.subCoachIds&&record.subCoachIds[0])||record.subCoachId||null,sub_coach_ids:(record.subCoachIds&&record.subCoachIds.length?record.subCoachIds:null)};
   const existing=await sb.from('records').select('id').eq('id',record.id).single();
-  if(existing.data)await sb.from('records').update(row).eq('id',record.id);
-  else await sb.from('records').insert(row);
+  const result=existing.data?await sb.from('records').update(row).eq('id',record.id):await sb.from('records').insert(row);
+  if(result&&result.error){
+    console.error('saveRecord failed:',result.error);
+    showToast('⚠️','Erro ao Guardar Registo','O Supabase recusou o registo: '+(result.error.message||JSON.stringify(result.error))+'. Verifica se a coluna sub_coach_ids existe na tabela records.','danger',9000);
+  }
+  return result;
 }
 async function deleteRecordDB(id){await sb.from('records').delete().eq('id',id);}
 async function saveFalta(falta){
