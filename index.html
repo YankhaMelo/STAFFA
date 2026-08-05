@@ -1905,7 +1905,14 @@ function getScheduledShift(coachId,recordDate,entry,exit){
 
 // Calculate payroll ms: clamps entry/exit to scheduled shift only if day has active schedule,
 // subtracts pausas. Returns {ms, cutMs, cutInfo}
+function roundToNearestHour(ms){return Math.round(ms/3600000)*3600000;}
+
 function calcMsPayroll(record){
+  const raw=calcMsPayrollRaw(record);
+  return{ms:roundToNearestHour(raw.ms),cutMs:raw.cutMs,cutInfo:raw.cutInfo};
+}
+
+function calcMsPayrollRaw(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
@@ -2678,8 +2685,8 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);doc.text(coach.role,14,47);
 
   const baseHoras=Math.floor(totalMs/3600000);
-  const normalHoras=Math.floor(normalMs/3600000);
   const subHoras=Math.floor(subMs/3600000);
+  const normalHoras=Math.max(0,baseHoras-subHoras); // garante que Normal + Sub soma sempre ao total (sem "perder" minutos em duplicado)
   const extrasTotal=extras?extras.reduce((a,e)=>a+e.valorEuros,0):0;
 
   const tableRows=[];
@@ -2692,7 +2699,7 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
     totalPausaMs+=Math.max(0,calcMs(r.entry,r.exit)-calcMsPayroll(r).ms);
   });
 
-  [{label:'Total de Horas',val:formatHours(totalMs)},{label:'Dias Trabalhados',val:String(days)},{label:'Mês',val:monthLabel}].forEach((b,i)=>{const x=14+i*60,y=52;doc.setFillColor(245,245,245);doc.roundedRect(x,y,56,16,2,2,'F');doc.setTextColor(120,120,120);doc.setFontSize(6);doc.text(b.label.toUpperCase(),x+4,y+6);doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(b.val,x+4,y+12);});
+  [{label:'Total de Horas',val:baseHoras+'h'},{label:'Dias Trabalhados',val:String(days)},{label:'Mês',val:monthLabel}].forEach((b,i)=>{const x=14+i*60,y=52;doc.setFillColor(245,245,245);doc.roundedRect(x,y,56,16,2,2,'F');doc.setTextColor(120,120,120);doc.setFontSize(6);doc.text(b.label.toUpperCase(),x+4,y+6);doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(b.val,x+4,y+12);});
 
   let startY=72;
   if(coach.valorHora){
