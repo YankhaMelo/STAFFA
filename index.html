@@ -1905,7 +1905,7 @@ function getScheduledShift(coachId,recordDate,entry,exit){
 
 // Calculate payroll ms: clamps entry/exit to scheduled shift only if day has active schedule,
 // subtracts pausas. Returns {ms, cutMs, cutInfo}
-function roundToNearestHour(ms){return Math.round(ms/3600000)*3600000;}
+function roundToNearestHour(ms){return Math.floor(ms/3600000)*3600000;}
 
 function calcMsPayroll(record){
   const raw=calcMsPayrollRaw(record);
