@@ -684,11 +684,10 @@ tr:hover td { background:#141414; }
     <button class="coach-filter-btn active" onclick="setSubFilter('todos',this)">Todos</button>
     <button class="coach-filter-btn" onclick="setSubFilter('futuros',this)">📅 Futuros</button>
     <button class="coach-filter-btn" onclick="setSubFilter('passados',this)">✅ Passados</button>
-    <button class="coach-filter-btn" onclick="setSubFilter('hybrid',this)">🌀 Hybrid</button>
   </div>
 
   <div class="table-wrap">
-    <table><thead><tr><th>Data</th><th>Hora</th><th>Tipo</th><th>Turma</th><th>Coach(es) Ausente(s)</th><th>Coach Substituto</th><th>Obs</th><th>Ações</th></tr></thead>
+    <table><thead><tr><th>Data</th><th>Hora</th><th>Turma</th><th>Coach Ausente</th><th>Coach Substituto</th><th>Obs</th><th>Ações</th></tr></thead>
     <tbody id="sub-body"></tbody></table>
   </div>
 </div>
@@ -702,15 +701,9 @@ tr:hover td { background:#141414; }
       <div class="form-group"><label>Data</label><input type="date" id="sub-date"></div>
       <div class="form-group"><label>Hora</label><input type="time" id="sub-hora" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;"></div>
     </div>
-    <div class="form-group"><label>Tipo</label>
-      <select id="sub-tipo" onchange="toggleSubTipo()" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
-        <option value="substituicao">🔄 Substituição (horário normal)</option>
-        <option value="hybrid">🌀 Hybrid Day (aula avulsa)</option>
-      </select>
-    </div>
     <div class="form-group"><label>Turma</label><input type="text" id="sub-turma" placeholder="Ex: CF, HYROX, LIFE60+, WL..."></div>
-    <div class="form-group"><label>Coach(es) Ausente(s)</label>
-      <div id="sub-ausentes-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+    <div class="form-group"><label>Coach Ausente</label>
+      <select id="sub-ausente" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select>
     </div>
     <div class="form-group"><label>Coach Substituto</label>
       <select id="sub-substituto" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select>
@@ -1052,18 +1045,14 @@ tr:hover td { background:#141414; }
       </div>
     </div>
     <div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px">Tipo de Registo</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
       <button id="btn-tipo-normal" class="btn-tipo active" onclick="selectTipo('normal')">
-        <div style="font-size:1.2rem;margin-bottom:4px">📋</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Normal</div>
+        <div style="font-size:1.4rem;margin-bottom:4px">📋</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">Horário Normal</div>
       </button>
       <button id="btn-tipo-sub" class="btn-tipo" onclick="selectTipo('substituicao')">
-        <div style="font-size:1.2rem;margin-bottom:4px">🔄</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Substituição</div>
-      </button>
-      <button id="btn-tipo-hybrid" class="btn-tipo" onclick="selectTipo('hybrid')">
-        <div style="font-size:1.2rem;margin-bottom:4px">🌀</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Hybrid Day</div>
+        <div style="font-size:1.4rem;margin-bottom:4px">🔄</div>
+        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">Substituição</div>
       </button>
     </div>
     <div id="sub-fields" style="display:none;margin-bottom:16px">
@@ -1341,7 +1330,6 @@ tr:hover td { background:#141414; }
     <p>Ajuste ou adicione registos manualmente</p>
     <div class="form-group"><label>Colaborador</label><select id="fix-coach" onchange="renderFixRecords()"><option value="">-- Selecionar --</option></select></div>
     <div class="form-group"><label>Data</label><input type="date" id="fix-date" onchange="renderFixRecords()"></div>
-    <div id="fix-month-summary" style="display:none;background:var(--surface2);border:1px solid var(--accent);border-radius:9px;padding:12px 16px;margin-bottom:16px"></div>
     <div id="fix-records-wrap" style="display:none">
       <div class="section-title" style="margin-top:8px">Registos do Dia</div>
       <div id="fix-records-list"></div>
@@ -1357,12 +1345,9 @@ tr:hover td { background:#141414; }
           <select id="fix-tipo" style="flex:1;min-width:100px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;outline:none;">
             <option value="normal">Normal</option>
             <option value="substituicao">🔄 Substituição</option>
-            <option value="hybrid">🌀 Hybrid Day</option>
           </select>
+          <select id="fix-sub-coach" style="display:none;flex:1;min-width:120px;padding:10px;background:var(--surface2);border:1px solid var(--accent);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;outline:none;"></select>
           <button onclick="addManualRecord()" style="padding:10px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;cursor:pointer;font-size:1rem;">+</button>
-        </div>
-        <div id="fix-manual-subcoaches" style="display:none;flex-wrap:wrap;gap:5px;margin-top:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--accent);border-radius:8px">
-          <span style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>
         </div>
       </div>
     </div>
@@ -1744,7 +1729,7 @@ async function loadAllData() {
       sb.from('avaliacoes').select('*').eq('gym_id',GYM_ID)
     ]);
     coaches=(coachesRes.data||[]).map(c=>({id:c.id,name:c.name,role:c.role,aniv:c.aniv,horasSemana:c.horas_semana,valorHora:c.valor_hora,foto:c.foto||null,bio:c.bio||null,telefone:c.telefone||null,idade:c.idade||null}));
-    records=(recordsRes.data||[]).map(r=>({id:r.id,coachId:r.coach_id,date:r.date,entry:r.entry,exit:r.exit,tipo:r.tipo||'normal',subCoachId:r.sub_coach_id,subCoachIds:(r.sub_coach_ids&&r.sub_coach_ids.length?r.sub_coach_ids:(r.sub_coach_id?[r.sub_coach_id]:[]))}));
+    records=(recordsRes.data||[]).map(r=>({id:r.id,coachId:r.coach_id,date:r.date,entry:r.entry,exit:r.exit,tipo:r.tipo||'normal',subCoachId:r.sub_coach_id}));
     faltas=(faltasRes.data||[]).map(f=>({id:f.id,coachId:f.coach_id,date:f.date,tipo:f.tipo,obs:f.obs,feriasInicio:f.ferias_inicio,feriasFim:f.ferias_fim,saidaHora:f.saida_hora,saidaMotivo:f.saida_motivo,auto:f.auto}));
     horarios={};(horariosRes.data||[]).forEach(h=>{horarios[h.coach_id]={dias:h.dias,tolerancia:h.tolerancia};});
     grupos=(gruposRes.data||[]).map(g=>({id:g.id,nome:g.nome,coaches:g.coaches||[],primeiro:g.primeiro,inicio:g.inicio,sabado:g.sabado,domingo:g.domingo}));
@@ -1772,14 +1757,10 @@ async function saveCoach(coach,isNew){
 }
 async function deleteCoachDB(id){await sb.from('coaches').delete().eq('id',id);}
 async function saveRecord(record){
-  const row={id:record.id,gym_id:GYM_ID,coach_id:record.coachId,date:record.date,entry:record.entry,exit:record.exit||null,tipo:record.tipo||'normal',sub_coach_id:(record.subCoachIds&&record.subCoachIds[0])||record.subCoachId||null,sub_coach_ids:(record.subCoachIds&&record.subCoachIds.length?record.subCoachIds:null)};
+  const row={id:record.id,gym_id:GYM_ID,coach_id:record.coachId,date:record.date,entry:record.entry,exit:record.exit||null,tipo:record.tipo||'normal',sub_coach_id:record.subCoachId||null};
   const existing=await sb.from('records').select('id').eq('id',record.id).single();
-  const result=existing.data?await sb.from('records').update(row).eq('id',record.id):await sb.from('records').insert(row);
-  if(result&&result.error){
-    console.error('saveRecord failed:',result.error);
-    showToast('⚠️','Erro ao Guardar Registo','O Supabase recusou o registo: '+(result.error.message||JSON.stringify(result.error))+'. Verifica se a coluna sub_coach_ids existe na tabela records.','danger',9000);
-  }
-  return result;
+  if(existing.data)await sb.from('records').update(row).eq('id',record.id);
+  else await sb.from('records').insert(row);
 }
 async function deleteRecordDB(id){await sb.from('records').delete().eq('id',id);}
 async function saveFalta(falta){
@@ -1905,20 +1886,15 @@ function getScheduledShift(coachId,recordDate,entry,exit){
 
 // Calculate payroll ms: clamps entry/exit to scheduled shift only if day has active schedule,
 // subtracts pausas. Returns {ms, cutMs, cutInfo}
-function roundToNearestHour(ms){return Math.floor(ms/3600000)*3600000;}
-
 function calcMsPayroll(record){
-  const raw=calcMsPayrollRaw(record);
-  return{ms:roundToNearestHour(raw.ms),cutMs:raw.cutMs,cutInfo:raw.cutInfo};
-}
-
-function calcMsPayrollRaw(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
-  // For substituicoes e hybrid days, always count real hours minus pausas (sem clamp ao horário estipulado)
-  if(record.tipo==='substituicao'||record.tipo==='hybrid'){
-    return{ms:Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date)),cutMs:0,cutInfo:null};
+  // For substituicoes, count real hours without pausas
+  if(record.tipo==='substituicao'){
+    if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
+    const rawMs=new Date(record.exit)-new Date(record.entry);
+    return{ms:Math.max(0,rawMs),cutMs:0,cutInfo:null};
   }
 
   const shift=getScheduledShift(scheduleCoachId,date,record.entry,record.exit);
@@ -2101,7 +2077,7 @@ function openQR(coachId){
   sel.innerHTML='<option value="">-- Selecionar coach --</option>'+coaches.filter(c=>c.id!==coachId).map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('qr-modal').classList.add('open');
 }
-function selectTipo(tipo){tipoRegisto=tipo;document.getElementById('btn-tipo-normal').classList.toggle('active',tipo==='normal');document.getElementById('btn-tipo-sub').classList.toggle('active',tipo==='substituicao');document.getElementById('btn-tipo-hybrid').classList.toggle('active',tipo==='hybrid');document.getElementById('sub-fields').style.display=tipo==='substituicao'?'block':'none';}
+function selectTipo(tipo){tipoRegisto=tipo;document.getElementById('btn-tipo-normal').classList.toggle('active',tipo==='normal');document.getElementById('btn-tipo-sub').classList.toggle('active',tipo==='substituicao');document.getElementById('sub-fields').style.display=tipo==='substituicao'?'block':'none';}
 
 function confirmRegisto(){
   const coach=coaches.find(c=>c.id===activeCoachId);
@@ -2111,7 +2087,7 @@ function confirmRegisto(){
   const resultDiv=document.getElementById('scan-result');
 
   // Verificar horário
-  if(tipoRegisto==='normal'){
+  if(tipoRegisto!=='substituicao'){
     const horarioAviso=checkHorario(activeCoachId,!isIn?'entry':'exit');
     if(horarioAviso){
       if(!confirm(horarioAviso+'\n\nPretendes registar na mesma?'))return;
@@ -2149,7 +2125,7 @@ function confirmRegisto(){
     resultDiv.className='scan-result entrada';
     document.getElementById('sr-label').textContent='ENTRADA REGISTADA';
     document.getElementById('sr-value').textContent=coach.name+' — '+formatTime(now);
-    document.getElementById('sr-hours').textContent=tipoRegisto==='substituicao'&&subCoach?'Substituição de '+subCoach.name+' registada! 💪':tipoRegisto==='hybrid'?'Hybrid Day registado! 🌀':(RECEPCAO.includes(coach.name)?'Mais um dia a aturar pessoas 😂 Bom trabalho! 💪':'Bom trabalho coach! 💪');
+    document.getElementById('sr-hours').textContent=tipoRegisto==='substituicao'&&subCoach?'Substituição de '+subCoach.name+' registada! 💪':(RECEPCAO.includes(coach.name)?'Mais um dia a aturar pessoas 😂 Bom trabalho! 💪':'Bom trabalho coach! 💪');
   } else {
     const rec=records.find(r=>r.coachId===activeCoachId&&r.date===today&&!r.exit);
     if(rec){
@@ -2197,7 +2173,7 @@ function renderAdmin(){
 
   const tbody=document.getElementById('records-body');
   if(todayRecs.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Sem registos hoje</td></tr>';}
-  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;const subIds=r.subCoachIds&&r.subCoachIds.length?r.subCoachIds:(r.subCoachId?[r.subCoachId]:[]);const subNames=subIds.map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(subNames||'?')+'</span>':''}${r.tipo==='hybrid'?'<br><span style="font-size:.72rem;color:#a78bfa">🌀 Hybrid Day'+(subNames?' ('+subNames+')':'')+'</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
+  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(coaches.find(c=>c.id===r.subCoachId)?.name||'?')+'</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
 
   const ms2=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   document.getElementById('coaches-manage-body').innerHTML=coaches.map(c=>{
@@ -2236,7 +2212,7 @@ function renderMonthly(){
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
   Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMsPayroll(r).ms;});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Pausas</th><th>Total Dia</th></tr></thead><tbody>`;
-  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}${r.tipo==='hybrid'?'<br>🌀 Hybrid':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
+  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
   html+='</tbody></table></div></div>';});
   container.innerHTML=html;
 }
@@ -2593,15 +2569,10 @@ async function loadExtrasFromDB(coachId){
   try {
     const url=SUPABASE_URL+'/rest/v1/extras?select=*&gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes+'&apikey='+SUPABASE_ANON;
     const res=await fetch(url,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
-    if(!res.ok){
-      const errBody=await res.text().catch(()=>'');
-      console.error('loadExtrasFromDB failed:',res.status,errBody);
-      showToast('⚠️','Erro ao Carregar Extras','Não foi possível ler os extras guardados ('+res.status+'). Verifica a tabela "extras" no Supabase.','danger',8000);
-      return;
-    }
+    if(!res.ok)return;
     const data=await res.json();
     currentExtras=(data||[]).map(e=>({id:e.id,desc:e.descricao,tipo:e.tipo,val:e.val,valorEuros:e.valor_euros}));
-  } catch(e){console.error('Erro ao carregar extras:',e);showToast('⚠️','Erro ao Carregar Extras','Erro de ligação: '+e.message,'danger',8000);}
+  } catch(e){console.error('Erro ao carregar extras:',e);}
 }
 
 async function saveExtrasDB(){
@@ -2610,40 +2581,22 @@ async function saveExtrasDB(){
   showNetStatus('saving','⏳ A guardar extras...');
   try {
     // Delete existing extras for this coach/month
-    const delRes=await fetch(SUPABASE_URL+'/rest/v1/extras?gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes,{
+    await fetch(SUPABASE_URL+'/rest/v1/extras?gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&mes=eq.'+mes,{
       method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}
     });
-    if(!delRes.ok){
-      const errBody=await delRes.text().catch(()=>'');
-      showNetStatus('offline','❌ Erro ao guardar');
-      showToast('⚠️','Erro ao Guardar Extras','Falha ao limpar extras anteriores ('+delRes.status+'). Verifica a tabela "extras" no Supabase.','danger',8000);
-      console.error('saveExtrasDB DELETE failed:',delRes.status,errBody);
-      return;
-    }
     // Insert new extras
     if(currentExtras.length>0){
       const rows=currentExtras.map(e=>({gym_id:GYM_ID,coach_id:coachId,mes,descricao:e.desc,tipo:e.tipo,val:e.val,valor_euros:e.valorEuros}));
-      const insRes=await fetch(SUPABASE_URL+'/rest/v1/extras',{
+      await fetch(SUPABASE_URL+'/rest/v1/extras',{
         method:'POST',
         headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
         body:JSON.stringify(rows)
       });
-      if(!insRes.ok){
-        const errBody=await insRes.text().catch(()=>'');
-        showNetStatus('offline','❌ Erro ao guardar');
-        showToast('⚠️','Erro ao Guardar Extras','O Supabase recusou o pedido ('+insRes.status+'). Verifica a tabela "extras" e as políticas RLS.','danger',8000);
-        console.error('saveExtrasDB INSERT failed:',insRes.status,errBody);
-        return;
-      }
     }
     showNetStatus('saved','✅ Extras guardados!');
     setTimeout(hideNetStatus,2000);
     showToast('💾','Extras Guardados!','Os extras de '+MONTHS_PT[currentMonth]+' ficaram gravados.','success',4000);
-  } catch(e){
-    showNetStatus('offline','❌ Erro ao guardar');
-    showToast('⚠️','Erro ao Guardar Extras','Erro de ligação: '+e.message,'danger',8000);
-    console.error(e);
-  }
+  } catch(e){showNetStatus('offline','❌ Erro ao guardar');console.error(e);}
 }
 function initSig(){sigCanvas=document.getElementById('sig-canvas');sigCtx=sigCanvas.getContext('2d');sigCanvas.width=sigCanvas.offsetWidth;sigCanvas.height=150;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);sigCtx.strokeStyle='#000';sigCtx.lineWidth=2;sigCtx.lineCap='round';const pos=e=>{const r=sigCanvas.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top};};sigCanvas.onmousedown=sigCanvas.ontouchstart=e=>{e.preventDefault();sigDrawing=true;const p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);};sigCanvas.onmousemove=sigCanvas.ontouchmove=e=>{e.preventDefault();if(!sigDrawing)return;const p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();};sigCanvas.onmouseup=sigCanvas.ontouchend=()=>{sigDrawing=false;};}
 function clearSig(){if(!sigCtx)return;sigCtx.fillStyle='#fff';sigCtx.fillRect(0,0,sigCanvas.width,sigCanvas.height);}
@@ -2685,8 +2638,8 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   doc.setFontSize(10);doc.setFont('helvetica','normal');doc.setTextColor(120,120,120);doc.text(coach.role,14,47);
 
   const baseHoras=Math.floor(totalMs/3600000);
+  const normalHoras=Math.floor(normalMs/3600000);
   const subHoras=Math.floor(subMs/3600000);
-  const normalHoras=Math.max(0,baseHoras-subHoras); // garante que Normal + Sub soma sempre ao total (sem "perder" minutos em duplicado)
   const extrasTotal=extras?extras.reduce((a,e)=>a+e.valorEuros,0):0;
 
   const tableRows=[];
@@ -2699,16 +2652,19 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
     totalPausaMs+=Math.max(0,calcMs(r.entry,r.exit)-calcMsPayroll(r).ms);
   });
 
-  [{label:'Total de Horas',val:baseHoras+'h'},{label:'Dias Trabalhados',val:String(days)},{label:'Mês',val:monthLabel}].forEach((b,i)=>{const x=14+i*60,y=52;doc.setFillColor(245,245,245);doc.roundedRect(x,y,56,16,2,2,'F');doc.setTextColor(120,120,120);doc.setFontSize(6);doc.text(b.label.toUpperCase(),x+4,y+6);doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(b.val,x+4,y+12);});
+  [{label:'Total de Horas',val:formatHours(totalMs)},{label:'Dias Trabalhados',val:String(days)},{label:'Mês',val:monthLabel}].forEach((b,i)=>{const x=14+i*60,y=52;doc.setFillColor(245,245,245);doc.roundedRect(x,y,56,16,2,2,'F');doc.setTextColor(120,120,120);doc.setFontSize(6);doc.text(b.label.toUpperCase(),x+4,y+6);doc.setTextColor(0,0,0);doc.setFontSize(11);doc.setFont('helvetica','bold');doc.text(b.val,x+4,y+12);});
 
   let startY=72;
   if(coach.valorHora){
     const valorBase=baseHoras*coach.valorHora;
     const valorNormal=normalHoras*coach.valorHora;
     const valorSub=subHoras*coach.valorHora;
+    const totalPausaHoras=totalPausaMs/3600000;
+    const valorPausas=totalPausaHoras*coach.valorHora;
     const valorTotal=valorBase+extrasTotal;
+    const hasPausas=totalPausaMs>0;
     const hasExtras=extras&&extras.length>0;
-    const boxH=subMs>0?26:hasExtras?22:14;
+    const boxH=subMs>0?26:hasPausas||hasExtras?22:14;
     doc.setFillColor(0,0,0);doc.roundedRect(14,startY,182,boxH,2,2,'F');
     doc.setTextColor(100,100,100);doc.setFontSize(6);doc.setFont('helvetica','normal');
     if(subMs>0){
@@ -2718,9 +2674,14 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
       doc.text('Base: '+baseHoras+'h x '+coach.valorHora.toFixed(2)+'EUR/h = '+valorBase.toFixed(2)+'EUR',18,startY+6);
     }
     let extraLine=subMs>0?startY+16:startY+11;
+    if(hasPausas){
+      doc.setTextColor(200,80,80);
+      doc.text('Pausas: -'+formatHours(totalPausaMs)+' x '+coach.valorHora.toFixed(2)+'EUR/h = -'+valorPausas.toFixed(2)+'EUR (já descontado nas horas)',18,extraLine);
+      extraLine+=5;
+    }
     if(hasExtras){doc.setTextColor(100,200,100);doc.text('Extras: +'+extrasTotal.toFixed(2)+'EUR',18,extraLine);}
     doc.setTextColor(255,214,0);doc.setFontSize(10);doc.setFont('helvetica','bold');
-    doc.text('TOTAL A RECEBER: '+valorTotal.toFixed(2)+' EUR',190,startY+(subMs>0||hasExtras?boxH-4:10),{align:'right'});
+    doc.text('TOTAL A RECEBER: '+valorTotal.toFixed(2)+' EUR',190,startY+(subMs>0||hasPausas||hasExtras?boxH-4:10),{align:'right'});
     startY+=boxH+4;
   }
 
@@ -2826,53 +2787,13 @@ function openFixModal(){
   sel.innerHTML='<option value="">-- Selecionar --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
   document.getElementById('fix-date').value=todayStr();
   document.getElementById('fix-records-wrap').style.display='none';
-  fixManualSubCoaches=[];
   document.getElementById('fix-tipo').onchange=function(){
-    const needsSub=this.value==='substituicao'||this.value==='hybrid';
-    document.getElementById('fix-manual-subcoaches').style.display=needsSub?'flex':'none';
-    if(needsSub)renderFixManualSubcoaches();
+    const isSub=this.value==='substituicao';
+    const subSel=document.getElementById('fix-sub-coach');
+    subSel.style.display=isSub?'block':'none';
+    if(isSub){subSel.innerHTML='<option value="">-- Quem substitui --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');}
   };
   document.getElementById('fix-modal').classList.add('open');
-}
-
-let fixManualSubCoaches=[];
-function toggleFixManualSubCoach(id,el){
-  const idx=fixManualSubCoaches.indexOf(id);
-  if(idx>=0){fixManualSubCoaches.splice(idx,1);el.style.borderColor='var(--border)';el.style.background='transparent';el.style.color='var(--muted)';}
-  else{fixManualSubCoaches.push(id);el.style.borderColor='var(--accent)';el.style.background='rgba(255,214,0,.12)';el.style.color='var(--accent)';}
-}
-function renderFixManualSubcoaches(){
-  const coachId=document.getElementById('fix-coach').value;
-  const wrap=document.getElementById('fix-manual-subcoaches');
-  const label='<span style="font-size:.68rem;color:var(--muted);font-family:\'DM Mono\',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>';
-  wrap.innerHTML=label+coaches.filter(c=>c.id!==coachId).map(c=>{
-    const sel=fixManualSubCoaches.includes(c.id);
-    return`<button type="button" onclick="toggleFixManualSubCoach('${c.id}',this)" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;
-  }).join('');
-}
-
-function renderFixMonthSummary(coachId,date){
-  const coach=coaches.find(c=>c.id===coachId);
-  const box=document.getElementById('fix-month-summary');
-  if(!coach){box.style.display='none';return;}
-  const ms=date.substring(0,7); // YYYY-MM
-  const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.exit);
-  let totalMs=0,subMs=0,hybridMs=0;
-  mRecs.forEach(r=>{const{ms:m}=calcMsPayroll(r);totalMs+=m;if(r.tipo==='substituicao')subMs+=m;else if(r.tipo==='hybrid')hybridMs+=m;});
-  const diasTrabalhados=[...new Set(mRecs.map(r=>r.date))].length;
-  const mesLabel=MONTHS_PT[parseInt(ms.split('-')[1])-1]+' '+ms.split('-')[0];
-  box.style.display='block';
-  box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-    <div>
-      <div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">${coach.name.split(' ')[0]} · ${mesLabel}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
-    </div>
-    <div style="text-align:right;font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace">
-      ${diasTrabalhados} dia${diasTrabalhados!==1?'s':''} trabalhado${diasTrabalhados!==1?'s':''}
-      ${subMs>0?`<br><span style="color:#ff9900">🔄 Sub: ${formatHours(subMs)}</span>`:''}
-      ${hybridMs>0?`<br><span style="color:#a78bfa">🌀 Hybrid: ${formatHours(hybridMs)}</span>`:''}
-    </div>
-  </div>`;
 }
 
 function renderFixRecords(){
@@ -2880,41 +2801,20 @@ function renderFixRecords(){
   const date=document.getElementById('fix-date').value;
   if(!coachId||!date)return;
   document.getElementById('fix-records-wrap').style.display='block';
-  if(document.getElementById('fix-manual-subcoaches').style.display==='flex'){
-    fixManualSubCoaches=fixManualSubCoaches.filter(id=>id!==coachId);
-    renderFixManualSubcoaches();
-  }
-  renderFixMonthSummary(coachId,date);
   // Registos
   const recs=records.filter(r=>r.coachId===coachId&&r.date===date);
   const list=document.getElementById('fix-records-list');
   if(recs.length===0){list.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:8px 0;font-family:\'DM Mono\',monospace">Sem registos neste dia</div>';}
   else{list.innerHTML=recs.map(r=>{
     const isSub=r.tipo==='substituicao';
-    const isHybrid=r.tipo==='hybrid';
-    const subIds=r.subCoachIds&&r.subCoachIds.length?r.subCoachIds:(r.subCoachId?[r.subCoachId]:[]);
-    const subNames=subIds.map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');
-    const showPicker=isSub||isHybrid;
-    return`<div class="fix-record-row" style="flex-direction:column;align-items:stretch;border:1px solid ${isHybrid?'rgba(167,139,250,.35)':isSub?'rgba(255,153,0,.3)':'var(--border)'};border-radius:8px;padding:8px 10px;margin-bottom:6px;background:${isHybrid?'rgba(167,139,250,.06)':isSub?'rgba(255,153,0,.05)':'transparent'}">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <div style="flex:1;font-family:'DM Mono',monospace;font-size:.85rem;min-width:150px">
-          <span style="color:var(--accent)">${formatTime(r.entry)}</span><span style="color:var(--muted)"> → </span><span style="color:${r.exit?'var(--text)':'var(--danger)'}">${r.exit?formatTime(r.exit):'Sem saída'}</span>
-          ${isSub?`<br><span style="font-size:.7rem;color:#ff9900">🔄 Sub: ${subNames||'?'}</span>`:''}
-          ${isHybrid?`<br><span style="font-size:.7rem;color:#a78bfa">🌀 Hybrid Day${subNames?' (subst. '+subNames+')':''}</span>`:''}
-        </div>
-        <select class="fix-time-input" style="width:auto;padding:6px 8px" onchange="updateRecordTipo('${r.id}',this.value)">
-          <option value="normal" ${r.tipo==='normal'?'selected':''}>Normal</option>
-          <option value="substituicao" ${isSub?'selected':''}>🔄 Sub</option>
-          <option value="hybrid" ${isHybrid?'selected':''}>🌀 Hybrid</option>
-        </select>
-        <input class="fix-time-input" type="time" value="${r.entry?new Date(r.entry).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','entry',this.value,'${date}')">
-        <input class="fix-time-input" type="time" value="${r.exit?new Date(r.exit).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','exit',this.value,'${date}')">
-        <button onclick="deleteRecord('${r.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;">🗑</button>
+    return`<div class="fix-record-row" style="border:1px solid ${isSub?'rgba(255,153,0,.3)':'var(--border)'};border-radius:8px;padding:8px 10px;margin-bottom:6px;background:${isSub?'rgba(255,153,0,.05)':'transparent'}">
+      <div style="flex:1;font-family:'DM Mono',monospace;font-size:.85rem">
+        <span style="color:var(--accent)">${formatTime(r.entry)}</span><span style="color:var(--muted)"> → </span><span style="color:${r.exit?'var(--text)':'var(--danger)'}">${r.exit?formatTime(r.exit):'Sem saída'}</span>
+        ${isSub?`<span style="font-size:.7rem;color:#ff9900;margin-left:6px">🔄 Sub: ${coaches.find(c=>c.id===r.subCoachId)?.name||'?'}</span>`:''}
       </div>
-      ${showPicker?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">
-        <span style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>
-        ${coaches.filter(c=>c.id!==r.coachId).map(c=>{const sel=subIds.includes(c.id);return`<button type="button" onclick="toggleRecordSubCoach('${r.id}','${c.id}')" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;}).join('')}
-      </div>`:''}
+      <input class="fix-time-input" type="time" value="${r.entry?new Date(r.entry).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','entry',this.value,'${date}')">
+      <input class="fix-time-input" type="time" value="${r.exit?new Date(r.exit).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','exit',this.value,'${date}')">
+      <button onclick="deleteRecord('${r.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1.1rem;">🗑</button>
     </div>`;
   }).join('');}
   // Pausas do horário para este dia
@@ -2967,32 +2867,19 @@ async function addManualRecord(){
   const entryT=document.getElementById('fix-entry').value;
   const exitT=document.getElementById('fix-exit').value;
   const tipo=document.getElementById('fix-tipo').value;
-  const needsSub=tipo==='substituicao'||tipo==='hybrid';
-  const subCoachIds=needsSub?[...fixManualSubCoaches]:[];
+  const subCoachId=tipo==='substituicao'?document.getElementById('fix-sub-coach').value:null;
   if(!coachId||!date||!entryT){alert('Preencha pelo menos a entrada.');return;}
-  if(needsSub&&subCoachIds.length===0){alert('Seleciona pelo menos 1 coach a substituir.');return;}
-  const rec={id:crypto.randomUUID(),coachId,date,entry:new Date(date+'T'+entryT+':00').toISOString(),exit:exitT?new Date(date+'T'+exitT+':00').toISOString():null,tipo,subCoachId:subCoachIds[0]||null,subCoachIds};
+  if(tipo==='substituicao'&&!subCoachId){alert('Selecione o coach que está a ser substituído.');return;}
+  const rec={id:crypto.randomUUID(),coachId,date,entry:new Date(date+'T'+entryT+':00').toISOString(),exit:exitT?new Date(date+'T'+exitT+':00').toISOString():null,tipo,subCoachId};
   records.push(rec);await saveRecord(rec);
   document.getElementById('fix-entry').value='';
   document.getElementById('fix-exit').value='';
   document.getElementById('fix-tipo').value='normal';
-  document.getElementById('fix-manual-subcoaches').style.display='none';
-  fixManualSubCoaches=[];
+  document.getElementById('fix-sub-coach').style.display='none';
   renderGrid();renderAdmin();renderFixRecords();
 }
 
 async function updateTime(id,field,val,date){const rec=records.find(r=>r.id===id);if(!rec||!val)return;rec[field]=new Date(date+'T'+val+':00').toISOString();await saveRecord(rec);renderGrid();renderAdmin();renderFixRecords();}
-async function updateRecordTipo(id,newTipo){const rec=records.find(r=>r.id===id);if(!rec)return;rec.tipo=newTipo;if(newTipo==='normal'){rec.subCoachId=null;rec.subCoachIds=[];}await saveRecord(rec);renderGrid();renderAdmin();renderFixRecords();}
-async function toggleRecordSubCoach(recordId,coachId){
-  const rec=records.find(r=>r.id===recordId);if(!rec)return;
-  let ids=rec.subCoachIds&&rec.subCoachIds.length?[...rec.subCoachIds]:(rec.subCoachId?[rec.subCoachId]:[]);
-  const idx=ids.indexOf(coachId);
-  if(idx>=0)ids.splice(idx,1);else ids.push(coachId);
-  rec.subCoachIds=ids;
-  rec.subCoachId=ids[0]||null;
-  await saveRecord(rec);
-  renderGrid();renderAdmin();renderFixRecords();
-}
 async function deleteRecord(id){if(!confirm('Remover este registo?'))return;await deleteRecordDB(id);records=records.filter(r=>r.id!==id);renderGrid();renderAdmin();renderFixRecords();}
 
 // ══════════════════════════════════════════════════
@@ -3398,17 +3285,16 @@ function exportAvaliacaoPDF(avalId){
 // ══════════════════════════════════════════════════
 let substituicoes=[];
 let subFilter='todos';
-let subAusentesSelected=[];
 
 async function loadSubstituicoes(){
   try{
     const {data}=await sb.from('substituicoes').select('*').eq('gym_id',GYM_ID);
-    substituicoes=(data||[]).map(s=>({id:s.id,coachId:s.coach_id,substituiId:s.substitui_id,substituiIds:(s.substitui_ids&&s.substitui_ids.length?s.substitui_ids:(s.substitui_id?[s.substitui_id]:[])),date:s.date,hora:s.hora_inicio,turma:s.turma||'',obs:s.obs||'',tipo:s.tipo||'substituicao'}));
+    substituicoes=(data||[]).map(s=>({id:s.id,coachId:s.coach_id,substituiId:s.substitui_id,date:s.date,hora:s.hora_inicio,turma:s.turma||'',obs:s.obs||''}));
   }catch(e){console.error('Erro ao carregar substituições:',e);}
 }
 
 async function saveSubDB(s,isNew){
-  const row={id:s.id,gym_id:GYM_ID,coach_id:s.coachId,substitui_id:s.substituiIds[0]||null,substitui_ids:s.substituiIds,date:s.date,hora_inicio:s.hora,turma:s.turma||null,obs:s.obs||null,tipo:s.tipo||'substituicao'};
+  const row={id:s.id,gym_id:GYM_ID,coach_id:s.coachId,substitui_id:s.substituiId,date:s.date,hora_inicio:s.hora,turma:s.turma||null,obs:s.obs||null};
   if(isNew)await sb.from('substituicoes').insert(row);
   else await sb.from('substituicoes').update(row).eq('id',s.id);
 }
@@ -3421,49 +3307,31 @@ function setSubFilter(f,btn){
   renderSubstituicoes();
 }
 
-function toggleSubTipo(){
-  const tipo=document.getElementById('sub-tipo').value;
-  const turmaEl=document.getElementById('sub-turma');
-  if(tipo==='hybrid'&&!turmaEl.value.trim())turmaEl.value='Hybrid';
-}
-
-function toggleSubAusente(id,el){
-  const idx=subAusentesSelected.indexOf(id);
-  if(idx>=0){subAusentesSelected.splice(idx,1);el.classList.remove('active');}
-  else{subAusentesSelected.push(id);el.classList.add('active');}
-}
-
-function renderSubAusentesList(){
-  document.getElementById('sub-ausentes-list').innerHTML=coaches.map(c=>`<button type="button" class="coach-filter-btn ${subAusentesSelected.includes(c.id)?'active':''}" onclick="toggleSubAusente('${c.id}',this)">${c.name.split(' ')[0]}</button>`).join('');
-}
-
 function openSubModal(editId){
   const s=editId?substituicoes.find(x=>x.id===editId):null;
   document.getElementById('sub-modal-title').textContent=s?'Editar Substituição':'Nova Substituição';
   document.getElementById('sub-date').value=s?s.date:todayStr();
   document.getElementById('sub-hora').value=s?s.hora:'';
-  document.getElementById('sub-tipo').value=s?(s.tipo||'substituicao'):'substituicao';
   document.getElementById('sub-turma').value=s?s.turma:'';
   document.getElementById('sub-obs').value=s?s.obs:'';
   document.getElementById('sub-edit-id').value=editId||'';
-  subAusentesSelected=s?[...s.substituiIds]:[];
-  renderSubAusentesList();
   const opts='<option value="">-- Selecionar --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('sub-ausente').innerHTML=opts;
   document.getElementById('sub-substituto').innerHTML=opts;
-  if(s)document.getElementById('sub-substituto').value=s.coachId;
+  if(s){document.getElementById('sub-ausente').value=s.substituiId;document.getElementById('sub-substituto').value=s.coachId;}
   document.getElementById('sub-modal').classList.add('open');
 }
 
 async function saveSub(){
   const date=document.getElementById('sub-date').value;
   const hora=document.getElementById('sub-hora').value;
-  const tipo=document.getElementById('sub-tipo').value;
   const turma=document.getElementById('sub-turma').value.trim();
+  const ausente=document.getElementById('sub-ausente').value;
   const substituto=document.getElementById('sub-substituto').value;
   const obs=document.getElementById('sub-obs').value.trim();
   const editId=document.getElementById('sub-edit-id').value;
-  if(!date||!hora||subAusentesSelected.length===0||!substituto){alert('Preenche a data, hora, pelo menos 1 coach ausente e o coach substituto.');return;}
-  const s={id:editId||crypto.randomUUID(),coachId:substituto,substituiIds:[...subAusentesSelected],date,hora,turma,obs,tipo};
+  if(!date||!hora||!ausente||!substituto){alert('Preenche todos os campos obrigatórios.');return;}
+  const s={id:editId||crypto.randomUUID(),coachId:substituto,substituiId:ausente,date,hora,turma,obs};
   await saveSubDB(s,!editId);
   if(editId){const idx=substituicoes.findIndex(x=>x.id===editId);if(idx>=0)substituicoes[idx]=s;else substituicoes.push(s);}
   else substituicoes.push(s);
@@ -3483,21 +3351,18 @@ function renderSubstituicoes(){
   let data=[...substituicoes].sort((a,b)=>a.date.localeCompare(b.date)||a.hora.localeCompare(b.hora));
   if(subFilter==='futuros')data=data.filter(s=>s.date>=today);
   else if(subFilter==='passados')data=data.filter(s=>s.date<today);
-  else if(subFilter==='hybrid')data=data.filter(s=>s.tipo==='hybrid');
   const tbody=document.getElementById('sub-body');
-  if(data.length===0){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--muted)">Sem substituições registadas</td></tr>';return;}
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem substituições registadas</td></tr>';return;}
   tbody.innerHTML=data.map(s=>{
-    const ausentesNomes=(s.substituiIds||[]).map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');
+    const ausente=coaches.find(c=>c.id===s.substituiId);
     const substituto=coaches.find(c=>c.id===s.coachId);
     const dateStr=new Date(s.date+'T12:00:00').toLocaleDateString('pt-PT',{weekday:'short',day:'2-digit',month:'2-digit',year:'numeric'});
     const isPast=s.date<today;
-    const isHybrid=s.tipo==='hybrid';
     return`<tr style="${isPast?'opacity:.7':''}">
       <td style="font-family:'DM Mono',monospace">${dateStr}</td>
       <td style="font-family:'DM Mono',monospace;color:var(--accent)">${s.hora}</td>
-      <td>${isHybrid?'<span class="badge" style="background:rgba(167,139,250,.15);color:#a78bfa;border:1px solid rgba(167,139,250,.3)">🌀 Hybrid</span>':'<span class="badge badge-warning">🔄 Sub</span>'}</td>
       <td><span class="badge badge-info">${s.turma||'–'}</span></td>
-      <td><strong>${ausentesNomes||'?'}</strong></td>
+      <td><strong>${ausente?.name||'?'}</strong></td>
       <td><strong style="color:var(--success)">${substituto?.name||'?'}</strong></td>
       <td style="color:var(--muted);font-size:.82rem">${s.obs||'–'}</td>
       <td>
