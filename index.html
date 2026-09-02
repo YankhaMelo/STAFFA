@@ -2657,32 +2657,11 @@ function exportPDF(coach,byDay,totalMs,normalMs,subMs,days,monthLabel,sigData,ex
   let startY=72;
   if(coach.valorHora){
     const valorBase=baseHoras*coach.valorHora;
-    const valorNormal=normalHoras*coach.valorHora;
-    const valorSub=subHoras*coach.valorHora;
-    const totalPausaHoras=totalPausaMs/3600000;
-    const valorPausas=totalPausaHoras*coach.valorHora;
     const valorTotal=valorBase+extrasTotal;
-    const hasPausas=totalPausaMs>0;
-    const hasExtras=extras&&extras.length>0;
-    const boxH=subMs>0?26:hasPausas||hasExtras?22:14;
-    doc.setFillColor(0,0,0);doc.roundedRect(14,startY,182,boxH,2,2,'F');
-    doc.setTextColor(100,100,100);doc.setFontSize(6);doc.setFont('helvetica','normal');
-    if(subMs>0){
-      doc.text('Horario Normal: '+normalHoras+'h x '+coach.valorHora.toFixed(2)+'EUR/h = '+valorNormal.toFixed(2)+'EUR',18,startY+6);
-      doc.text('Substituicoes:  '+subHoras+'h x '+coach.valorHora.toFixed(2)+'EUR/h = '+valorSub.toFixed(2)+'EUR',18,startY+11);
-    } else {
-      doc.text('Base: '+baseHoras+'h x '+coach.valorHora.toFixed(2)+'EUR/h = '+valorBase.toFixed(2)+'EUR',18,startY+6);
-    }
-    let extraLine=subMs>0?startY+16:startY+11;
-    if(hasPausas){
-      doc.setTextColor(200,80,80);
-      doc.text('Pausas: -'+formatHours(totalPausaMs)+' x '+coach.valorHora.toFixed(2)+'EUR/h = -'+valorPausas.toFixed(2)+'EUR (já descontado nas horas)',18,extraLine);
-      extraLine+=5;
-    }
-    if(hasExtras){doc.setTextColor(100,200,100);doc.text('Extras: +'+extrasTotal.toFixed(2)+'EUR',18,extraLine);}
+    doc.setFillColor(0,0,0);doc.roundedRect(14,startY,182,14,2,2,'F');
     doc.setTextColor(255,214,0);doc.setFontSize(10);doc.setFont('helvetica','bold');
-    doc.text('TOTAL A RECEBER: '+valorTotal.toFixed(2)+' EUR',190,startY+(subMs>0||hasPausas||hasExtras?boxH-4:10),{align:'right'});
-    startY+=boxH+4;
+    doc.text('TOTAL A RECEBER: '+valorTotal.toFixed(2)+' EUR',190,startY+10,{align:'right'});
+    startY+=18;
   }
 
   const pausasPorDia={};
