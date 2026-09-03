@@ -626,6 +626,7 @@ tr:hover td { background:#141414; }
       <button class="nav-tab" onclick="showPage('limpezas',this)">🧹 Limpezas</button>
       <button class="nav-tab" onclick="showPage('substituicoes',this)">🔄 Substituições</button>
       <button class="nav-tab admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)" style="display:none">Dashboard</button>
+      <button class="nav-tab admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)" style="display:none">🏆 HYROX</button>
       <button class="nav-tab admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">Administração</button>
       <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
     </div>
@@ -859,6 +860,27 @@ tr:hover td { background:#141414; }
   </div>
   <div class="section-title">🏆 Ranking de Horas — Mês Atual</div>
   <div id="ranking-list"></div>
+</div>
+
+<!-- HYROX -->
+<div class="page" id="page-hyrox">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🏆 HYROX — Resultados</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Avaliações registadas pelo staff (link à parte, sem login)</p>
+    </div>
+    <button class="btn-add" onclick="renderHyroxAdmin()">🔄 Atualizar</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="hyrox-filter-wrap">
+    <button class="coach-filter-btn active" onclick="setHyroxFilter('todos',this)">Todos</button>
+    <button class="coach-filter-btn" onclick="setHyroxFilter('fitness',this)">🏃 Fitness Test</button>
+    <button class="coach-filter-btn" onclick="setHyroxFilter('conditioning',this)">💪 Conditioning Test</button>
+  </div>
+  <div class="stats-row" id="hyrox-stats-row"></div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Atleta</th><th>Equipa</th><th>Género</th><th>Escalão</th><th>Teste</th><th>Resultado</th><th>Data</th></tr></thead>
+    <tbody id="hyrox-body"></tbody></table>
+  </div>
 </div>
 
 <!-- ADMIN -->
@@ -2376,6 +2398,67 @@ function renderFaltasChart(ms){const ctx=document.getElementById('chart-faltas')
 function renderRanking(mRecs){const byCoach={};mRecs.forEach(r=>{byCoach[r.coachId]=(byCoach[r.coachId]||0)+calcMs(r.entry,r.exit);});const sorted=Object.entries(byCoach).sort((a,b)=>b[1]-a[1]);const max=sorted[0]?.[1]||1;const medals=['🥇','🥈','🥉'];const classes=['gold','silver','bronze'];document.getElementById('ranking-list').innerHTML=sorted.map(([id,ms],i)=>{const c=coaches.find(x=>x.id===id);const pct=Math.round((ms/max)*100);return`<div class="ranking-row"><div class="ranking-pos ${classes[i]||''}">${medals[i]||i+1}</div><div class="ranking-avatar">${initials(c?.name||'?')}</div><div style="flex:1"><div class="ranking-name">${c?.name||'?'}</div><div style="font-size:.72rem;color:var(--muted)">${c?.role||''}</div></div><div style="display:flex;align-items:center;gap:12px"><div class="ranking-bar-wrap"><div class="ranking-bar" style="width:${pct}%"></div></div><div class="ranking-hours">${formatHours(ms)}</div></div></div>`;}).join('')||'<div style="color:var(--muted);padding:24px;text-align:center">Sem dados este mês</div>';}
 
 // ══════════════════════════════════════════════════
+// HYROX (resultados registados via link público sem login)
+// ══════════════════════════════════════════════════
+let hyroxResults=[];
+let hyroxFilter='todos';
+
+function setHyroxFilter(f,btn){
+  hyroxFilter=f;
+  document.querySelectorAll('#hyrox-filter-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHyroxTable();
+}
+
+function hyroxFmtMMSS(totalSeconds){
+  if(totalSeconds==null)return'–';
+  totalSeconds=Math.max(0,Math.round(totalSeconds));
+  const m=Math.floor(totalSeconds/60),s=totalSeconds%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function hyroxResultSummary(row){
+  const d=row.data||{};
+  if(row.test_type==='fitness'){
+    return hyroxFmtMMSS(d.totalSeconds)+(d.bracket?' · '+d.bracket:'');
+  }
+  if(d.stations&&d.stations.length){
+    return d.stations.map(s=>s.display).join(' · ');
+  }
+  return '–';
+}
+
+async function loadHyroxResults(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/hyrox_results?select=*&gym_id=eq.'+GYM_ID+'&order=created_at.desc&apikey='+SUPABASE_ANON,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao carregar HYROX:',res.status,await res.text().catch(()=>''));hyroxResults=[];return;}
+    hyroxResults=await res.json();
+  }catch(e){console.error('Erro ao carregar HYROX:',e);hyroxResults=[];}
+}
+
+async function renderHyroxAdmin(){
+  await loadHyroxResults();
+  const total=hyroxResults.length;
+  const nFitness=hyroxResults.filter(r=>r.test_type==='fitness').length;
+  const nConditioning=hyroxResults.filter(r=>r.test_type==='conditioning').length;
+  document.getElementById('hyrox-stats-row').innerHTML=statCard('Total Registados',total,true)+statCard('Fitness Test',nFitness)+statCard('Conditioning Test',nConditioning);
+  renderHyroxTable();
+}
+
+function renderHyroxTable(){
+  let data=[...hyroxResults];
+  if(hyroxFilter!=='todos')data=data.filter(r=>r.test_type===hyroxFilter);
+  const tbody=document.getElementById('hyrox-body');
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
+  tbody.innerHTML=data.map(r=>{
+    const dateStr=new Date(r.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const testBadge=r.test_type==='fitness'?'<span class="badge badge-info">🏃 Fitness</span>':'<span class="badge badge-warning">💪 Conditioning</span>';
+    return`<tr><td><strong>${r.first_name} ${r.last_name}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td>${r.gender||'–'}</td><td style="font-family:'DM Mono',monospace">${r.age_group||'–'}</td><td>${testBadge}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${hyroxResultSummary(r)}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td></tr>`;
+  }).join('');
+}
+
+
+// ══════════════════════════════════════════════════
 // PROFILE
 // ══════════════════════════════════════════════════
 function openProfile(coachId){
@@ -2588,6 +2671,12 @@ async function openExportModal(coachId){
   document.getElementById('exp-pane-extras').style.display='none';
   await loadExtrasFromDB(coachId);
   await loadExtrasRecorrentesFromDB(coachId);
+  // Se este mês ainda não tem extras guardados, aplica automaticamente os Recorrentes definidos
+  if(currentExtras.length===0&&extrasRecorrentes.length>0){
+    currentExtras=extrasRecorrentes.map(r=>({desc:r.desc,tipo:r.tipo,val:r.val,valorEuros:r.valorEuros}));
+    await saveExtrasDB();
+    showToast('🔄','Extras Recorrentes Aplicados',extrasRecorrentes.length+' extra(s) recorrente(s) de '+coach.name+' foram adicionados automaticamente a '+MONTHS_PT[currentMonth]+'.','info',5000);
+  }
   renderExtrasList();
   renderExtrasSummary();
   renderSugestoes();
@@ -3241,11 +3330,12 @@ async function clearData(){if(!confirm('⚠️ Apagar TODOS os dados? Irreversí
 // ══════════════════════════════════════════════════
 // NAV & PIN
 // ══════════════════════════════════════════════════
-function showPage(page,btn){if(page==='admin'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}if(page==='dashboard'&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();}
+const PIN_GATED_PAGES=['admin','dashboard','hyrox'];
+function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
-function unlockAdminNav(){document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
-function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const isDash=pendingPage.getAttribute('onclick')?.includes('dashboard');if(isDash){document.getElementById('page-dashboard').classList.add('active');renderDashboard();}else{document.getElementById('page-admin').classList.add('active');renderAdmin();}pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
+function unlockAdminNav(){document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
 
 // ══════════════════════════════════════════════════
 // EVENTOS
