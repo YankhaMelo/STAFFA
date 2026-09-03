@@ -2588,12 +2588,6 @@ async function openExportModal(coachId){
   document.getElementById('exp-pane-extras').style.display='none';
   await loadExtrasFromDB(coachId);
   await loadExtrasRecorrentesFromDB(coachId);
-  // Se este mês ainda não tem extras guardados, aplica automaticamente os Recorrentes definidos
-  if(currentExtras.length===0&&extrasRecorrentes.length>0){
-    currentExtras=extrasRecorrentes.map(r=>({desc:r.desc,tipo:r.tipo,val:r.val,valorEuros:r.valorEuros}));
-    await saveExtrasDB();
-    showToast('🔄','Extras Recorrentes Aplicados',extrasRecorrentes.length+' extra(s) recorrente(s) de '+coach.name+' foram adicionados automaticamente a '+MONTHS_PT[currentMonth]+'.','info',5000);
-  }
   renderExtrasList();
   renderExtrasSummary();
   renderSugestoes();
