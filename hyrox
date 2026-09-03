@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="HYROX 5.7">
+<title>5.7 HYROX — Avaliação</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#111; --surface2:#191919; --border:#222;
+  --accent:#FFD600; --accent-h:#e6c000; --text:#f5f5f5; --muted:#777;
+  --danger:#ff3b3b; --success:#22c55e;
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Barlow',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; min-height:-webkit-fill-available; overscroll-behavior:none; }
+button,input,select { font-family:inherit; -webkit-appearance:none; appearance:none; }
+.screen { display:none; min-height:100vh; padding:24px 20px 60px; max-width:520px; margin:0 auto; }
+.screen.active { display:block; }
+.logo { font-family:'Barlow Condensed',sans-serif; font-size:1.6rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; text-align:center; margin-bottom:6px; }
+.logo span { color:var(--accent); }
+.subtitle { text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:32px; }
+
+.big-btn { display:block; width:100%; padding:26px 20px; margin-bottom:16px; border-radius:14px; border:1px solid var(--border); background:var(--surface); color:var(--text); text-align:left; cursor:pointer; transition:all .15s; }
+.big-btn:active { transform:scale(.98); background:var(--surface2); }
+.big-btn h3 { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:900; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+.big-btn p { color:var(--muted); font-size:.82rem; line-height:1.4; }
+
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:7px; letter-spacing:.08em; text-transform:uppercase; font-family:'DM Mono',monospace; }
+.form-group input, .form-group select { width:100%; padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:1rem; outline:none; }
+.form-group input:focus, .form-group select:focus { border-color:var(--accent); }
+.chip-row { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { padding:10px 18px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-weight:700; cursor:pointer; font-size:.9rem; }
+.chip.active { border-color:var(--accent); background:rgba(255,214,0,.12); color:var(--accent); }
+
+.btn-primary { width:100%; padding:16px; border-radius:10px; background:var(--accent); color:#000; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; margin-top:8px; }
+.btn-primary:active { background:var(--accent-h); }
+.btn-primary:disabled { opacity:.4; }
+.btn-secondary { width:100%; padding:13px; border-radius:10px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem; text-transform:uppercase; cursor:pointer; margin-top:10px; }
+
+.athlete-badge { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px 16px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; }
+.athlete-badge-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:1.1rem; text-transform:uppercase; }
+.athlete-badge-meta { font-size:.72rem; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
+
+.timer-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px 20px; text-align:center; margin-bottom:20px; }
+.timer-card.rest { border-color:rgba(255,214,0,.3); background:rgba(255,214,0,.05); }
+.step-label { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+.step-progress { font-size:.7rem; color:var(--muted); font-family:'DM Mono',monospace; margin-bottom:14px; }
+.timer-display { font-family:'DM Mono',monospace; font-size:3.4rem; font-weight:700; letter-spacing:1px; margin-bottom:18px; }
+.timer-display.danger { color:var(--danger); }
+.timer-btns { display:flex; gap:10px; justify-content:center; margin-bottom:6px; }
+.timer-btn { width:56px; height:56px; border-radius:50%; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.timer-btn.start { background:var(--accent); color:#000; border-color:var(--accent); }
+.timer-btn.stop { background:var(--danger); color:#fff; border-color:var(--danger); }
+
+.exercise-list { display:flex; flex-direction:column; gap:8px; margin-bottom:20px; }
+.exercise-item { display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; cursor:pointer; transition:all .15s; }
+.exercise-item.done { border-color:rgba(34,197,94,.4); background:rgba(34,197,94,.06); }
+.exercise-item.current { border-color:var(--accent); background:rgba(255,214,0,.06); }
+.ex-check { width:26px; height:26px; border-radius:50%; border:2px solid var(--border); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.85rem; }
+.exercise-item.done .ex-check { background:var(--success); border-color:var(--success); color:#000; }
+.ex-info { flex:1; }
+.ex-name { font-weight:600; font-size:.92rem; }
+.ex-split { font-size:.72rem; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
+
+.result-summary { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:16px; }
+.result-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); font-size:.88rem; }
+.result-row:last-child { border-bottom:none; }
+.result-row .val { font-family:'DM Mono',monospace; color:var(--accent); font-weight:700; }
+.big-time { text-align:center; font-family:'Barlow Condensed',sans-serif; font-size:2.8rem; font-weight:900; color:var(--accent); margin:14px 0 4px; }
+.big-label { text-align:center; color:var(--muted); font-size:.72rem; font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.08em; margin-bottom:18px; }
+.badge-pill { display:inline-block; padding:5px 14px; border-radius:20px; font-size:.75rem; font-weight:700; font-family:'DM Mono',monospace; }
+
+.loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.toast { position:fixed; bottom:24px; left:16px; right:16px; background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:14px 18px; text-align:center; font-size:.88rem; z-index:998; display:none; }
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.82rem">A ligar...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SCREEN 1: escolher teste -->
+<div class="screen" id="screen-choose">
+  <div class="logo">5.7 <span>HYROX</span></div>
+  <div class="subtitle">Avaliação de Staff — escolhe o teste</div>
+  <button class="big-btn" onclick="chooseTest('fitness')">
+    <h3>🏃 Physical Fitness Test</h3>
+    <p>For Time: 1km Run · 50 Burpee Broad Jumps · 100 Lunges · 1000m Row · 30 Push Up · 100 Wall Balls</p>
+  </button>
+  <button class="big-btn" onclick="chooseTest('conditioning')">
+    <h3>💪 Conditioning Test</h3>
+    <p>5 estações com tempo definido: Row, Burpee Broad Jumps, Reverse Lunges, Ski Erg, Wall Balls, 5km Run</p>
+  </button>
+</div>
+
+<!-- SCREEN 2: dados do atleta -->
+<div class="screen" id="screen-athlete">
+  <div class="logo">5.7 <span>HYROX</span></div>
+  <div class="subtitle" id="athlete-test-label"></div>
+  <div class="form-group"><label>Primeiro Nome</label><input type="text" id="ath-first" placeholder="Ex: João"></div>
+  <div class="form-group"><label>Último Nome</label><input type="text" id="ath-last" placeholder="Ex: Fernandes"></div>
+  <div class="form-group"><label>Equipa (opcional)</label><input type="text" id="ath-team" placeholder="Ex: 5.7CrossFit"></div>
+  <div class="form-group"><label>Género</label><div class="chip-row" id="ath-gender-row">
+    <button type="button" class="chip" onclick="selectChip('gender','M',this)">Masculino</button>
+    <button type="button" class="chip" onclick="selectChip('gender','F',this)">Feminino</button>
+  </div></div>
+  <div class="form-group"><label>Escalão Etário</label>
+    <select id="ath-age">
+      <option value="">-- Selecionar --</option>
+      <option>Under 24</option><option>25-29</option><option>30-34</option><option>35-39</option>
+      <option>40-44</option><option>45-49</option><option>50-54</option><option>55-59</option><option>60+</option>
+    </select>
+  </div>
+  <button class="btn-primary" onclick="startTest()">Começar Teste →</button>
+  <button class="btn-secondary" onclick="goTo('screen-choose')">← Voltar</button>
+</div>
+
+<!-- SCREEN 3: Fitness Test (for time) -->
+<div class="screen" id="screen-fitness">
+  <div class="athlete-badge">
+    <div>
+      <div class="athlete-badge-name" id="fit-athlete-name"></div>
+      <div class="athlete-badge-meta" id="fit-athlete-meta"></div>
+    </div>
+  </div>
+  <div class="timer-card">
+    <div class="step-label">TEMPO TOTAL</div>
+    <div class="timer-display" id="fit-timer">00:00</div>
+    <div class="timer-btns">
+      <button class="timer-btn start" id="fit-start-btn" onclick="fitStartStop()">▶</button>
+      <button class="timer-btn" onclick="fitReset()">↺</button>
+    </div>
+  </div>
+  <div class="exercise-list" id="fit-exercise-list"></div>
+  <button class="btn-primary" id="fit-finish-btn" onclick="finishFitness()" disabled>Terminar &amp; Ver Resultado</button>
+</div>
+
+<!-- SCREEN 4: Conditioning Test (estações) -->
+<div class="screen" id="screen-conditioning">
+  <div class="athlete-badge">
+    <div>
+      <div class="athlete-badge-name" id="cond-athlete-name"></div>
+      <div class="athlete-badge-meta" id="cond-athlete-meta"></div>
+    </div>
+  </div>
+  <div class="timer-card" id="cond-timer-card">
+    <div class="step-progress" id="cond-progress"></div>
+    <div class="step-label" id="cond-step-label"></div>
+    <div class="timer-display" id="cond-timer">00:00</div>
+    <div class="timer-btns">
+      <button class="timer-btn start" id="cond-start-btn" onclick="condStartStop()">▶</button>
+      <button class="timer-btn" onclick="condReset()">↺</button>
+    </div>
+  </div>
+  <div class="form-group" id="cond-input-wrap">
+    <label id="cond-input-label">Resultado</label>
+    <input type="number" id="cond-input" placeholder="0" min="0">
+  </div>
+  <button class="btn-primary" id="cond-next-btn" onclick="condNext()">Guardar &amp; Próxima Estação →</button>
+</div>
+
+<!-- SCREEN 5: resultado + PDF -->
+<div class="screen" id="screen-result">
+  <div class="logo">5.7 <span>HYROX</span></div>
+  <div class="subtitle">Resultado Final</div>
+  <div class="result-summary" id="result-athlete-box"></div>
+  <div id="result-content"></div>
+  <button class="btn-primary" id="save-btn" onclick="saveAndGeneratePDF()">💾 Gravar &amp; Gerar PDF</button>
+  <button class="btn-secondary" onclick="resetAll()">➕ Próximo Atleta</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://whebhkikgjfuuycdfsti.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoZWJoa2lrZ2pmdXV5Y2Rmc3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMjk1MDUsImV4cCI6MjA5MDcwNTUwNX0.uHMy8xOLi8KxB5cjX0I5ocLivpXLpBU73WJ59ykMupU';
+let GYM_ID = null;
+let GYM_NAME = '5.7CrossFit';
+
+// ── Athlete + test state ──
+let currentTest = null; // 'fitness' | 'conditioning'
+let athlete = { first:'', last:'', team:'', gender:'', age:'' };
+
+// ── Fitness test state ──
+const FIT_EXERCISES = [
+  { key:'run1k', name:'1km Run' },
+  { key:'bbj50', name:'50 Burpee Broad Jumps (90cm)' },
+  { key:'lunges100', name:'100 Lunges' },
+  { key:'row1000', name:'1000m Row Erg' },
+  { key:'pu30', name:'30 Push Up' },
+  { key:'wb100', name:'100 Wall Balls (4/6kg)' }
+];
+let fitDone = [];       // booleans
+let fitSplits = [];     // seconds at moment marked done
+let fitElapsedMs = 0;
+let fitRunning = false;
+let fitStartTs = null;
+let fitInterval = null;
+
+// ── Conditioning test state ──
+const COND_STEPS = [
+  { key:'s1_row_m', label:'Estação 1 — Row Erg', mode:'countdown', duration:480, inputLabel:'Metros', rest:false },
+  { key:'rest1', label:'Descanso', mode:'countdown', duration:120, rest:true },
+  { key:'s2_bbj', label:'Estação 2a — Burpee Broad Jumps', mode:'countdown', duration:240, inputLabel:'Reps', rest:false },
+  { key:'s2_lunges', label:'Estação 2b — Reverse Lunges', mode:'countdown', duration:240, inputLabel:'Reps', rest:false },
+  { key:'rest2', label:'Descanso', mode:'countdown', duration:120, rest:true },
+  { key:'s3_ski_m', label:'Estação 3 — Ski Erg', mode:'countdown', duration:480, inputLabel:'Metros', rest:false },
+  { key:'rest3', label:'Descanso', mode:'countdown', duration:120, rest:true },
+  { key:'s4_wb', label:'Estação 4 — Wall Balls', mode:'countdown', duration:240, inputLabel:'Reps', rest:false },
+  { key:'rest4', label:'Descanso', mode:'countdown', duration:120, rest:true },
+  { key:'s5_5k', label:'Estação 5 — 5km Run', mode:'stopwatch', inputLabel:'Tempo final (mm:ss)', rest:false }
+];
+let condStepIdx = 0;
+let condResults = {};
+let condRemainingMs = 0;
+let condElapsedMs = 0;
+let condRunning = false;
+let condInterval = null;
+let condTickStart = null;
+
+let finalResult = null; // built at finish, used for save + pdf
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+async function init(){
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/gyms?select=id,name&apikey='+SUPABASE_ANON);
+    const data = await res.json();
+    if(data && data.length===1){
+      GYM_ID = data[0].id; GYM_NAME = data[0].name;
+    } else if(data && data.length>1){
+      // mais que um ginásio: usa o primeiro cujo nome contenha "5.7" ou, na falta, o primeiro da lista
+      const match = data.find(g=>g.name && g.name.includes('5.7')) || data[0];
+      GYM_ID = match.id; GYM_NAME = match.name;
+    }
+  }catch(e){ console.error('Erro ao ligar à Supabase:',e); }
+  document.getElementById('loading-screen').style.display='none';
+  goTo('screen-choose');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none',3500);
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function fmtMMSS(totalSeconds){
+  totalSeconds=Math.max(0,Math.round(totalSeconds));
+  const m=Math.floor(totalSeconds/60), s=totalSeconds%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+// ══════════════════════════════════════════════
+// SCREEN 1→2: escolher teste
+// ══════════════════════════════════════════════
+function chooseTest(type){
+  currentTest = type;
+  document.getElementById('athlete-test-label').textContent = type==='fitness' ? 'Physical Fitness Test' : 'Conditioning Test';
+  goTo('screen-athlete');
+}
+
+function selectChip(field,val,el){
+  athlete[field]=val;
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function startTest(){
+  athlete.first=document.getElementById('ath-first').value.trim();
+  athlete.last=document.getElementById('ath-last').value.trim();
+  athlete.team=document.getElementById('ath-team').value.trim();
+  athlete.age=document.getElementById('ath-age').value;
+  if(!athlete.first||!athlete.last){alert('Preenche pelo menos o primeiro e último nome.');return;}
+  if(!athlete.gender){alert('Seleciona o género.');return;}
+  if(!athlete.age){alert('Seleciona o escalão etário.');return;}
+
+  if(currentTest==='fitness'){
+    fitDone = FIT_EXERCISES.map(()=>false);
+    fitSplits = FIT_EXERCISES.map(()=>null);
+    fitElapsedMs = 0; fitRunning=false;
+    document.getElementById('fit-athlete-name').textContent = athlete.first+' '+athlete.last;
+    document.getElementById('fit-athlete-meta').textContent = (athlete.team?athlete.team+' · ':'')+athlete.gender+' · '+athlete.age;
+    renderFitList();
+    updateFitTimerDisplay();
+    document.getElementById('fit-start-btn').textContent='▶';
+    document.getElementById('fit-finish-btn').disabled=true;
+    goTo('screen-fitness');
+  } else {
+    condStepIdx=0; condResults={}; condRunning=false; condElapsedMs=0;
+    document.getElementById('cond-athlete-name').textContent = athlete.first+' '+athlete.last;
+    document.getElementById('cond-athlete-meta').textContent = (athlete.team?athlete.team+' · ':'')+athlete.gender+' · '+athlete.age;
+    loadCondStep();
+    goTo('screen-conditioning');
+  }
+}
+
+// ══════════════════════════════════════════════
+// FITNESS TEST (for time)
+// ══════════════════════════════════════════════
+function renderFitList(){
+  const list=document.getElementById('fit-exercise-list');
+  list.innerHTML = FIT_EXERCISES.map((ex,i)=>{
+    const isDone=fitDone[i];
+    const isCurrent=!isDone && (i===0 || fitDone[i-1]);
+    return `<div class="exercise-item ${isDone?'done':isCurrent?'current':''}" onclick="toggleFitExercise(${i})">
+      <div class="ex-check">${isDone?'✓':i+1}</div>
+      <div class="ex-info">
+        <div class="ex-name">${ex.name}</div>
+        ${isDone?`<div class="ex-split">Concluído aos ${fmtMMSS(fitSplits[i])}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleFitExercise(i){
+  if(!fitRunning && fitElapsedMs===0){ showToast('Carrega em ▶ para começar o cronómetro primeiro.'); return; }
+  if(fitDone[i]){
+    fitDone[i]=false; fitSplits[i]=null;
+  } else {
+    // só permite marcar em sequência
+    if(i>0 && !fitDone[i-1]){ showToast('Marca os exercícios em ordem.'); return; }
+    fitDone[i]=true; fitSplits[i]=fitElapsedMs/1000;
+  }
+  renderFitList();
+  document.getElementById('fit-finish-btn').disabled = !fitDone.every(d=>d);
+  if(fitDone.every(d=>d)){ fitStop(); }
+}
+
+function fitStartStop(){
+  if(fitRunning) fitStop(); else fitStart();
+}
+function fitStart(){
+  fitRunning=true; fitStartTs=Date.now()-fitElapsedMs;
+  document.getElementById('fit-start-btn').textContent='⏸';
+  fitInterval=setInterval(()=>{ fitElapsedMs=Date.now()-fitStartTs; updateFitTimerDisplay(); },250);
+}
+function fitStop(){
+  fitRunning=false;
+  document.getElementById('fit-start-btn').textContent='▶';
+  clearInterval(fitInterval);
+}
+function fitReset(){
+  if(!confirm('Reiniciar o cronómetro e os splits deste atleta?'))return;
+  fitStop(); fitElapsedMs=0; fitDone=FIT_EXERCISES.map(()=>false); fitSplits=FIT_EXERCISES.map(()=>null);
+  updateFitTimerDisplay(); renderFitList();
+  document.getElementById('fit-finish-btn').disabled=true;
+}
+function updateFitTimerDisplay(){
+  document.getElementById('fit-timer').textContent = fmtMMSS(fitElapsedMs/1000);
+}
+
+function finishFitness(){
+  fitStop();
+  const totalSeconds = Math.round(fitElapsedMs/1000);
+  let bracket, bracketColor;
+  if(totalSeconds < 25*60){ bracket='PRO (< 25min)'; bracketColor='var(--success)'; }
+  else if(totalSeconds < 35*60){ bracket='OPEN (25-35min)'; bracketColor='var(--accent)'; }
+  else { bracket='> 35min'; bracketColor='var(--muted)'; }
+
+  finalResult = {
+    testType:'fitness',
+    testLabel:'Physical Fitness Test',
+    totalSeconds,
+    bracket,
+    exercises: FIT_EXERCISES.map((ex,i)=>({name:ex.name, splitSeconds:fitSplits[i]}))
+  };
+
+  document.getElementById('result-athlete-box').innerHTML = athleteBoxHtml();
+  document.getElementById('result-content').innerHTML = `
+    <div class="big-time">${fmtMMSS(totalSeconds)}</div>
+    <div class="big-label">Tempo Total</div>
+    <div style="text-align:center;margin-bottom:20px"><span class="badge-pill" style="background:${bracketColor}22;color:${bracketColor};border:1px solid ${bracketColor}55">${bracket}</span></div>
+    <div class="result-summary">
+      ${finalResult.exercises.map(e=>`<div class="result-row"><span>${e.name}</span><span class="val">${e.splitSeconds!=null?fmtMMSS(e.splitSeconds):'—'}</span></div>`).join('')}
+    </div>`;
+  goTo('screen-result');
+}
+
+// ══════════════════════════════════════════════
+// CONDITIONING TEST (estações)
+// ══════════════════════════════════════════════
+function loadCondStep(){
+  const step = COND_STEPS[condStepIdx];
+  condRunning=false; clearInterval(condInterval);
+  condElapsedMs=0;
+  condRemainingMs = step.mode==='countdown' ? step.duration*1000 : 0;
+
+  document.getElementById('cond-progress').textContent = 'ESTAÇÃO '+(condStepIdx+1)+' DE '+COND_STEPS.length;
+  document.getElementById('cond-step-label').textContent = step.label;
+  document.getElementById('cond-timer-card').classList.toggle('rest', !!step.rest);
+  document.getElementById('cond-start-btn').textContent='▶';
+  updateCondTimerDisplay();
+
+  const inputWrap=document.getElementById('cond-input-wrap');
+  const nextBtn=document.getElementById('cond-next-btn');
+  if(step.rest){
+    inputWrap.style.display='none';
+    nextBtn.textContent='Saltar Descanso →';
+  } else {
+    inputWrap.style.display='block';
+    document.getElementById('cond-input-label').textContent = step.inputLabel;
+    document.getElementById('cond-input').value='';
+    document.getElementById('cond-input').type = step.mode==='stopwatch' ? 'text' : 'number';
+    document.getElementById('cond-input').placeholder = step.mode==='stopwatch' ? 'mm:ss' : '0';
+    nextBtn.textContent = condStepIdx===COND_STEPS.length-1 ? 'Guardar & Ver Resultado' : 'Guardar & Próxima Estação →';
+  }
+}
+
+function condStartStop(){
+  if(condRunning) condPause(); else condStart();
+}
+function condStart(){
+  const step=COND_STEPS[condStepIdx];
+  condRunning=true;
+  condTickStart = Date.now() - condElapsedMs;
+  document.getElementById('cond-start-btn').textContent='⏸';
+  condInterval=setInterval(()=>{
+    condElapsedMs = Date.now()-condTickStart;
+    if(step.mode==='countdown'){
+      condRemainingMs = Math.max(0, step.duration*1000 - condElapsedMs);
+      if(condRemainingMs<=0){ condPause(); showToast('⏰ Tempo esgotado — introduz o resultado.'); }
+    }
+    updateCondTimerDisplay();
+  },200);
+}
+function condPause(){
+  condRunning=false; clearInterval(condInterval);
+  document.getElementById('cond-start-btn').textContent='▶';
+}
+function condReset(){
+  const step=COND_STEPS[condStepIdx];
+  condPause(); condElapsedMs=0;
+  condRemainingMs = step.mode==='countdown' ? step.duration*1000 : 0;
+  updateCondTimerDisplay();
+}
+function updateCondTimerDisplay(){
+  const step=COND_STEPS[condStepIdx];
+  const el=document.getElementById('cond-timer');
+  if(step.mode==='countdown'){
+    el.textContent = fmtMMSS(condRemainingMs/1000);
+    el.classList.toggle('danger', condRemainingMs<30000);
+  } else {
+    el.textContent = fmtMMSS(condElapsedMs/1000);
+    el.classList.remove('danger');
+  }
+}
+
+function condNext(){
+  const step=COND_STEPS[condStepIdx];
+  condPause();
+  if(!step.rest){
+    const raw=document.getElementById('cond-input').value.trim();
+    if(step.mode==='stopwatch'){
+      // aceita mm:ss ou segundos
+      let seconds=null;
+      if(/^\d{1,2}:\d{2}$/.test(raw)){ const[m,s]=raw.split(':').map(Number); seconds=m*60+s; }
+      else if(raw && !isNaN(raw)){ seconds=Math.round(condElapsedMs/1000); }
+      if(seconds===null){ seconds=Math.round(condElapsedMs/1000); }
+      condResults[step.key] = seconds;
+    } else {
+      if(raw===''){ if(!confirm('Não introduziste um valor. Continuar com 0?'))return; }
+      condResults[step.key] = parseInt(raw)||0;
+    }
+  }
+  condStepIdx++;
+  if(condStepIdx>=COND_STEPS.length){ finishConditioning(); }
+  else { loadCondStep(); }
+}
+
+function finishConditioning(){
+  finalResult = {
+    testType:'conditioning',
+    testLabel:'Conditioning Test',
+    stations: COND_STEPS.filter(s=>!s.rest).map(s=>({
+      key:s.key, label:s.label, inputLabel:s.inputLabel, mode:s.mode,
+      value: condResults[s.key],
+      display: s.mode==='stopwatch' ? fmtMMSS(condResults[s.key]) : (condResults[s.key]+' '+(s.inputLabel==='Reps'?'reps':'m'))
+    }))
+  };
+  document.getElementById('result-athlete-box').innerHTML = athleteBoxHtml();
+  document.getElementById('result-content').innerHTML = `
+    <div class="result-summary">
+      ${finalResult.stations.map(s=>`<div class="result-row"><span>${s.label}</span><span class="val">${s.display}</span></div>`).join('')}
+    </div>`;
+  goTo('screen-result');
+}
+
+function athleteBoxHtml(){
+  return `<div class="result-row" style="border-bottom:none;padding-bottom:0">
+    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1.15rem;text-transform:uppercase">${athlete.first} ${athlete.last}</span>
+    <span></span>
+  </div>
+  <div style="color:var(--muted);font-size:.8rem;font-family:'DM Mono',monospace;margin-top:4px">
+    ${(athlete.team?athlete.team+' · ':'')}${athlete.gender} · ${athlete.age} · ${finalResult.testLabel}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// GRAVAR (Supabase) + PDF
+// ══════════════════════════════════════════════
+async function saveAndGeneratePDF(){
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='⏳ A gravar...';
+  try{
+    const row = {
+      gym_id: GYM_ID,
+      test_type: finalResult.testType,
+      first_name: athlete.first,
+      last_name: athlete.last,
+      team: athlete.team||null,
+      gender: athlete.gender,
+      age_group: athlete.age,
+      data: finalResult
+    };
+    const res = await fetch(SUPABASE_URL+'/rest/v1/hyrox_results',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(row)
+    });
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      console.error('Erro ao gravar:',res.status,errBody);
+      showToast('⚠️ Erro ao gravar (' + res.status + '). O PDF vai ser gerado à mesma.');
+    } else {
+      showToast('✅ Resultado gravado com sucesso!');
+    }
+  }catch(e){
+    console.error(e);
+    showToast('⚠️ Erro de ligação ao gravar. O PDF vai ser gerado à mesma.');
+  }
+  generatePDF();
+  btn.disabled=false; btn.textContent='💾 Gravar & Gerar PDF';
+}
+
+function generatePDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+
+  doc.setFillColor(0,0,0); doc.rect(0,0,210,26,'F');
+  doc.setFillColor(255,214,0); doc.rect(0,25,210,1.5,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.text('5.7 HYROX', 14, 12);
+  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text(finalResult.testLabel, 14, 19);
+  doc.setTextColor(180,180,180); doc.setFontSize(9);
+  doc.text(new Date().toLocaleDateString('pt-PT'), 196, 19, {align:'right'});
+
+  doc.setTextColor(20,20,20); doc.setFontSize(17); doc.setFont('helvetica','bold');
+  doc.text(athlete.first+' '+athlete.last, 14, 40);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(110,110,110);
+  doc.text((athlete.team?athlete.team+'  |  ':'')+athlete.gender+'  |  '+athlete.age, 14, 47);
+
+  let y = 60;
+  if(finalResult.testType==='fitness'){
+    doc.setFillColor(0,0,0); doc.roundedRect(14,y,182,22,3,3,'F');
+    doc.setTextColor(255,214,0); doc.setFontSize(20); doc.setFont('helvetica','bold');
+    doc.text(fmtMMSS(finalResult.totalSeconds), 20, y+15);
+    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('TEMPO TOTAL', 20, y+7);
+    doc.setTextColor(200,200,200); doc.setFontSize(10);
+    doc.text(finalResult.bracket, 190, y+15, {align:'right'});
+    y += 32;
+    const rows = finalResult.exercises.map(e=>[e.name, e.splitSeconds!=null?fmtMMSS(e.splitSeconds):'-']);
+    doc.autoTable ? doc.autoTable({startY:y, head:[['Exercício','Split']], body:rows, styles:{fontSize:10,cellPadding:4}, headStyles:{fillColor:[0,0,0],textColor:[255,214,0]}}) : manualTable(doc,y,['Exercício','Split'],rows,[130,40]);
+  } else {
+    const rows = finalResult.stations.map(s=>[s.label, s.display]);
+    manualTable(doc,y,['Estação','Resultado'],rows,[120,50]);
+  }
+
+  doc.setFillColor(0,0,0); doc.rect(0,285,210,12,'F');
+  doc.setTextColor(120,120,120); doc.setFontSize(7);
+  doc.text('5.7CrossFit · HYROX Avaliação · Gerado em '+new Date().toLocaleString('pt-PT'), 14, 292);
+
+  const fname = 'HYROX_'+finalResult.testType+'_'+athlete.first+'_'+athlete.last+'.pdf';
+  doc.save(fname.replace(/\s+/g,'_'));
+}
+
+function manualTable(doc,startY,headers,rows,colWidths){
+  let y=startY;
+  doc.setFillColor(0,0,0); doc.rect(14,y,182,9,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text(headers[0],18,y+6); doc.text(headers[1],14+colWidths[0]+4,y+6);
+  y+=9;
+  rows.forEach((r,i)=>{
+    if(i%2===1){ doc.setFillColor(245,245,245); doc.rect(14,y,182,9,'F'); }
+    doc.setTextColor(30,30,30); doc.setFontSize(9.5); doc.setFont('helvetica','normal');
+    doc.text(String(r[0]),18,y+6);
+    doc.setFont('helvetica','bold'); doc.setTextColor(150,120,0);
+    doc.text(String(r[1]),14+colWidths[0]+4,y+6);
+    y+=9;
+  });
+  doc.setDrawColor(220,220,220); doc.rect(14,startY,182,y-startY,'S');
+}
+
+function resetAll(){
+  currentTest=null;
+  athlete={first:'',last:'',team:'',gender:'',age:''};
+  document.getElementById('ath-first').value='';
+  document.getElementById('ath-last').value='';
+  document.getElementById('ath-team').value='';
+  document.getElementById('ath-age').value='';
+  document.querySelectorAll('#ath-gender-row .chip').forEach(c=>c.classList.remove('active'));
+  goTo('screen-choose');
+}
+
+init();
+</script>
+</body>
+</html>
