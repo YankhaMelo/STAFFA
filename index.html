@@ -2667,45 +2667,9 @@ function gerarPDFCoachSatisfacao(nome){
 
   const avgNota = agg.notas.length ? (agg.notas.reduce((a,b)=>a+b,0)/agg.notas.length) : 0;
 
-  // Junta todos os atributos mencionados (forte ou a melhorar) para o gráfico
+  // Atributos mencionados (forte ou a melhorar), ordenados por total de menções
   const attrSet = new Set([...Object.keys(agg.forte), ...Object.keys(agg.melhorar)]);
-  const attrs = [...attrSet];
-
-  // Canvas temporário (fora do ecrã) para gerar a imagem do gráfico
-  const tmpCanvas = document.createElement('canvas');
-  tmpCanvas.width = 720; tmpCanvas.height = Math.max(260, attrs.length*46);
-  document.body.appendChild(tmpCanvas);
-  const tmpChart = new Chart(tmpCanvas, {
-    type:'bar',
-    data:{
-      labels: attrs,
-      datasets:[
-        {label:'Já faz bem', data: attrs.map(a=>agg.forte[a]||0), backgroundColor:'#22c55e', borderRadius:4},
-        {label:'A melhorar', data: attrs.map(a=>agg.melhorar[a]||0), backgroundColor:'#ff3b3b', borderRadius:4}
-      ]
-    },
-    options:{
-      indexAxis:'y', responsive:false, animation:false,
-      plugins:{legend:{position:'top', labels:{color:'#333', font:{size:13}}}},
-      scales:{
-        x:{beginAtZero:true, ticks:{color:'#333', stepSize:1}, grid:{color:'#eee'}},
-        y:{ticks:{color:'#222', font:{size:12}}, grid:{display:false}}
-      },
-      backgroundColor:'#fff'
-    }
-  });
-
-  // fundo branco atrás do canvas (Chart.js não pinta fundo por defeito)
-  const ctx = tmpCanvas.getContext('2d');
-  ctx.save();
-  ctx.globalCompositeOperation = 'destination-over';
-  ctx.fillStyle = '#ffffff';
-  ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
-  ctx.restore();
-
-  const chartImg = tmpCanvas.toDataURL('image/png');
-  tmpChart.destroy();
-  document.body.removeChild(tmpCanvas);
+  const attrs = [...attrSet].sort((a,b)=> ((agg.forte[b]||0)+(agg.melhorar[b]||0)) - ((agg.forte[a]||0)+(agg.melhorar[a]||0)));
 
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
@@ -2740,28 +2704,92 @@ function gerarPDFCoachSatisfacao(nome){
     doc.text(k.v, x+8, 70);
   });
 
-  // Gráfico
   doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica','bold');
   doc.text('PONTOS FORTES vs A MELHORAR', 14, 88);
   doc.setFillColor(255,214,0); doc.rect(14,90,doc.getTextWidth('PONTOS FORTES vs A MELHORAR'),0.8,'F');
-  const imgW = 182, imgH = imgW * (tmpCanvas.height/tmpCanvas.width);
-  doc.addImage(chartImg, 'PNG', 14, 96, imgW, imgH);
+
+  let y = 96;
+
+  if(attrs.length === 0){
+    doc.setTextColor(150,150,150); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text('Ainda sem atributos assinalados pelos alunos.', 14, y+8);
+    y += 18;
+  } else {
+    // Canvas temporário (fora do ecrã) para gerar a imagem do gráfico
+    const rowH = 15; // altura por atributo, em "px de canvas" (escala 4x para nitidez)
+    const scale = 4;
+    const cw = 680*scale, chHeader = 34*scale, chPerRow = rowH*scale;
+    const ch = chHeader + attrs.length*chPerRow + 20*scale;
+    const tmpCanvas = document.createElement('canvas');
+    tmpCanvas.width = cw; tmpCanvas.height = ch;
+    document.body.appendChild(tmpCanvas);
+
+    const maxCount = Math.max(1, ...attrs.map(a=>Math.max(agg.forte[a]||0, agg.melhorar[a]||0)));
+
+    const tmpChart = new Chart(tmpCanvas, {
+      type:'bar',
+      data:{
+        labels: attrs,
+        datasets:[
+          {label:'Já faz bem', data: attrs.map(a=>agg.forte[a]||0), backgroundColor:'#22c55e', borderRadius:3, maxBarThickness:22*scale},
+          {label:'A melhorar', data: attrs.map(a=>agg.melhorar[a]||0), backgroundColor:'#ff3b3b', borderRadius:3, maxBarThickness:22*scale}
+        ]
+      },
+      options:{
+        indexAxis:'y', responsive:false, animation:false, devicePixelRatio:1,
+        layout:{padding:{top:6*scale, right:16*scale, bottom:4*scale, left:4*scale}},
+        plugins:{
+          legend:{position:'top', align:'start', labels:{color:'#333', font:{size:12*scale}, boxWidth:11*scale, padding:14*scale}}
+        },
+        scales:{
+          x:{
+            beginAtZero:true, max: maxCount+1,
+            ticks:{color:'#888', stepSize:1, font:{size:10*scale}},
+            grid:{color:'#eee'},
+            title:{display:true, text:'Nº de respostas', color:'#999', font:{size:10*scale}}
+          },
+          y:{
+            ticks:{color:'#222', font:{size:11*scale}},
+            grid:{display:false}
+          }
+        }
+      }
+    });
+
+    // fundo branco atrás do canvas (Chart.js não pinta fundo por defeito)
+    const ctx = tmpCanvas.getContext('2d');
+    ctx.save();
+    ctx.globalCompositeOperation = 'destination-over';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+    ctx.restore();
+
+    const chartImg = tmpCanvas.toDataURL('image/png');
+    tmpChart.destroy();
+    document.body.removeChild(tmpCanvas);
+
+    const imgW = 182, imgH = imgW * (ch/cw);
+    doc.setDrawColor(230,230,230);
+    doc.roundedRect(14, y, imgW, imgH, 2, 2, 'S');
+    doc.addImage(chartImg, 'PNG', 14, y, imgW, imgH);
+    y += imgH + 10;
+  }
 
   // Tabela de atributos
-  let y = 96 + imgH + 10;
-  const rows = attrs
-    .map(a => [a, String(agg.forte[a]||0), String(agg.melhorar[a]||0)])
-    .sort((a,b)=> (+b[1]+ +b[2]) - (+a[1]+ +a[2]));
+  const rows = attrs.map(a => [a, String(agg.forte[a]||0), String(agg.melhorar[a]||0)]);
   if(y > 240){ doc.addPage(); y = 20; }
-  doc.autoTable({
-    startY:y,
-    head:[['Atributo','👍 Já Faz Bem','🔧 A Melhorar']],
-    body: rows,
-    styles:{fontSize:8.5, cellPadding:3.5},
-    headStyles:{fillColor:[0,0,0], textColor:[255,214,0], fontStyle:'bold', fontSize:8},
-    alternateRowStyles:{fillColor:[248,248,248]},
-    margin:{left:14,right:14}
-  });
+  if(rows.length){
+    doc.autoTable({
+      startY:y,
+      head:[['Atributo','Já Faz Bem','A Melhorar']],
+      body: rows,
+      styles:{fontSize:8.5, cellPadding:3.5},
+      headStyles:{fillColor:[0,0,0], textColor:[255,214,0], fontStyle:'bold', fontSize:8},
+      alternateRowStyles:{fillColor:[248,248,248]},
+      columnStyles:{1:{textColor:[34,150,80], fontStyle:'bold'}, 2:{textColor:[200,40,40], fontStyle:'bold'}},
+      margin:{left:14,right:14}
+    });
+  }
 
   const pageCount = doc.getNumberOfPages();
   for(let i=1;i<=pageCount;i++){
