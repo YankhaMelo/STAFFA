@@ -52,16 +52,26 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
 .btn-primary:disabled { opacity:.4; }
 .btn-secondary { width:100%; padding:13px; border-radius:10px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem; text-transform:uppercase; cursor:pointer; margin-top:10px; }
 
-.coach-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:16px 16px 18px; margin-bottom:14px; }
-.coach-card h3 { font-family:'Barlow Condensed',sans-serif; font-size:1.15rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; }
+.coach-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; margin-bottom:10px; overflow:hidden; }
+.coach-head-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:15px 16px; cursor:pointer; }
+.coach-head-row h3 { font-family:'Barlow Condensed',sans-serif; font-size:1.05rem; font-weight:800; text-transform:uppercase; }
+.coach-head-row .coach-meta { display:flex; align-items:center; gap:10px; }
+.coach-head-row .nota-pill { font-family:'DM Mono',monospace; font-size:.75rem; font-weight:700; color:var(--muted); background:var(--surface2); border:1px solid var(--border); border-radius:20px; padding:3px 10px; min-width:38px; text-align:center; }
+.coach-head-row .nota-pill.set { color:#000; background:var(--accent); border-color:var(--accent); }
+.coach-head-row .chevron { color:var(--muted); font-size:.8rem; transition:transform .15s; }
+.coach-card.expanded .chevron { transform:rotate(180deg); }
+.coach-body { display:none; padding:0 16px 18px; }
+.coach-card.expanded .coach-body { display:block; }
 .coach-card .nota-q { color:var(--muted); font-size:.8rem; margin-bottom:10px; }
-.coach-card .mini-label { font-size:.78rem; font-weight:700; color:var(--text); margin:14px 0 8px; line-height:1.4; }
-.coach-card .mini-label .tag { display:inline-block; font-family:'DM Mono',monospace; font-size:.62rem; font-weight:700; letter-spacing:.06em; padding:2px 6px; border-radius:4px; margin-right:6px; vertical-align:middle; }
-.coach-card .mini-label.forte .tag { background:rgba(34,197,94,.15); color:var(--success); }
-.coach-card .mini-label.melhorar .tag { background:rgba(255,59,59,.15); color:var(--danger); }
-.attr-chip { padding:7px 12px; border-radius:16px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-weight:500; cursor:pointer; font-size:.78rem; line-height:1.3; }
-.attr-chip.forte.active { border-color:var(--success); background:rgba(34,197,94,.14); color:var(--success); }
-.attr-chip.melhorar.active { border-color:var(--danger); background:rgba(255,59,59,.14); color:var(--danger); }
+.coach-card .attr-header-row { display:flex; align-items:center; gap:8px; margin:16px 0 8px; font-size:.62rem; font-weight:700; letter-spacing:.04em; color:var(--muted); font-family:'DM Mono',monospace; }
+.coach-card .attr-header-row span.spacer { flex:1; }
+.coach-card .attr-header-row .col-lbl { width:32px; text-align:center; font-size:.85rem; }
+.attr-row { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--border); }
+.attr-row:last-child { border-bottom:none; }
+.attr-row .attr-text { flex:1; font-size:.82rem; line-height:1.35; padding-right:4px; }
+.attr-toggle { width:32px; height:32px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); display:flex; align-items:center; justify-content:center; font-size:1rem; cursor:pointer; flex-shrink:0; opacity:.35; filter:grayscale(1); transition:all .15s; }
+.attr-toggle.forte.active { border-color:var(--success); background:rgba(34,197,94,.16); opacity:1; filter:none; }
+.attr-toggle.melhorar.active { border-color:var(--danger); background:rgba(255,59,59,.16); opacity:1; filter:none; }
 
 .loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; }
 .spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
@@ -137,9 +147,9 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
   <div class="progress-wrap"><div class="progress-seg done"></div><div class="progress-seg"></div><div class="progress-seg"></div><div class="progress-seg"></div></div>
   <div class="section-label">Avaliação de Coaches</div>
   <p class="section-help">
-    Para cada coach com quem tiveste aulas nos últimos 6 meses: dá uma nota de 1 (fraco) a 10 (excelente)
-    à qualidade geral das aulas dele, e marca as frases abaixo que se aplicam — o que ele já faz bem e o
-    que devia melhorar. Se não tiveste aulas com um coach, passa à frente sem preencher.
+    Toca no nome de um coach para abrir a avaliação dele. Dá uma nota de 1 (fraco) a 10 (excelente) e
+    marca, para cada atributo, se é um ponto forte (👍) ou algo a melhorar (🔧). Se não tiveste aulas
+    com um coach, deixa fechado e passa ao seguinte.
   </p>
   <div id="coaches-wrap"></div>
   <button class="btn-primary" onclick="goTo('screen-ginasio')">Continuar →</button>
@@ -204,7 +214,7 @@ let GYM_ID = null;
 const urlParams = new URLSearchParams(window.location.search);
 const TOKEN = urlParams.get('token');
 
-const COACHES = ['Rafael Cardoso','Gabriela Ribeiro','Marcos Pinto','João Fernandes','Nádia Pinto','Rui Ramos','Otoniel Filho','Tiago Lopes'];
+const COACHES = ['Gabriela Ribeiro','Marcos Pinto','João Fernandes','Nádia Pinto','Rui Ramos','Otoniel Filho','Tiago Lopes'];
 
 const ATTRS = [
   'Fala com clareza e projeta bem a voz',
@@ -311,42 +321,66 @@ function buildScale(containerId, onPick){
 function buildCoachCards(){
   const wrap = document.getElementById('coaches-wrap');
   wrap.innerHTML = COACHES.map(name => `
-    <div class="coach-card">
-      <h3>${name}</h3>
-      <div class="nota-q">Qualidade geral das aulas deste coach</div>
-      <div class="scale-row" id="nota-${slug(name)}"></div>
-      <div class="mini-label forte"><span class="tag">JÁ FAZ BEM</span></div>
-      <div class="chip-row" id="forte-${slug(name)}">
-        ${ATTRS.map(a=>`<div class="attr-chip forte" data-attr="${a}">${a}</div>`).join('')}
+    <div class="coach-card" id="card-${slug(name)}">
+      <div class="coach-head-row" onclick="toggleCoachCard('${slug(name)}')">
+        <h3>${name}</h3>
+        <div class="coach-meta">
+          <span class="nota-pill" id="notapill-${slug(name)}">–</span>
+          <span class="chevron">▾</span>
+        </div>
       </div>
-      <div class="mini-label melhorar"><span class="tag">DEVE MELHORAR</span></div>
-      <div class="chip-row" id="melhorar-${slug(name)}">
-        ${ATTRS.map(a=>`<div class="attr-chip melhorar" data-attr="${a}">${a}</div>`).join('')}
+      <div class="coach-body">
+        <div class="nota-q">Qualidade geral das aulas deste coach</div>
+        <div class="scale-row" id="nota-${slug(name)}"></div>
+        <div class="attr-header-row">
+          <span class="spacer">Atributo</span>
+          <span class="col-lbl">👍</span>
+          <span class="col-lbl">🔧</span>
+        </div>
+        ${ATTRS.map(a=>`
+          <div class="attr-row">
+            <div class="attr-text">${a}</div>
+            <div class="attr-toggle forte" data-attr="${a}">👍</div>
+            <div class="attr-toggle melhorar" data-attr="${a}">🔧</div>
+          </div>
+        `).join('')}
       </div>
     </div>
   `).join('');
 
   COACHES.forEach(name=>{
-    buildScale('nota-'+slug(name), v => state.coaches[name].nota = v);
-    document.getElementById('forte-'+slug(name)).querySelectorAll('.attr-chip').forEach(chip=>{
-      chip.addEventListener('click', ()=>{
-        chip.classList.toggle('active');
-        const attr = chip.dataset.attr;
+    const s = slug(name);
+    buildScale('nota-'+s, v => {
+      state.coaches[name].nota = v;
+      const pill = document.getElementById('notapill-'+s);
+      pill.textContent = v; pill.classList.add('set');
+    });
+    const card = document.getElementById('card-'+s);
+    card.querySelectorAll('.attr-toggle.forte').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        btn.classList.toggle('active');
+        const attr = btn.dataset.attr;
         const arr = state.coaches[name].forte;
         const i = arr.indexOf(attr);
         if(i>-1) arr.splice(i,1); else arr.push(attr);
       });
     });
-    document.getElementById('melhorar-'+slug(name)).querySelectorAll('.attr-chip').forEach(chip=>{
-      chip.addEventListener('click', ()=>{
-        chip.classList.toggle('active');
-        const attr = chip.dataset.attr;
+    card.querySelectorAll('.attr-toggle.melhorar').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{
+        e.stopPropagation();
+        btn.classList.toggle('active');
+        const attr = btn.dataset.attr;
         const arr = state.coaches[name].melhorar;
         const i = arr.indexOf(attr);
         if(i>-1) arr.splice(i,1); else arr.push(attr);
       });
     });
   });
+}
+
+function toggleCoachCard(s){
+  document.getElementById('card-'+s).classList.toggle('expanded');
 }
 
 function slug(s){ return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-'); }
