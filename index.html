@@ -907,9 +907,14 @@ tr:hover td { background:#141414; }
 
   <div class="stats-row" id="satisfacao-stats-row"></div>
 
+  <div class="section-title">Nota Média por Coach</div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:24px;height:280px">
+    <canvas id="chart-satisfacao-notas"></canvas>
+  </div>
+
   <div class="section-title">Média por Coach</div>
   <div class="table-wrap">
-    <table><thead><tr><th>Coach</th><th>Nº Avaliações</th><th>Nota Média</th><th>Já Faz Bem (+ votado)</th><th>Deve Melhorar (+ votado)</th></tr></thead>
+    <table><thead><tr><th>Coach</th><th>Nº Avaliações</th><th>Nota Média</th><th>Já Faz Bem (+ votado)</th><th>Deve Melhorar (+ votado)</th><th></th></tr></thead>
     <tbody id="satisfacao-coach-body"></tbody></table>
   </div>
 
@@ -2561,6 +2566,9 @@ async function loadSatisfacaoResults(){
   }catch(e){ console.error('Erro ao carregar Satisfação:', e); satisfacaoResults=[]; }
 }
 
+let satisfacaoCoachAgg = {};
+let satisfacaoNotasChart = null;
+
 async function renderSatisfacaoAdmin(){
   await loadSatisfacaoResults();
   await carregarTokensSatisfacao();
@@ -2586,6 +2594,7 @@ async function renderSatisfacaoAdmin(){
       (c.melhorar||[]).forEach(a=> coachAgg[nome].melhorar[a] = (coachAgg[nome].melhorar[a]||0)+1);
     });
   });
+  satisfacaoCoachAgg = coachAgg;
 
   const topAttr = obj => {
     const entries = Object.entries(obj);
@@ -2594,9 +2603,38 @@ async function renderSatisfacaoAdmin(){
     return entries[0][0] + ' (' + entries[0][1] + ')';
   };
 
+  const sortedCoaches = Object.entries(coachAgg).sort((a,b)=> avg(b[1].notas) - avg(a[1].notas));
+
+  // Gráfico: nota média por coach
+  const chartCanvas = document.getElementById('chart-satisfacao-notas');
+  if(satisfacaoNotasChart) satisfacaoNotasChart.destroy();
+  if(sortedCoaches.length){
+    satisfacaoNotasChart = new Chart(chartCanvas, {
+      type:'bar',
+      data:{
+        labels: sortedCoaches.map(([nome])=>nome.split(' ')[0]),
+        datasets:[{
+          label:'Nota média',
+          data: sortedCoaches.map(([,agg])=>+avg(agg.notas)),
+          backgroundColor: sortedCoaches.map((_,i)=>`hsl(${45+i*22},90%,55%)`),
+          borderRadius:6
+        }]
+      },
+      options:{
+        indexAxis:'y', responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{display:false}},
+        scales:{
+          x:{beginAtZero:true, max:10, ticks:{color:'#555'}, grid:{color:'#1a1a1a'}},
+          y:{ticks:{color:'#aaa'}, grid:{color:'#1a1a1a'}}
+        }
+      }
+    });
+  } else {
+    chartCanvas.getContext('2d').clearRect(0,0,chartCanvas.width,chartCanvas.height);
+  }
+
   const tbody = document.getElementById('satisfacao-coach-body');
-  tbody.innerHTML = Object.entries(coachAgg)
-    .sort((a,b)=> avg(b[1].notas) - avg(a[1].notas))
+  tbody.innerHTML = sortedCoaches
     .map(([nome, agg])=>`
       <tr>
         <td><strong>${nome}</strong></td>
@@ -2604,8 +2642,9 @@ async function renderSatisfacaoAdmin(){
         <td style="font-family:'DM Mono',monospace;color:var(--accent)">${avg(agg.notas)}</td>
         <td style="color:var(--success)">${topAttr(agg.forte)}</td>
         <td style="color:var(--danger)">${topAttr(agg.melhorar)}</td>
+        <td><button class="btn-add" style="padding:5px 10px;font-size:.72rem" onclick="gerarPDFCoachSatisfacao('${nome.replace(/'/g,"\\'")}')">📄 PDF</button></td>
       </tr>
-    `).join('') || '<tr><td colspan="5" style="color:var(--muted)">Sem respostas ainda.</td></tr>';
+    `).join('') || '<tr><td colspan="6" style="color:var(--muted)">Sem respostas ainda.</td></tr>';
 
   const feedbackList = document.getElementById('satisfacao-feedback-list');
   const withFeedback = satisfacaoResults.filter(r => r.data?.feedback && r.data.feedback.trim());
@@ -2618,6 +2657,124 @@ async function renderSatisfacaoAdmin(){
       `).join('')
     : '<p style="color:var(--muted);font-size:.85rem">Ainda sem comentários.</p>';
 }
+
+// ══════════════════════════════════════════════
+// PDF individual por coach (Satisfação)
+// ══════════════════════════════════════════════
+function gerarPDFCoachSatisfacao(nome){
+  const agg = satisfacaoCoachAgg[nome];
+  if(!agg){ alert('Sem dados para este coach.'); return; }
+
+  const avgNota = agg.notas.length ? (agg.notas.reduce((a,b)=>a+b,0)/agg.notas.length) : 0;
+
+  // Junta todos os atributos mencionados (forte ou a melhorar) para o gráfico
+  const attrSet = new Set([...Object.keys(agg.forte), ...Object.keys(agg.melhorar)]);
+  const attrs = [...attrSet];
+
+  // Canvas temporário (fora do ecrã) para gerar a imagem do gráfico
+  const tmpCanvas = document.createElement('canvas');
+  tmpCanvas.width = 720; tmpCanvas.height = Math.max(260, attrs.length*46);
+  document.body.appendChild(tmpCanvas);
+  const tmpChart = new Chart(tmpCanvas, {
+    type:'bar',
+    data:{
+      labels: attrs,
+      datasets:[
+        {label:'Já faz bem', data: attrs.map(a=>agg.forte[a]||0), backgroundColor:'#22c55e', borderRadius:4},
+        {label:'A melhorar', data: attrs.map(a=>agg.melhorar[a]||0), backgroundColor:'#ff3b3b', borderRadius:4}
+      ]
+    },
+    options:{
+      indexAxis:'y', responsive:false, animation:false,
+      plugins:{legend:{position:'top', labels:{color:'#333', font:{size:13}}}},
+      scales:{
+        x:{beginAtZero:true, ticks:{color:'#333', stepSize:1}, grid:{color:'#eee'}},
+        y:{ticks:{color:'#222', font:{size:12}}, grid:{display:false}}
+      },
+      backgroundColor:'#fff'
+    }
+  });
+
+  // fundo branco atrás do canvas (Chart.js não pinta fundo por defeito)
+  const ctx = tmpCanvas.getContext('2d');
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-over';
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
+  ctx.restore();
+
+  const chartImg = tmpCanvas.toDataURL('image/png');
+  tmpChart.destroy();
+  document.body.removeChild(tmpCanvas);
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+  const dataGeracao = new Date().toLocaleDateString('pt-PT');
+
+  // Cabeçalho
+  doc.setFillColor(0,0,0); doc.rect(0,0,210,32,'F');
+  doc.setFillColor(255,214,0); doc.rect(0,31,210,1.5,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(16); doc.setFont('helvetica','bold');
+  doc.text('5.7 CROSSFIT', 14, 14);
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
+  doc.text('Relatório de Satisfação — Coach', 14, 22);
+  doc.setTextColor(150,150,150); doc.setFontSize(8);
+  doc.text('Gerado em '+dataGeracao, 196, 14, {align:'right'});
+
+  // Nome do coach
+  doc.setTextColor(0,0,0); doc.setFontSize(20); doc.setFont('helvetica','bold');
+  doc.text(nome, 14, 46);
+
+  // KPIs
+  const kpis = [
+    {l:'AVALIAÇÕES', v:String(agg.notas.length)},
+    {l:'NOTA MÉDIA', v:avgNota.toFixed(1)+' / 10'}
+  ];
+  kpis.forEach((k,i)=>{
+    const x = 14 + i*97;
+    doc.setFillColor(245,245,245); doc.roundedRect(x,52,90,22,3,3,'F');
+    doc.setFillColor(255,214,0); doc.rect(x,52,3,22,'F');
+    doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text(k.l, x+8, 61);
+    doc.setTextColor(0,0,0); doc.setFontSize(15); doc.setFont('helvetica','bold');
+    doc.text(k.v, x+8, 70);
+  });
+
+  // Gráfico
+  doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica','bold');
+  doc.text('PONTOS FORTES vs A MELHORAR', 14, 88);
+  doc.setFillColor(255,214,0); doc.rect(14,90,doc.getTextWidth('PONTOS FORTES vs A MELHORAR'),0.8,'F');
+  const imgW = 182, imgH = imgW * (tmpCanvas.height/tmpCanvas.width);
+  doc.addImage(chartImg, 'PNG', 14, 96, imgW, imgH);
+
+  // Tabela de atributos
+  let y = 96 + imgH + 10;
+  const rows = attrs
+    .map(a => [a, String(agg.forte[a]||0), String(agg.melhorar[a]||0)])
+    .sort((a,b)=> (+b[1]+ +b[2]) - (+a[1]+ +a[2]));
+  if(y > 240){ doc.addPage(); y = 20; }
+  doc.autoTable({
+    startY:y,
+    head:[['Atributo','👍 Já Faz Bem','🔧 A Melhorar']],
+    body: rows,
+    styles:{fontSize:8.5, cellPadding:3.5},
+    headStyles:{fillColor:[0,0,0], textColor:[255,214,0], fontStyle:'bold', fontSize:8},
+    alternateRowStyles:{fillColor:[248,248,248]},
+    margin:{left:14,right:14}
+  });
+
+  const pageCount = doc.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFillColor(0,0,0); doc.rect(0,285,210,12,'F');
+    doc.setTextColor(150,150,150); doc.setFontSize(7); doc.setFont('helvetica','normal');
+    doc.text('5.7 CrossFit · Respostas anónimas · Gerado em '+dataGeracao, 14, 292);
+    doc.text('Pág. '+i+'/'+pageCount, 196, 292, {align:'right'});
+  }
+
+  doc.save('5.7CrossFit_Satisfacao_'+nome.replace(/ /g,'_')+'.pdf');
+}
+
 
 
 // ══════════════════════════════════════════════════
