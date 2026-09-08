@@ -3801,3 +3801,194 @@ window.addEventListener('load', function() {
 </script>
 </body>
 </html>
+
+<!--
+════════════════════════════════════════════════════════════
+PATCH PARA index.html DA STAFFA — separador "Satisfação"
+════════════════════════════════════════════════════════════
+Segue o mesmo padrão do separador HYROX já existente.
+Cola cada bloco no sítio indicado.
+-->
+
+<!-- 1) NAV TAB — cola ao lado do botão "🏆 HYROX" (perto da linha 629) -->
+<button class="nav-tab admin-only" id="nav-satisfacao" onclick="showPage('satisfacao',this)" style="display:none">📊 Satisfação</button>
+
+
+<!-- 2) PAGE MARKUP — cola a seguir ao </div> que fecha <div class="page" id="page-hyrox"> -->
+<div class="page" id="page-satisfacao">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">📊 Satisfação — Resultados</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Respostas anónimas do questionário público (satisfacao.html)</p>
+    </div>
+    <button class="btn-add" onclick="renderSatisfacaoAdmin()">🔄 Atualizar</button>
+  </div>
+
+  <!-- Gerador de links de utilização única -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:1rem;margin-bottom:10px">Gerar link de utilização única</div>
+    <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px">Cada link só pode ser respondido uma vez. Gera um link por pessoa e envia-o individualmente (WhatsApp, SMS, etc.).</p>
+    <button class="btn-add" onclick="gerarLinkSatisfacao()">➕ Gerar Novo Link</button>
+    <div id="satisfacao-link-result" style="margin-top:12px"></div>
+
+    <div style="margin-top:18px">
+      <div style="font-size:.78rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Últimos links gerados</div>
+      <div id="satisfacao-tokens-list" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="satisfacao-stats-row"></div>
+
+  <div class="section-title">Média por Coach</div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Coach</th><th>Nº Avaliações</th><th>Nota Média</th><th>Já Faz Bem (+ votado)</th><th>Deve Melhorar (+ votado)</th></tr></thead>
+    <tbody id="satisfacao-coach-body"></tbody></table>
+  </div>
+
+  <div class="section-title" style="margin-top:24px">Feedback dos Alunos</div>
+  <div id="satisfacao-feedback-list" style="display:flex;flex-direction:column;gap:10px"></div>
+</div>
+
+
+<!-- 3) JAVASCRIPT — cola a seguir ao bloco "// HYROX (resultados registados via link público sem login)" -->
+<script>
+// ══════════════════════════════════════════════
+// SATISFAÇÃO (respostas registadas via link público sem login)
+// ══════════════════════════════════════════════
+let satisfacaoResults = [];
+let satisfacaoTokens = [];
+
+function gerarTokenAleatorio(){
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let out = '';
+  const rnd = new Uint32Array(12);
+  crypto.getRandomValues(rnd);
+  for(let i=0;i<12;i++) out += chars[rnd[i] % chars.length];
+  return out;
+}
+
+async function gerarLinkSatisfacao(){
+  const btn = event.target;
+  btn.disabled = true; btn.textContent = '⏳ A gerar...';
+  const token = gerarTokenAleatorio();
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/satisfacao_tokens', {
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify({ token, gym_id: GYM_ID, used: false })
+    });
+    if(!res.ok){
+      console.error('Erro ao gerar link:', res.status, await res.text().catch(()=>''));
+      alert('Erro ao gerar o link. Tenta novamente.');
+      btn.disabled=false; btn.textContent='➕ Gerar Novo Link';
+      return;
+    }
+    const link = window.location.origin + '/satisfacao.html?token=' + token;
+    document.getElementById('satisfacao-link-result').innerHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--accent);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <span style="font-family:'DM Mono',monospace;font-size:.8rem;word-break:break-all">${link}</span>
+        <button class="btn-add" style="flex-shrink:0" onclick="navigator.clipboard.writeText('${link}');this.textContent='✓ Copiado'">📋 Copiar</button>
+      </div>`;
+    await carregarTokensSatisfacao();
+  }catch(e){
+    console.error(e);
+    alert('Erro de ligação ao gerar o link.');
+  }
+  btn.disabled=false; btn.textContent='➕ Gerar Novo Link';
+}
+
+async function carregarTokensSatisfacao(){
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/satisfacao_tokens?select=*&gym_id=eq.'+GYM_ID+'&order=created_at.desc&limit=10&apikey='+SUPABASE_ANON,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    satisfacaoTokens = res.ok ? await res.json() : [];
+  }catch(e){ satisfacaoTokens = []; }
+  const list = document.getElementById('satisfacao-tokens-list');
+  list.innerHTML = satisfacaoTokens.length ? satisfacaoTokens.map(t=>{
+    const link = window.location.origin + '/satisfacao.html?token=' + t.token;
+    const statusBadge = t.used
+      ? "<span style=\"color:var(--muted);font-family:'DM Mono',monospace;font-size:.72rem\">✅ usado</span>"
+      : "<span style=\"color:var(--accent);font-family:'DM Mono',monospace;font-size:.72rem\">● por usar</span>";
+    return `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem">
+      <span style="font-family:'DM Mono',monospace;color:var(--muted)">${t.token}</span>
+      ${statusBadge}
+    </div>`;
+  }).join('') : '<p style="color:var(--muted);font-size:.8rem">Ainda não geraste nenhum link.</p>';
+}
+
+async function loadSatisfacaoResults(){
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/satisfacao_respostas?select=*&gym_id=eq.'+GYM_ID+'&order=created_at.desc&apikey='+SUPABASE_ANON,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    if(!res.ok){ console.error('Erro ao carregar Satisfação:', res.status, await res.text().catch(()=>'')); satisfacaoResults=[]; return; }
+    satisfacaoResults = await res.json();
+  }catch(e){ console.error('Erro ao carregar Satisfação:', e); satisfacaoResults=[]; }
+}
+
+async function renderSatisfacaoAdmin(){
+  await loadSatisfacaoResults();
+  await carregarTokensSatisfacao();
+  const total = satisfacaoResults.length;
+
+  const avg = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '–';
+
+  const recepcaoAvg = avg(satisfacaoResults.map(r=>r.data?.recepcao).filter(v=>v!=null));
+  const npsAvg = avg(satisfacaoResults.map(r=>r.data?.nps).filter(v=>v!=null));
+
+  document.getElementById('satisfacao-stats-row').innerHTML =
+    statCard('Total Respostas', total, true) +
+    statCard('Receção (média)', recepcaoAvg) +
+    statCard('NPS (média)', npsAvg);
+
+  const coachAgg = {};
+  satisfacaoResults.forEach(r=>{
+    const coaches = r.data?.coaches || {};
+    Object.entries(coaches).forEach(([nome, c])=>{
+      if(!coachAgg[nome]) coachAgg[nome] = { notas:[], forte:{}, melhorar:{} };
+      if(c.nota!=null) coachAgg[nome].notas.push(c.nota);
+      (c.forte||[]).forEach(a=> coachAgg[nome].forte[a] = (coachAgg[nome].forte[a]||0)+1);
+      (c.melhorar||[]).forEach(a=> coachAgg[nome].melhorar[a] = (coachAgg[nome].melhorar[a]||0)+1);
+    });
+  });
+
+  const topAttr = obj => {
+    const entries = Object.entries(obj);
+    if(!entries.length) return '–';
+    entries.sort((a,b)=>b[1]-a[1]);
+    return entries[0][0] + ' (' + entries[0][1] + ')';
+  };
+
+  const tbody = document.getElementById('satisfacao-coach-body');
+  tbody.innerHTML = Object.entries(coachAgg)
+    .sort((a,b)=> avg(b[1].notas) - avg(a[1].notas))
+    .map(([nome, agg])=>`
+      <tr>
+        <td><strong>${nome}</strong></td>
+        <td style="color:var(--muted)">${agg.notas.length}</td>
+        <td style="font-family:'DM Mono',monospace;color:var(--accent)">${avg(agg.notas)}</td>
+        <td style="color:var(--success)">${topAttr(agg.forte)}</td>
+        <td style="color:var(--danger)">${topAttr(agg.melhorar)}</td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="color:var(--muted)">Sem respostas ainda.</td></tr>';
+
+  const feedbackList = document.getElementById('satisfacao-feedback-list');
+  const withFeedback = satisfacaoResults.filter(r => r.data?.feedback && r.data.feedback.trim());
+  feedbackList.innerHTML = withFeedback.length
+    ? withFeedback.map(r=>`
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px">
+          <div style="font-size:.9rem;line-height:1.5">${r.data.feedback}</div>
+          <div style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:6px">${new Date(r.created_at).toLocaleDateString('pt-PT')}</div>
+        </div>
+      `).join('')
+    : '<p style="color:var(--muted);font-size:.85rem">Ainda sem comentários.</p>';
+}
+</script>
+
+
+<!-- 4) PIN_GATED_PAGES — adiciona 'satisfacao' ao array (perto da linha 3333) -->
+<!-- de: -->
+<!-- const PIN_GATED_PAGES=['admin','dashboard','hyrox']; -->
+<!-- para: -->
+<!-- const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao']; -->
+
+
+<!-- 5) SQL — corre supabase_setup.sql (atualizado) antes de tudo isto:
+     cria as tabelas satisfacao_respostas E satisfacao_tokens.       -->
