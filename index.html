@@ -78,20 +78,50 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
   to { width: 0%; }
 }
 
-/* NAV */
-nav { display:flex; align-items:center; justify-content:space-between; padding:0 32px; height:64px; background:#000; border-bottom:3px solid var(--accent); position:sticky; top:0; z-index:50; }
+/* SIDEBAR NAV */
+.mobile-topbar { display:none; align-items:center; justify-content:space-between; padding:0 16px; height:54px; background:#000; border-bottom:3px solid var(--accent); position:sticky; top:0; z-index:60; }
+.mobile-menu-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text); width:38px; height:38px; border-radius:8px; font-size:1.2rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.sidebar-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:65; }
+.sidebar-overlay.open { display:block; }
+
+.sidebar { position:fixed; top:0; left:0; bottom:0; width:240px; background:#000; border-right:1px solid var(--border); display:flex; flex-direction:column; z-index:70; overflow-y:auto; }
+.sidebar-header { padding:22px 20px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
 .logo { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; flex-shrink:0; }
 .logo span { color:var(--accent); }
-.nav-tabs { display:flex; gap:6px; flex-wrap:nowrap; }
-.nav-tab { padding:8px 20px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; white-space:nowrap; }
-.nav-tab:hover { color:var(--text); border-color:#444; }
+.sidebar-gymname { display:block; margin-top:4px; font-size:.72rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+.sidebar-menu { flex:1; padding:14px 12px; display:flex; flex-direction:column; gap:4px; }
+.nav-tab { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; transition:all .15s; white-space:nowrap; text-align:left; width:100%; }
+.nav-tab:hover { color:var(--text); background:var(--surface2); }
 .nav-tab.active { background:var(--accent); color:#000; border-color:var(--accent); }
+
+.nav-group { display:flex; flex-direction:column; }
+.nav-group-header { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; transition:all .15s; width:100%; text-align:left; }
+.nav-group-header:hover { color:var(--text); background:var(--surface2); }
+.nav-group-arrow { font-size:.72rem; transition:transform .2s; flex-shrink:0; margin-left:8px; }
+.nav-group.open .nav-group-arrow { transform:rotate(180deg); }
+.nav-submenu { display:none; flex-direction:column; gap:2px; padding:4px 0 4px 12px; }
+.nav-group.open .nav-submenu { display:flex; }
+.nav-subitem { font-size:.82rem; padding:8px 14px; opacity:.92; }
+.nav-subitem::before { content:'– '; opacity:.5; }
+
+.sidebar-footer { padding:14px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.sidebar-footer .notif-btn { flex-shrink:0; }
+.sidebar-logout { flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--muted); padding:9px 12px; border-radius:8px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.85rem; text-transform:uppercase; transition:all .15s; text-align:left; }
+.sidebar-logout:hover { border-color:var(--danger); color:var(--danger); }
+
+@media (max-width:900px) {
+  .mobile-topbar { display:flex; }
+  .sidebar { transform:translateX(-100%); transition:transform .25s ease; }
+  .sidebar.open { transform:translateX(0); }
+  .page { margin-left:0 !important; }
+}
 
 /* NOTIFICATION BELL */
 .notif-btn { position:relative; background:var(--surface2); border:1px solid var(--border); color:var(--text); width:40px; height:40px; border-radius:8px; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; transition:all .15s; flex-shrink:0; }
 .notif-btn:hover { border-color:var(--accent); }
 .notif-badge { position:absolute; top:-5px; right:-5px; background:var(--danger); color:#fff; font-size:.6rem; font-weight:700; width:17px; height:17px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; }
-.notif-panel { position:fixed; top:70px; right:20px; width:360px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); z-index:200; box-shadow:0 16px 48px rgba(0,0,0,.6); display:none; max-height:500px; overflow:hidden; flex-direction:column; }
+.notif-panel { position:fixed; bottom:78px; left:20px; width:360px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); z-index:200; box-shadow:0 16px 48px rgba(0,0,0,.6); display:none; max-height:500px; overflow:hidden; flex-direction:column; }
 .notif-panel.open { display:flex; }
 .notif-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
 .notif-header h3 { font-family:'Barlow Condensed',sans-serif; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
@@ -107,7 +137,7 @@ nav { display:flex; align-items:center; justify-content:space-between; padding:0
 .notif-empty { padding:32px; text-align:center; color:var(--muted); font-size:.85rem; }
 
 /* PAGES */
-.page { display:none; padding:36px 32px; max-width:1200px; margin:0 auto; }
+.page { display:none; padding:36px 32px; max-width:1200px; margin-left:240px; }
 .page.active { display:block; }
 
 /* PICAGEM */
@@ -522,6 +552,7 @@ tr:hover td { background:#141414; }
   .aval-chart-wrap { height:160px; }
   .stats-row { grid-template-columns:repeat(2,1fr); }
   #toast-container { bottom:12px; right:12px; left:12px; }
+  .notif-panel { left:12px; right:12px; width:auto; bottom:12px; }
   .toast { min-width:unset; max-width:100%; }
   .ranking-bar-wrap { width:50px; }
 }
@@ -616,25 +647,45 @@ tr:hover td { background:#141414; }
 <!-- NETWORK STATUS -->
 <div class="net-status" id="net-status"></div>
 
-<nav>
+<div class="mobile-topbar">
+  <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
   <div class="logo">Staff<span>a</span></div>
-  <div style="display:flex;align-items:center;gap:8px;overflow:hidden;flex:1;justify-content:center">
-    <span id="gym-name-nav" style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px"></span>
-    <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPage('picagem',this)">Registo Diário</button>
-      <button class="nav-tab" onclick="showPage('eventos',this)">Eventos</button>
-      <button class="nav-tab" onclick="showPage('limpezas',this)">🧹 Limpezas</button>
-      <button class="nav-tab" onclick="showPage('substituicoes',this)">🔄 Substituições</button>
-      <button class="nav-tab admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)" style="display:none">Dashboard</button>
-      <button class="nav-tab admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)" style="display:none">🏆 HYROX</button>
-      <button class="nav-tab admin-only" id="nav-satisfacao" onclick="showPage('satisfacao',this)" style="display:none">📊 Satisfação</button>
-      <button class="nav-tab admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">Administração</button>
-      <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
-    </div>
+  <div style="width:38px"></div>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">Staff<span>a</span></div>
+    <span id="gym-name-nav" class="sidebar-gymname"></span>
   </div>
-  <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+  <div class="sidebar-menu">
+    <button class="nav-tab active" onclick="showPage('picagem',this)">📋 Registo Diário</button>
+    <button class="nav-tab" onclick="showPage('eventos',this)">📅 Eventos</button>
+
+    <div class="nav-group open">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">🔧 Operações <span class="nav-group-arrow">▾</span></button>
+      <div class="nav-submenu">
+        <button class="nav-tab nav-subitem" onclick="showPage('limpezas',this)">🧹 Limpezas</button>
+        <button class="nav-tab nav-subitem" onclick="showPage('substituicoes',this)">🔄 Substituições</button>
+      </div>
+    </div>
+
+    <div class="nav-group" id="group-relatorios" style="display:none">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">📊 Relatórios <span class="nav-group-arrow">▾</span></button>
+      <div class="nav-submenu">
+        <button class="nav-tab nav-subitem admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)">📈 Dashboard</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)">🏆 HYROX</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-satisfacao" onclick="showPage('satisfacao',this)">📊 Satisfação</button>
+      </div>
+    </div>
+
+    <button class="nav-tab admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">⚙️ Administração</button>
+    <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
+  </div>
+  <div class="sidebar-footer">
     <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
-    <button onclick="logout()" title="Terminar sessão" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);width:40px;height:40px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .15s" onmouseover="this.style.borderColor='var(--danger)';this.style.color='var(--danger)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">⏻</button>
+    <button class="sidebar-logout" onclick="logout()" title="Terminar sessão">⏻ Sair</button>
   </div>
 </nav>
 
@@ -3681,7 +3732,25 @@ const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao'];
 function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
-function unlockAdminNav(){document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+function unlockAdminNav(){document.getElementById('group-relatorios').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+
+// ══════════════════════════════════════════════════
+// SIDEBAR / MENU LATERAL
+// ══════════════════════════════════════════════════
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
+function toggleNavGroup(headerBtn){
+  headerBtn.parentElement.classList.toggle('open');
+}
+document.querySelectorAll('.sidebar-menu .nav-tab').forEach(function(b){
+  b.addEventListener('click', function(){ if(window.innerWidth<=900) closeSidebar(); });
+});
 function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
 
 // ══════════════════════════════════════════════════
