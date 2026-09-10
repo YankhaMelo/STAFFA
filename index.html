@@ -10,7 +10,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="Staffa">
 <title>Staffa — Gestão de Equipa</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Barlow+Condensed:wght@600;700;800;900&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
@@ -24,7 +24,7 @@
   --radius: 10px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Barlow', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: -webkit-fill-available; overscroll-behavior: none; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: -webkit-fill-available; overscroll-behavior: none; }
 button, input, select, textarea { -webkit-appearance: none; appearance: none; font-family: inherit; }
 input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-appearance: none; }
 
@@ -86,17 +86,17 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 
 .sidebar { position:fixed; top:0; left:0; bottom:0; width:240px; background:#000; border-right:1px solid var(--border); display:flex; flex-direction:column; z-index:70; overflow-y:auto; }
 .sidebar-header { padding:22px 20px 16px; border-bottom:1px solid var(--border); flex-shrink:0; }
-.logo { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; flex-shrink:0; }
+.logo { font-family:'Inter',sans-serif; font-size:1.5rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; flex-shrink:0; }
 .logo span { color:var(--accent); }
 .sidebar-gymname { display:block; margin-top:4px; font-size:.72rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .sidebar-menu { flex:1; padding:14px 12px; display:flex; flex-direction:column; gap:4px; }
-.nav-tab { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; transition:all .15s; white-space:nowrap; text-align:left; width:100%; }
+.nav-tab { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Inter',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; transition:all .15s; white-space:nowrap; text-align:left; width:100%; }
 .nav-tab:hover { color:var(--text); background:var(--surface2); }
 .nav-tab.active { background:var(--accent); color:#000; border-color:var(--accent); }
 
 .nav-group { display:flex; flex-direction:column; }
-.nav-group-header { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; transition:all .15s; width:100%; text-align:left; }
+.nav-group-header { padding:10px 14px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--muted); cursor:pointer; font-family:'Inter',sans-serif; font-size:.9rem; font-weight:700; letter-spacing:.3px; text-transform:uppercase; display:flex; align-items:center; justify-content:space-between; transition:all .15s; width:100%; text-align:left; }
 .nav-group-header:hover { color:var(--text); background:var(--surface2); }
 .nav-group-arrow { font-size:.72rem; transition:transform .2s; flex-shrink:0; margin-left:8px; }
 .nav-group.open .nav-group-arrow { transform:rotate(180deg); }
@@ -107,7 +107,7 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 
 .sidebar-footer { padding:14px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .sidebar-footer .notif-btn { flex-shrink:0; }
-.sidebar-logout { flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--muted); padding:9px 12px; border-radius:8px; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.85rem; text-transform:uppercase; transition:all .15s; text-align:left; }
+.sidebar-logout { flex:1; background:var(--surface2); border:1px solid var(--border); color:var(--muted); padding:9px 12px; border-radius:8px; cursor:pointer; font-family:'Inter',sans-serif; font-weight:700; font-size:.85rem; text-transform:uppercase; transition:all .15s; text-align:left; }
 .sidebar-logout:hover { border-color:var(--danger); color:var(--danger); }
 
 @media (max-width:900px) {
@@ -124,7 +124,7 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 .notif-panel { position:fixed; bottom:78px; left:20px; width:360px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); z-index:200; box-shadow:0 16px 48px rgba(0,0,0,.6); display:none; max-height:500px; overflow:hidden; flex-direction:column; }
 .notif-panel.open { display:flex; }
 .notif-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; }
-.notif-header h3 { font-family:'Barlow Condensed',sans-serif; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+.notif-header h3 { font-family:'Inter',sans-serif; font-size:1rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
 .notif-list { overflow-y:auto; flex:1; }
 .notif-item { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; gap:12px; align-items:flex-start; cursor:pointer; transition:background .15s; }
 .notif-item:hover { background:var(--surface2); }
@@ -142,7 +142,7 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 
 /* PICAGEM */
 .picagem-header { text-align:center; margin-bottom:40px; }
-.picagem-header h1 { font-family:'Barlow Condensed',sans-serif; font-size:3rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; }
+.picagem-header h1 { font-family:'Inter',sans-serif; font-size:3rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; }
 .picagem-header h1 span { color:var(--accent); }
 .picagem-header p { color:var(--muted); margin-top:6px; font-size:.95rem; }
 .coaches-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:18px; }
@@ -150,27 +150,27 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 .coach-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--border); transition:background .2s; }
 .coach-card:hover { border-color:#333; transform:translateY(-3px); box-shadow:0 8px 32px rgba(255,214,0,.08); }
 .coach-card:hover::before { background:var(--accent); }
-.coach-avatar { width:60px; height:60px; border-radius:50%; background:var(--accent); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; cursor:pointer; }
+.coach-avatar { width:60px; height:60px; border-radius:50%; background:var(--accent); color:#000; font-family:'Inter',sans-serif; font-size:1.5rem; font-weight:900; display:flex; align-items:center; justify-content:center; margin:0 auto 14px; cursor:pointer; }
 .coach-card.is-in .coach-avatar { box-shadow:0 0 0 3px rgba(255,214,0,.3); }
-.coach-name { font-family:'Barlow Condensed',sans-serif; font-size:1.2rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; cursor:pointer; }
+.coach-name { font-family:'Inter',sans-serif; font-size:1.2rem; font-weight:800; text-transform:uppercase; margin-bottom:4px; cursor:pointer; }
 .coach-name:hover { color:var(--accent); }
 .coach-role { font-size:.8rem; color:var(--muted); margin-bottom:14px; }
 .coach-status { font-size:.72rem; font-family:'DM Mono',monospace; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:18px; }
 .status-out { background:#181818; color:var(--muted); border:1px solid var(--border); }
 .status-in { background:rgba(255,214,0,.12); color:var(--accent); border:1px solid rgba(255,214,0,.35); }
-.btn-qr { width:100%; padding:11px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; }
+.btn-qr { width:100%; padding:11px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; font-family:'Inter',sans-serif; font-weight:700; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; }
 .btn-qr:hover { background:var(--accent); color:#000; border-color:var(--accent); }
 .btn-tipo { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px; cursor:pointer; color:var(--text); transition:all .15s; width:100%; text-align:center; }
 .btn-tipo.active { border-color:var(--accent); background:rgba(255,214,0,.08); }
 
 /* ADMIN */
 .admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:12px; }
-.admin-header h1 { font-family:'Barlow Condensed',sans-serif; font-size:2.2rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
-.btn-add { padding:11px 22px; background:var(--accent); color:#000; border:none; border-radius:7px; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:background .15s; white-space:nowrap; }
+.admin-header h1 { font-family:'Inter',sans-serif; font-size:2.2rem; font-weight:900; letter-spacing:1px; text-transform:uppercase; }
+.btn-add { padding:11px 22px; background:var(--accent); color:#000; border:none; border-radius:7px; font-family:'Inter',sans-serif; font-weight:800; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:background .15s; white-space:nowrap; }
 .btn-add:hover { background:var(--accent-h); }
 .admin-tabs { display:flex; gap:0; margin-bottom:28px; border-bottom:1px solid var(--border); flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
 .admin-tabs::-webkit-scrollbar { display:none; }
-.admin-tab { padding:10px 22px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.95rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; border-bottom:3px solid transparent; margin-bottom:-1px; white-space:nowrap; flex-shrink:0; }
+.admin-tab { padding:10px 22px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-family:'Inter',sans-serif; font-size:.95rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; border-bottom:3px solid transparent; margin-bottom:-1px; white-space:nowrap; flex-shrink:0; }
 .admin-tab:hover { color:var(--text); }
 .admin-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 .admin-pane { display:none; }
@@ -195,28 +195,28 @@ tr:hover td { background:#141414; }
 .stats-row { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:14px; margin-bottom:32px; }
 .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; }
 .stat-label { font-size:.68rem; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:.08em; text-transform:uppercase; margin-bottom:10px; }
-.stat-value { font-family:'Barlow Condensed',sans-serif; font-size:2.2rem; font-weight:900; line-height:1; }
+.stat-value { font-family:'Inter',sans-serif; font-size:2.2rem; font-weight:900; line-height:1; }
 .stat-value.yellow { color:var(--accent); }
 .stat-value.green { color:var(--success); }
 .stat-value.red { color:var(--danger); }
 
 /* SECTION TITLE */
-.section-title { font-family:'Barlow Condensed',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:32px 0 16px; display:flex; align-items:center; gap:10px; }
+.section-title { font-family:'Inter',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin:32px 0 16px; display:flex; align-items:center; gap:10px; }
 .section-title::after { content:''; flex:1; height:1px; background:var(--border); }
 
 /* MONTH NAV */
 .month-nav { display:flex; align-items:center; justify-content:center; gap:20px; margin-bottom:24px; }
 .month-btn { background:var(--surface2); border:1px solid var(--border); color:var(--text); width:36px; height:36px; border-radius:8px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; transition:all .15s; }
 .month-btn:hover { background:var(--accent); color:#000; border-color:var(--accent); }
-.month-label { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; min-width:200px; text-align:center; }
+.month-label { font-family:'Inter',sans-serif; font-size:1.4rem; font-weight:800; letter-spacing:1px; text-transform:uppercase; min-width:200px; text-align:center; }
 
 /* MONTHLY CARDS */
 .monthly-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); margin-bottom:14px; overflow:hidden; }
 .monthly-card-header { display:flex; justify-content:space-between; align-items:center; padding:16px 20px; cursor:pointer; transition:background .15s; }
 .monthly-card-header:hover { background:var(--surface2); }
-.mc-name { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; }
+.mc-name { font-family:'Inter',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; }
 .mc-role { font-size:.78rem; color:var(--muted); margin-top:2px; }
-.mc-total { font-family:'Barlow Condensed',sans-serif; font-size:1.3rem; font-weight:900; color:var(--accent); }
+.mc-total { font-family:'Inter',sans-serif; font-size:1.3rem; font-weight:900; color:var(--accent); }
 .mc-days { font-size:.75rem; color:var(--muted); font-family:'DM Mono',monospace; }
 .mc-right { text-align:right; }
 .mc-chevron { font-size:.75rem; color:var(--muted); transition:transform .2s; margin-left:12px; }
@@ -226,9 +226,9 @@ tr:hover td { background:#141414; }
 
 /* EXPORT */
 .export-bar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px; margin-bottom:24px; }
-.export-bar-label { font-family:'Barlow Condensed',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.export-bar-label { font-family:'Inter',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
 .export-btns-wrap { display:flex; flex-wrap:wrap; gap:8px; }
-.export-coach-btn { padding:8px 14px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.85rem; font-weight:700; text-transform:uppercase; transition:all .15s; }
+.export-coach-btn { padding:8px 14px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); color:var(--text); cursor:pointer; font-family:'Inter',sans-serif; font-size:.85rem; font-weight:700; text-transform:uppercase; transition:all .15s; }
 .export-coach-btn:hover { border-color:var(--accent); color:var(--accent); }
 
 /* MODAL */
@@ -236,19 +236,19 @@ tr:hover td { background:#141414; }
 .modal-overlay.open { display:flex; }
 .modal { background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent); border-radius:14px; padding:32px; max-width:420px; width:100%; text-align:center; position:relative; max-height:90vh; overflow-y:auto; }
 .modal-wide { max-width:500px; text-align:left; }
-.modal h2 { font-family:'Barlow Condensed',sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
+.modal h2 { font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:900; letter-spacing:.5px; text-transform:uppercase; margin-bottom:4px; }
 .modal p { color:var(--muted); font-size:.9rem; margin-bottom:22px; }
 .modal-close { position:absolute; top:14px; right:14px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:.9rem; display:flex; align-items:center; justify-content:center; transition:color .15s; }
 .modal-close:hover { color:var(--text); }
-.btn-scan { width:100%; padding:14px; border-radius:8px; background:var(--accent); color:#000; border:none; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:background .15s; margin-bottom:10px; }
+.btn-scan { width:100%; padding:14px; border-radius:8px; background:var(--accent); color:#000; border:none; font-family:'Inter',sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; transition:background .15s; margin-bottom:10px; }
 .btn-scan:hover { background:var(--accent-h); }
-.btn-secondary { width:100%; padding:11px; border-radius:8px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.95rem; text-transform:uppercase; cursor:pointer; transition:all .15s; }
+.btn-secondary { width:100%; padding:11px; border-radius:8px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Inter',sans-serif; font-weight:700; font-size:.95rem; text-transform:uppercase; cursor:pointer; transition:all .15s; }
 .btn-secondary:hover { color:var(--text); border-color:#444; }
 .scan-result { display:none; border-radius:10px; padding:16px; margin-top:16px; text-align:left; }
 .scan-result.entrada { background:rgba(255,214,0,.08); border:1px solid rgba(255,214,0,.3); }
 .scan-result.saida { background:rgba(255,59,59,.08); border:1px solid rgba(255,59,59,.3); }
 .sr-label { font-size:.68rem; font-family:'DM Mono',monospace; color:var(--muted); margin-bottom:5px; }
-.sr-value { font-family:'Barlow Condensed',sans-serif; font-size:1.15rem; font-weight:800; text-transform:uppercase; }
+.sr-value { font-family:'Inter',sans-serif; font-size:1.15rem; font-weight:800; text-transform:uppercase; }
 .scan-result.entrada .sr-value { color:var(--accent); }
 .scan-result.saida .sr-value { color:var(--danger); }
 .sr-hours { font-size:.82rem; color:var(--muted); margin-top:5px; font-family:'DM Mono',monospace; }
@@ -256,30 +256,30 @@ tr:hover td { background:#141414; }
 /* FORM */
 .form-group { text-align:left; margin-bottom:16px; }
 .form-group label { display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:7px; letter-spacing:.08em; text-transform:uppercase; font-family:'DM Mono',monospace; }
-.form-group input, .form-group select, .form-group textarea { width:100%; padding:11px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Barlow',sans-serif; font-size:.95rem; outline:none; transition:border-color .15s; }
+.form-group input, .form-group select, .form-group textarea { width:100%; padding:11px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Inter',sans-serif; font-size:.95rem; outline:none; transition:border-color .15s; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color:var(--accent); }
 
 /* PROFILE */
 .profile-header { display:flex; align-items:center; gap:16px; margin-bottom:20px; }
-.profile-avatar { width:64px; height:64px; border-radius:50%; background:var(--accent); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:1.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
+.profile-avatar { width:64px; height:64px; border-radius:50%; background:var(--accent); color:#000; font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
 .profile-info h2 { font-size:1.4rem; margin-bottom:2px; }
 .profile-info span { font-size:.82rem; color:var(--muted); }
 .profile-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
 .profile-stat { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:14px; }
 .ps-label { font-size:.68rem; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
-.ps-value { font-family:'Barlow Condensed',sans-serif; font-size:1.6rem; font-weight:900; }
+.ps-value { font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:900; }
 .ps-value.yellow { color:var(--accent); }
 .profile-scroll { max-height:220px; overflow-y:auto; }
 .profile-day-row { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-radius:8px; margin-bottom:6px; background:var(--surface2); border:1px solid var(--border); }
 .pdr-date { font-family:'DM Mono',monospace; color:var(--muted); font-size:.78rem; }
 .pdr-shifts { font-size:.75rem; color:var(--muted); }
-.pdr-hours { font-family:'Barlow Condensed',sans-serif; font-weight:800; color:var(--accent); font-size:1rem; }
+.pdr-hours { font-family:'Inter',sans-serif; font-weight:800; color:var(--accent); font-size:1rem; }
 
 /* SIGNATURE */
 .sig-canvas { width:100%; height:150px; background:#fff; border-radius:8px; border:2px solid var(--border); cursor:crosshair; touch-action:none; display:block; }
 .sig-actions { display:flex; gap:8px; margin-top:8px; margin-bottom:16px; }
 .export-format-btns { display:flex; gap:8px; }
-.btn-export { flex:1; padding:12px; border-radius:8px; border:none; cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; transition:opacity .15s; }
+.btn-export { flex:1; padding:12px; border-radius:8px; border:none; cursor:pointer; font-family:'Inter',sans-serif; font-weight:800; font-size:.95rem; letter-spacing:.5px; text-transform:uppercase; transition:opacity .15s; }
 .btn-export:hover { opacity:.85; }
 .btn-pdf { background:#e53e3e; color:#fff; }
 .btn-xlsx { background:#1d6f42; color:#fff; }
@@ -290,7 +290,7 @@ tr:hover td { background:#141414; }
 .fix-time-input:focus { border-color:var(--accent); }
 
 /* MISC */
-.delete-btn { background:none; border:none; color:var(--danger); cursor:pointer; font-size:.82rem; font-family:'Barlow',sans-serif; font-weight:600; padding:5px 9px; border-radius:6px; transition:background .15s; }
+.delete-btn { background:none; border:none; color:var(--danger); cursor:pointer; font-size:.82rem; font-family:'Inter',sans-serif; font-weight:600; padding:5px 9px; border-radius:6px; transition:background .15s; }
 .delete-btn:hover { background:rgba(255,59,59,.1); }
 .empty-state { text-align:center; padding:48px; color:var(--muted); }
 .empty-state .es-icon { font-size:3rem; margin-bottom:12px; }
@@ -299,59 +299,59 @@ tr:hover td { background:#141414; }
 
 /* ── EXTRAS PANEL ── */
 .extras-panel { background:var(--surface2); border:1px solid var(--accent); border-radius:12px; padding:20px; margin-bottom:20px; }
-.extras-panel-title { font-family:'Barlow Condensed',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.extras-panel-title { font-family:'Inter',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
 .extra-item { display:flex; align-items:center; gap:8px; padding:10px 12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; flex-wrap:wrap; }
 .extra-item-desc { flex:1; font-size:.88rem; min-width:100px; }
 .extra-item-val { font-family:'DM Mono',monospace; font-size:.9rem; color:var(--success); font-weight:700; white-space:nowrap; }
 .extra-total-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0 0; border-top:1px solid var(--border); margin-top:8px; }
-.extra-total-label { font-family:'Barlow Condensed',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
-.extra-total-val { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:900; color:var(--success); }
+.extra-total-label { font-family:'Inter',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+.extra-total-val { font-family:'Inter',sans-serif; font-size:1.4rem; font-weight:900; color:var(--success); }
 
 /* AVALIAÇÕES */
 .aval-modal { background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent); border-radius:14px; width:96vw; max-width:900px; max-height:92vh; overflow-y:auto; position:relative; padding:0; }
 .aval-header { background:#000; padding:20px 28px 0; border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
 .aval-header-top { display:flex; justify-content:space-between; align-items:flex-start; padding-bottom:14px; }
-.aval-header h2 { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; }
+.aval-header h2 { font-family:'Inter',sans-serif; font-size:1.5rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; }
 .aval-header p { color:var(--muted); font-size:.8rem; margin-top:2px; }
 .aval-tabs-bar { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; }
 .aval-tabs-bar::-webkit-scrollbar { display:none; }
-.aval-tab { padding:8px 18px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-family:'Barlow Condensed',sans-serif; font-size:.85rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; border-bottom:2px solid transparent; white-space:nowrap; }
+.aval-tab { padding:8px 18px; background:transparent; border:none; color:var(--muted); cursor:pointer; font-family:'Inter',sans-serif; font-size:.85rem; font-weight:700; letter-spacing:.5px; text-transform:uppercase; transition:all .15s; border-bottom:2px solid transparent; white-space:nowrap; }
 .aval-tab:hover { color:var(--text); }
 .aval-tab.active { color:var(--accent); border-bottom-color:var(--accent); }
 .aval-pane { display:none; padding:22px 28px; }
 .aval-pane.active { display:block; }
 .aval-section { margin-bottom:24px; }
-.aval-section-title { font-family:'Barlow Condensed',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.aval-section-title { font-family:'Inter',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .aval-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
 .aval-item { background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:13px 15px; margin-bottom:7px; }
 .aval-item-q { font-size:.86rem; line-height:1.45; margin-bottom:9px; font-weight:500; }
 .aval-item-controls { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
-.aval-tri-btn { padding:5px 11px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.75rem; text-transform:uppercase; cursor:pointer; transition:all .15s; white-space:nowrap; }
+.aval-tri-btn { padding:5px 11px; border-radius:6px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Inter',sans-serif; font-weight:700; font-size:.75rem; text-transform:uppercase; cursor:pointer; transition:all .15s; white-space:nowrap; }
 .aval-tri-btn:hover { border-color:#444; color:var(--text); }
 .aval-tri-btn.sel-sim { background:rgba(34,197,94,.15); color:var(--success); border-color:rgba(34,197,94,.4); }
 .aval-tri-btn.sel-nao { background:rgba(255,59,59,.12); color:var(--danger); border-color:rgba(255,59,59,.35); }
 .aval-tri-btn.sel-sr { background:rgba(255,214,0,.1); color:var(--accent); border-color:rgba(255,214,0,.3); }
-.aval-nota-btn { width:34px; height:34px; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-weight:800; font-size:.95rem; cursor:pointer; transition:all .15s; }
+.aval-nota-btn { width:34px; height:34px; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Inter',sans-serif; font-weight:800; font-size:.95rem; cursor:pointer; transition:all .15s; }
 .aval-nota-btn:hover { border-color:#444; color:var(--text); }
 .aval-nota-btn.sel { background:var(--accent); color:#000; border-color:var(--accent); }
 .aval-section-footer { background:rgba(255,214,0,.05); border:1px solid rgba(255,214,0,.15); border-radius:8px; padding:12px 14px; margin-top:10px; }
-.aval-melhorar { width:100%; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--text); font-family:'Barlow',sans-serif; font-size:.85rem; outline:none; resize:vertical; min-height:44px; }
+.aval-melhorar { width:100%; padding:8px 10px; background:var(--surface); border:1px solid var(--border); border-radius:7px; color:var(--text); font-family:'Inter',sans-serif; font-size:.85rem; outline:none; resize:vertical; min-height:44px; }
 .aval-melhorar:focus { border-color:var(--accent); }
 .aval-score-ring { width:110px; height:110px; position:relative; flex-shrink:0; }
 .aval-score-ring svg { transform:rotate(-90deg); }
 .aval-score-val { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.aval-score-pct { font-family:'Barlow Condensed',sans-serif; font-size:1.6rem; font-weight:900; color:var(--accent); line-height:1; }
+.aval-score-pct { font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:900; color:var(--accent); line-height:1; }
 .aval-score-lbl { font-size:.52rem; color:var(--muted); font-family:'DM Mono',monospace; text-transform:uppercase; margin-top:3px; }
 .aval-bar-wrap { height:7px; background:var(--border); border-radius:4px; overflow:hidden; margin-top:5px; flex:1; }
 .aval-bar-fill { height:100%; border-radius:4px; transition:width .5s ease; }
 .aval-hist-item { background:var(--surface2); border:1px solid var(--border); border-radius:9px; padding:14px 18px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; transition:all .15s; }
 .aval-hist-item:hover { border-color:#333; background:var(--surface); }
-.aval-hist-score { font-family:'Barlow Condensed',sans-serif; font-size:1.5rem; font-weight:900; }
+.aval-hist-score { font-family:'Inter',sans-serif; font-size:1.5rem; font-weight:900; }
 
 /* ── AVAL CHARTS GRID ── */
 .aval-charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
 .aval-chart-card { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:16px; }
-.aval-chart-card h4 { font-family:'Barlow Condensed',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+.aval-chart-card h4 { font-family:'Inter',sans-serif; font-size:.75rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
 .aval-chart-wrap { position:relative; height:180px; }
 
 /* EVENTO POPUP */
@@ -361,13 +361,13 @@ tr:hover td { background:#141414; }
 @keyframes popIn { from { transform:scale(.92); opacity:0; } to { transform:scale(1); opacity:1; } }
 .ev-popup-banner { background:#000; border-bottom:3px solid var(--accent); padding:20px 24px 16px; }
 .ev-popup-banner-label { font-size:.68rem; font-family:'DM Mono',monospace; color:var(--accent); letter-spacing:.12em; text-transform:uppercase; margin-bottom:6px; }
-.ev-popup-banner h2 { font-family:'Barlow Condensed',sans-serif; font-size:1.8rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:#fff; line-height:1.1; }
+.ev-popup-banner h2 { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; color:#fff; line-height:1.1; }
 .ev-popup-body { padding:20px 24px; }
 .ev-popup-item { background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:14px 16px; margin-bottom:10px; display:flex; align-items:center; gap:14px; border-left:3px solid var(--accent); }
 .ev-popup-item.hoje { border-left-color:var(--danger); }
 .ev-popup-item-icon { font-size:1.6rem; flex-shrink:0; }
 .ev-popup-item-content { flex:1; min-width:0; }
-.ev-popup-item-nome { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ev-popup-item-nome { font-family:'Inter',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .ev-popup-item-meta { font-size:.75rem; color:var(--muted); font-family:'DM Mono',monospace; margin-top:3px; }
 .ev-popup-item-badge { font-size:.65rem; font-family:'DM Mono',monospace; padding:3px 8px; border-radius:20px; flex-shrink:0; }
 .ev-popup-item-badge.hoje { background:rgba(255,59,59,.15); color:var(--danger); border:1px solid rgba(255,59,59,.3); }
@@ -380,7 +380,7 @@ tr:hover td { background:#141414; }
 .evento-card-header { padding:18px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
 .evento-card-header::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--accent); border-radius:3px 0 0 3px; }
 .evento-card { position:relative; }
-.evento-title { font-family:'Barlow Condensed',sans-serif; font-size:1.25rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.evento-title { font-family:'Inter',sans-serif; font-size:1.25rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
 .evento-meta { font-size:.75rem; color:var(--muted); font-family:'DM Mono',monospace; display:flex; gap:12px; flex-wrap:wrap; }
 .evento-meta span { display:flex; align-items:center; gap:4px; }
 .evento-status-badge { font-size:.68rem; font-family:'DM Mono',monospace; padding:3px 10px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
@@ -390,27 +390,27 @@ tr:hover td { background:#141414; }
 .evento-coaches-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; padding:16px 20px; }
 .ev-coach-row { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:12px 14px; display:flex; align-items:center; gap:10px; transition:border-color .15s; }
 .ev-coach-row.is-in { border-color:rgba(255,214,0,.4); background:rgba(255,214,0,.04); }
-.ev-coach-avatar { width:34px; height:34px; border-radius:50%; background:var(--accent); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:.85rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ev-coach-avatar { width:34px; height:34px; border-radius:50%; background:var(--accent); color:#000; font-family:'Inter',sans-serif; font-size:.85rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ev-coach-name { font-size:.85rem; font-weight:600; line-height:1.2; }
 .ev-coach-time { font-size:.7rem; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
-.ev-btn { margin-left:auto; padding:5px 10px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:'Barlow Condensed',sans-serif; font-weight:700; font-size:.78rem; text-transform:uppercase; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
+.ev-btn { margin-left:auto; padding:5px 10px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-family:'Inter',sans-serif; font-weight:700; font-size:.78rem; text-transform:uppercase; cursor:pointer; transition:all .15s; white-space:nowrap; flex-shrink:0; }
 .ev-btn:hover { background:var(--accent); color:#000; border-color:var(--accent); }
 .ev-btn.saida { border-color:rgba(255,59,59,.4); color:var(--danger); }
 .ev-btn.saida:hover { background:var(--danger); color:#fff; border-color:var(--danger); }
 .evento-footer { padding:12px 20px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,.2); flex-wrap:wrap; gap:8px; }
 .ev-presentes { font-size:.75rem; color:var(--muted); font-family:'DM Mono',monospace; }
-.ev-total-horas { font-family:'Barlow Condensed',sans-serif; font-size:1rem; font-weight:800; color:var(--accent); }
+.ev-total-horas { font-family:'Inter',sans-serif; font-size:1rem; font-weight:800; color:var(--accent); }
 .eventos-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(400px,1fr)); gap:20px; }
 .ev-detail-row { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; border-radius:7px; background:var(--surface2); border:1px solid var(--border); margin-bottom:6px; }
 .ev-detail-name { font-size:.88rem; font-weight:600; }
 .ev-detail-times { font-size:.75rem; color:var(--muted); font-family:'DM Mono',monospace; margin-top:2px; }
-.ev-detail-dur { font-family:'Barlow Condensed',sans-serif; font-size:1.05rem; font-weight:800; color:var(--accent); }
+.ev-detail-dur { font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:800; color:var(--accent); }
 
 /* LOGIN SCREEN */
 .login-screen { position:fixed; inset:0; background:var(--bg); z-index:1000; display:flex; align-items:center; justify-content:center; flex-direction:column; padding:16px; }
 .login-screen.hidden { display:none; }
 .login-card { background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--accent); border-radius:16px; padding:40px 36px; max-width:400px; width:100%; text-align:center; }
-.login-logo { font-family:'Barlow Condensed',sans-serif; font-size:2.8rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
+.login-logo { font-family:'Inter',sans-serif; font-size:2.8rem; font-weight:900; letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; }
 .login-logo span { color:var(--accent); }
 .login-tagline { color:var(--muted); font-size:.88rem; margin-bottom:32px; }
 .login-loading { display:flex; align-items:center; justify-content:center; gap:10px; color:var(--muted); font-family:'DM Mono',monospace; font-size:.85rem; margin-top:16px; }
@@ -420,7 +420,7 @@ tr:hover td { background:#141414; }
 .gym-selector { display:grid; gap:10px; margin-top:8px; max-height:300px; overflow-y:auto; }
 .gym-btn { padding:14px 18px; background:var(--surface2); border:1px solid var(--border); border-radius:9px; color:var(--text); cursor:pointer; text-align:left; transition:all .15s; }
 .gym-btn:hover { border-color:var(--accent); background:rgba(255,214,0,.05); }
-.gym-btn-name { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; }
+.gym-btn-name { font-family:'Inter',sans-serif; font-size:1.1rem; font-weight:800; text-transform:uppercase; }
 .gym-btn-sub { font-size:.75rem; color:var(--muted); margin-top:2px; }
 
 /* NETWORK STATUS */
@@ -438,7 +438,7 @@ tr:hover td { background:#141414; }
 .kpi-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px 20px; display:flex; align-items:center; gap:14px; }
 .kpi-icon { font-size:1.8rem; flex-shrink:0; }
 .kpi-text { flex:1; min-width:0; }
-.kpi-val { font-family:'Barlow Condensed',sans-serif; font-size:1.8rem; font-weight:900; line-height:1; }
+.kpi-val { font-family:'Inter',sans-serif; font-size:1.8rem; font-weight:900; line-height:1; }
 .kpi-lbl { font-size:.68rem; color:var(--muted); font-family:'DM Mono',monospace; letter-spacing:.06em; text-transform:uppercase; margin-top:4px; }
 .kpi-delta { font-size:.72rem; font-family:'DM Mono',monospace; margin-top:4px; }
 .delta-up { color:var(--success); }
@@ -469,25 +469,25 @@ tr:hover td { background:#141414; }
 
 /* COACH FILTER */
 .coach-filter { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:20px; }
-.coach-filter-btn { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Barlow Condensed',sans-serif; font-size:.82rem; font-weight:700; cursor:pointer; text-transform:uppercase; transition:all .15s; }
+.coach-filter-btn { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-family:'Inter',sans-serif; font-size:.82rem; font-weight:700; cursor:pointer; text-transform:uppercase; transition:all .15s; }
 .coach-filter-btn:hover { border-color:#444; color:var(--text); }
 .coach-filter-btn.active { background:var(--accent); color:#000; border-color:var(--accent); }
 
 /* RANKING */
 .ranking-row { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:8px; }
-.ranking-pos { font-family:'Barlow Condensed',sans-serif; font-size:1.4rem; font-weight:900; color:var(--muted); width:28px; flex-shrink:0; }
+.ranking-pos { font-family:'Inter',sans-serif; font-size:1.4rem; font-weight:900; color:var(--muted); width:28px; flex-shrink:0; }
 .ranking-pos.gold { color:#FFD600; }
 .ranking-pos.silver { color:#aaa; }
 .ranking-pos.bronze { color:#cd7f32; }
-.ranking-avatar { width:36px; height:36px; border-radius:50%; background:var(--accent); color:#000; font-family:'Barlow Condensed',sans-serif; font-size:.9rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.ranking-avatar { width:36px; height:36px; border-radius:50%; background:var(--accent); color:#000; font-family:'Inter',sans-serif; font-size:.9rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
 .ranking-name { flex:1; font-weight:600; font-size:.9rem; }
-.ranking-hours { font-family:'Barlow Condensed',sans-serif; font-size:1.1rem; font-weight:800; color:var(--accent); }
+.ranking-hours { font-family:'Inter',sans-serif; font-size:1.1rem; font-weight:800; color:var(--accent); }
 .ranking-bar-wrap { width:80px; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
 .ranking-bar { height:100%; background:var(--accent); border-radius:3px; }
 
 /* CHART CARDS */
 .chart-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; }
-.chart-card h3 { font-family:'Barlow Condensed',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
+.chart-card h3 { font-family:'Inter',sans-serif; font-size:.8rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:18px; }
 .chart-wrap { position:relative; }
 
 /* ══════════════════════════════
@@ -630,7 +630,7 @@ tr:hover td { background:#141414; }
       <div class="login-loading" id="login-loading-gyms"><div class="login-spinner"></div> A carregar...</div>
     </div>
     <div id="login-step-pin" style="display:none">
-      <div id="login-gym-selected" style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:800;text-transform:uppercase;margin-bottom:4px"></div>
+      <div id="login-gym-selected" style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:800;text-transform:uppercase;margin-bottom:4px"></div>
       <div style="font-size:.8rem;color:var(--muted);margin-bottom:20px">Introduz o PIN de acesso</div>
       <div class="form-group">
         <input type="password" id="login-pin" placeholder="••••••••" style="letter-spacing:6px;font-size:1.4rem;text-align:center;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:14px;width:100%;outline:none;font-family:'DM Mono',monospace;" onkeydown="if(event.key==='Enter')doLogin()">
@@ -660,7 +660,14 @@ tr:hover td { background:#141414; }
     <span id="gym-name-nav" class="sidebar-gymname"></span>
   </div>
   <div class="sidebar-menu">
-    <button class="nav-tab active" onclick="showPage('picagem',this)">🕐 Controlo de Ponto</button>
+    <div class="nav-group open">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">👥 RH <span class="nav-group-arrow">▾</span></button>
+      <div class="nav-submenu">
+        <button class="nav-tab nav-subitem active" onclick="showPage('picagem',this)">🕐 Controlo de Ponto</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-staff" onclick="showPage('staff',this)" style="display:none">🧑‍💼 Staff</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">📋 Gestão de RH</button>
+      </div>
+    </div>
 
     <div class="nav-group open">
       <button class="nav-group-header" onclick="toggleNavGroup(this)">🏆 Eventos &amp; Competições <span class="nav-group-arrow">▾</span></button>
@@ -687,7 +694,6 @@ tr:hover td { background:#141414; }
       </div>
     </div>
 
-    <button class="nav-tab admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">👥 Recursos Humanos</button>
     <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
   </div>
   <div class="sidebar-footer">
@@ -733,7 +739,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-substituicoes">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🔄 Substituições</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🔄 Substituições</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Gestão de substituições entre coaches</p>
     </div>
     <button class="btn-add" onclick="openSubModal()">+ Nova Substituição</button>
@@ -763,7 +769,7 @@ tr:hover td { background:#141414; }
       <div class="form-group"><label>Hora</label><input type="time" id="sub-hora" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;"></div>
     </div>
     <div class="form-group"><label>Tipo</label>
-      <select id="sub-tipo" onchange="toggleSubTipo()" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+      <select id="sub-tipo" onchange="toggleSubTipo()" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
         <option value="substituicao">🔄 Substituição (horário normal)</option>
         <option value="hybrid">🌀 Hybrid Day (aula avulsa)</option>
       </select>
@@ -773,7 +779,7 @@ tr:hover td { background:#141414; }
       <div id="sub-ausentes-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
     </div>
     <div class="form-group"><label>Coach Substituto</label>
-      <select id="sub-substituto" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select>
+      <select id="sub-substituto" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;"></select>
     </div>
     <div class="form-group"><label>Observações (opcional)</label><input type="text" id="sub-obs" placeholder="Ex: aula de 1h"></div>
     <input type="hidden" id="sub-edit-id">
@@ -786,7 +792,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-limpezas">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🧹 Limpezas</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🧹 Limpezas</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Registo de presenças do pessoal de limpeza</p>
     </div>
     <div style="display:flex;gap:8px">
@@ -802,7 +808,7 @@ tr:hover td { background:#141414; }
     </div>
     <button onclick="changeLimpezaDate(-1)" class="month-btn">&#8592;</button>
     <button onclick="changeLimpezaDate(1)" class="month-btn">&#8594;</button>
-    <button onclick="exportLimpezasPDF()" style="padding:9px 16px;background:#e53e3e;border:none;color:#fff;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;text-transform:uppercase">📄 Exportar PDF</button>
+    <button onclick="exportLimpezasPDF()" style="padding:9px 16px;background:#e53e3e;border:none;color:#fff;border-radius:8px;font-family:'Inter',sans-serif;font-weight:800;font-size:.9rem;cursor:pointer;text-transform:uppercase">📄 Exportar PDF</button>
   </div>
 
   <!-- Limpadores grid -->
@@ -836,7 +842,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-eventos">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Eventos</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Eventos</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Calendariza eventos e regista a presença de cada coach</p>
     </div>
     <button class="btn-add" onclick="openEventoModal()">+ Novo Evento</button>
@@ -899,8 +905,8 @@ tr:hover td { background:#141414; }
 <!-- DASHBOARD -->
 <div class="page" id="page-dashboard">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
-    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Dashboard</h1>
-    <select id="dash-period" onchange="renderDashboard()" style="padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.88rem;outline:none;">
+    <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Dashboard</h1>
+    <select id="dash-period" onchange="renderDashboard()" style="padding:9px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.88rem;outline:none;">
       <option value="7">Últimos 7 dias</option>
       <option value="30" selected>Últimos 30 dias</option>
       <option value="90">Últimos 90 dias</option>
@@ -925,7 +931,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-hyrox">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🏆 HYROX — Resultados</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🏆 HYROX — Resultados</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Avaliações registadas pelo staff (link à parte, sem login)</p>
     </div>
     <button class="btn-add" onclick="renderHyroxAdmin()">🔄 Atualizar</button>
@@ -946,13 +952,13 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-games57">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🎮 Games 5.7</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🎮 Games 5.7</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Competição interna 5.7CrossFit</p>
     </div>
   </div>
   <div style="background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:28px;text-align:center;max-width:560px;margin:0 auto">
     <div style="font-size:2.4rem;margin-bottom:12px">🚧</div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
+    <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
     <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
       Falta definir o formato do Games 5.7 (provas, pontuação, escalões) para construir o scorecard
       público e esta página de resultados — tal como foi feito para o HYROX. Assim que partilhares os
@@ -960,18 +966,65 @@ tr:hover td { background:#141414; }
     </p>
   </div>
 </div>
-<!-- SATISFACAO -->
+<!-- STAFF -->
+<div class="page" id="page-staff">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🧑‍💼 Staff</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Documentação, seguros, certificações, competências e avaliações por colaborador</p>
+    </div>
+  </div>
+  <div class="form-group" style="max-width:340px">
+    <label>Colaborador</label>
+    <select id="staff-coach-select" onchange="renderStaffDetail()">
+      <option value="">-- Selecionar --</option>
+    </select>
+  </div>
+
+  <div id="staff-detail-wrap" style="display:none">
+    <div id="staff-coach-header"></div>
+
+    <div class="section-title">Competências</div>
+    <div id="staff-competencias-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+    <div style="display:flex;gap:8px;margin-bottom:24px;max-width:480px">
+      <input type="text" id="staff-comp-input" placeholder="Ex: Weightlifting, Nutrição, Gymnastics..." onkeydown="if(event.key==='Enter')addCompetencia()">
+      <button class="btn-add" onclick="addCompetencia()">+ Adicionar</button>
+    </div>
+
+    <div class="section-title">Documentos (Seguros, Certificações, Outros)</div>
+    <div id="staff-docs-list" style="margin-bottom:16px"></div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;max-width:680px">
+      <div style="display:grid;grid-template-columns:1fr 1.4fr 1fr;gap:10px">
+        <div class="form-group" style="margin:0"><label>Tipo</label>
+          <select id="staff-doc-tipo">
+            <option value="seguro">🛡️ Seguro</option>
+            <option value="certificacao">🎓 Certificação</option>
+            <option value="outro">📄 Outro</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0"><label>Nome</label><input type="text" id="staff-doc-nome" placeholder="Ex: Seguro Acidentes Trabalho"></div>
+        <div class="form-group" style="margin:0"><label>Validade (opcional)</label><input type="date" id="staff-doc-validade"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:0"><label>Ficheiro (opcional)</label><input type="file" id="staff-doc-file" style="padding:8px 10px"></div>
+      <button class="btn-add" style="margin-top:12px" onclick="uploadStaffDoc()">📤 Adicionar Documento</button>
+    </div>
+
+    <div class="section-title" style="margin-top:28px">Avaliações de Aula</div>
+    <button class="btn-scan" style="max-width:300px" onclick="openStaffAvaliacoes()">📋 Ver Avaliações Deste Coach</button>
+  </div>
+</div>
+
 <div class="page" id="page-satisfacao">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">📊 Satisfação — Resultados</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">📊 Satisfação — Resultados</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Respostas anónimas do questionário público (satisfacao.html)</p>
     </div>
     <button class="btn-add" onclick="renderSatisfacaoAdmin()">🔄 Atualizar</button>
   </div>
 
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px">
-    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:1rem;margin-bottom:10px">Gerar link de utilização única</div>
+    <div style="font-family:'Inter',sans-serif;font-weight:800;text-transform:uppercase;font-size:1rem;margin-bottom:10px">Gerar link de utilização única</div>
     <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px">Cada link só pode ser respondido uma vez. Gera um link por pessoa e envia-o individualmente (WhatsApp, SMS, etc.).</p>
     <button class="btn-add" onclick="gerarLinkSatisfacao()">➕ Gerar Novo Link</button>
     <div id="satisfacao-link-result" style="margin-top:12px"></div>
@@ -1065,7 +1118,7 @@ tr:hover td { background:#141414; }
       <div class="section-title" style="margin:0">Turnos de Fim de Semana</div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Grupos de Rotatividade</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Grupos de Rotatividade</div>
       <div id="grupos-list"></div>
       <button class="btn-add" style="margin-top:16px;font-size:.82rem;padding:8px 16px" onclick="openGrupoModal()">+ Criar Grupo</button>
     </div>
@@ -1151,10 +1204,10 @@ tr:hover td { background:#141414; }
       <div class="chart-card">
         <h3>🗄️ Dados</h3>
         <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
-          <button onclick="openExportRelatorioModal()" style="padding:11px;background:#e53e3e;border:1px solid rgba(229,62,62,.4);color:#fff;border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">📄 Exportar Relatório Mensal (PDF)</button>
-          <button onclick="exportBackupJSON()" style="padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;transition:all .15s">💾 Backup (JSON)</button>
-          <label style="padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;text-align:center">📥 Restaurar Backup<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
-          <button onclick="clearData()" style="padding:11px;background:var(--surface2);border:1px solid rgba(255,59,59,.3);color:var(--danger);border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem">⚠️ Limpar Todos os Dados</button>
+          <button onclick="openExportRelatorioModal()" style="padding:11px;background:#e53e3e;border:1px solid rgba(229,62,62,.4);color:#fff;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;transition:opacity .15s" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">📄 Exportar Relatório Mensal (PDF)</button>
+          <button onclick="exportBackupJSON()" style="padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;transition:all .15s">💾 Backup (JSON)</button>
+          <label style="padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem;text-align:center">📥 Restaurar Backup<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+          <button onclick="clearData()" style="padding:11px;background:var(--surface2);border:1px solid rgba(255,59,59,.3);color:var(--danger);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;font-size:.88rem">⚠️ Limpar Todos os Dados</button>
         </div>
       </div>
     </div>
@@ -1170,8 +1223,8 @@ tr:hover td { background:#141414; }
     <h2>Relatório Mensal</h2>
     <p>Escolhe o mês a exportar</p>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-      <div class="form-group" style="margin:0"><label>Mês</label><select id="rel-mes" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select></div>
-      <div class="form-group" style="margin:0"><label>Ano</label><select id="rel-ano" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"></select></div>
+      <div class="form-group" style="margin:0"><label>Mês</label><select id="rel-mes" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;"></select></div>
+      <div class="form-group" style="margin:0"><label>Ano</label><select id="rel-ano" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;"></select></div>
     </div>
     <button class="btn-scan" onclick="exportRelatorioGeral()">📄 Gerar PDF</button>
     <button class="btn-secondary" onclick="closeModal('export-relatorio-modal')">Cancelar</button>
@@ -1183,31 +1236,31 @@ tr:hover td { background:#141414; }
   <div class="modal" style="max-width:460px">
     <button class="modal-close" onclick="closeModal('qr-modal')">✕</button>
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px">
-      <div id="modal-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"></div>
+      <div id="modal-avatar" style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#000;font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"></div>
       <div>
-        <div id="modal-coach-name" style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;text-transform:uppercase"></div>
+        <div id="modal-coach-name" style="font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:900;text-transform:uppercase"></div>
         <div id="modal-coach-status" style="font-size:.82rem;color:var(--muted)"></div>
       </div>
     </div>
-    <div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px">Tipo de Registo</div>
+    <div style="font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:16px 0 10px">Tipo de Registo</div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
       <button id="btn-tipo-normal" class="btn-tipo active" onclick="selectTipo('normal')">
         <div style="font-size:1.2rem;margin-bottom:4px">📋</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Normal</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Normal</div>
       </button>
       <button id="btn-tipo-sub" class="btn-tipo" onclick="selectTipo('substituicao')">
         <div style="font-size:1.2rem;margin-bottom:4px">🔄</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Substituição</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Substituição</div>
       </button>
       <button id="btn-tipo-hybrid" class="btn-tipo" onclick="selectTipo('hybrid')">
         <div style="font-size:1.2rem;margin-bottom:4px">🌀</div>
-        <div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Hybrid Day</div>
+        <div style="font-family:'Inter',sans-serif;font-weight:800;font-size:.85rem;text-transform:uppercase">Hybrid Day</div>
       </button>
     </div>
     <div id="sub-fields" style="display:none;margin-bottom:16px">
       <div class="form-group" style="margin-bottom:10px">
         <label>Coach que está a substituir</label>
-        <select id="sub-coach-select" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+        <select id="sub-coach-select" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
           <option value="">-- Selecionar --</option>
         </select>
       </div>
@@ -1239,7 +1292,7 @@ tr:hover td { background:#141414; }
     </div>
     <div class="section-title" style="margin-top:0">Dias trabalhados este mês</div>
     <div class="profile-scroll" id="profile-days"></div>
-    <button onclick="openAvaliacaoFromProfile()" style="width:100%;margin-top:16px;padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:.9rem;letter-spacing:.5px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">📋 Avaliações de Aula</button>
+    <button onclick="openAvaliacaoFromProfile()" style="width:100%;margin-top:16px;padding:11px;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;font-size:.9rem;letter-spacing:.5px;transition:all .15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'">📋 Avaliações de Aula</button>
   </div>
 </div>
 
@@ -1279,7 +1332,7 @@ tr:hover td { background:#141414; }
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px">
         <div class="form-group" style="margin:0"><label>Nome do Avaliador</label><input type="text" id="aval-avaliador" placeholder="Ex: Marcos Pinto"></div>
         <div class="form-group" style="margin:0"><label>Tipo de Aula</label>
-          <select id="aval-tipo-aula" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;outline:none;">
+          <select id="aval-tipo-aula" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;outline:none;">
             <option>CrossFit</option><option>Weightlifting</option><option>Gymnastics</option><option>Open Gym</option><option>Outro</option>
           </select>
         </div>
@@ -1308,7 +1361,7 @@ tr:hover td { background:#141414; }
       </div>
 
       <div id="aval-score-preview" style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px;display:none">
-        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Pré-visualização da Pontuação</div>
+        <div style="font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px">Pré-visualização da Pontuação</div>
         <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
           <div class="aval-score-ring" id="aval-score-ring-nova">
             <svg width="110" height="110" viewBox="0 0 110 110"><circle cx="55" cy="55" r="48" fill="none" stroke="#222" stroke-width="8"/><circle id="aval-ring-nova-arc" cx="55" cy="55" r="48" fill="none" stroke="#FFD600" stroke-width="8" stroke-linecap="round" stroke-dasharray="301.6" stroke-dashoffset="301.6"/></svg>
@@ -1320,7 +1373,7 @@ tr:hover td { background:#141414; }
 
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="btn-scan" style="flex:2;min-width:120px" onclick="saveAvaliacao()">💾 Guardar Avaliação</button>
-        <button onclick="exportAvaliacaoPDF(null)" style="flex:1;min-width:80px;padding:14px;border-radius:8px;background:#e53e3e;border:none;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer;transition:opacity .15s">📄 PDF</button>
+        <button onclick="exportAvaliacaoPDF(null)" style="flex:1;min-width:80px;padding:14px;border-radius:8px;background:#e53e3e;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer;transition:opacity .15s">📄 PDF</button>
         <button class="btn-secondary" style="flex:1;min-width:80px" onclick="resetAvaliacao()">🔄 Limpar</button>
       </div>
     </div>
@@ -1338,7 +1391,7 @@ tr:hover td { background:#141414; }
           <div class="aval-score-val"><div class="aval-score-pct" id="aval-ring-results-pct">–</div><div class="aval-score-lbl">Média</div></div>
         </div>
         <div style="flex:1;min-width:200px">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Média por Secção</div>
+          <div style="font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px">Média por Secção</div>
           <div id="aval-results-section-bars"></div>
         </div>
       </div>
@@ -1386,7 +1439,7 @@ tr:hover td { background:#141414; }
         <div id="extras-list"></div>
         <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;margin-top:12px;align-items:end">
           <div class="form-group" style="margin:0"><label>Tipo de Extra</label>
-            <select id="extra-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+            <select id="extra-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
               <option value="">-- Selecionar --</option>
               <option value="Programação de Aulas">Programação de Aulas</option>
               <option value="Personal Planning">Personal Planning</option>
@@ -1400,7 +1453,7 @@ tr:hover td { background:#141414; }
           </div>
           <div>
             <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace">Tipo</label>
-            <select id="extra-tipo" onchange="toggleExtraTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;width:130px">
+            <select id="extra-tipo" onchange="toggleExtraTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;width:130px">
               <option value="horas">⏱ Horas Extra</option>
               <option value="fixo">💰 Valor Fixo</option>
             </select>
@@ -1410,9 +1463,9 @@ tr:hover td { background:#141414; }
             <input type="number" id="extra-val" placeholder="0" min="0" step="0.5" style="width:100px;padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:.95rem;outline:none;">
           </div>
         </div>
-        <button onclick="addExtra()" style="margin-top:12px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Extra</button>
-        <button onclick="saveExtrasDB()" style="margin-top:8px;width:100%;padding:10px;background:var(--success);color:#fff;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">💾 Guardar Extras</button>
-        <button onclick="openRecorrentesModal()" style="margin-top:8px;width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;cursor:pointer">🔄 Gerir Extras Recorrentes</button>
+        <button onclick="addExtra()" style="margin-top:12px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Extra</button>
+        <button onclick="saveExtrasDB()" style="margin-top:8px;width:100%;padding:10px;background:var(--success);color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">💾 Guardar Extras</button>
+        <button onclick="openRecorrentesModal()" style="margin-top:8px;width:100%;padding:8px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-weight:700;font-size:.82rem;text-transform:uppercase;cursor:pointer">🔄 Gerir Extras Recorrentes</button>
         <div class="extra-total-row" id="extras-total-row" style="display:none">
           <div class="extra-total-label">Total Extras</div>
           <div class="extra-total-val" id="extras-total-val">0.00 €</div>
@@ -1428,8 +1481,8 @@ tr:hover td { background:#141414; }
           <span id="extras-sum-extras" style="font-family:'DM Mono',monospace;color:var(--success)">0.00 €</span>
         </div>
         <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase">TOTAL A RECEBER</span>
-          <span id="extras-sum-total" style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;color:var(--accent)">0.00 €</span>
+          <span style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:900;letter-spacing:.05em;text-transform:uppercase">TOTAL A RECEBER</span>
+          <span id="extras-sum-total" style="font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:900;color:var(--accent)">0.00 €</span>
         </div>
       </div>
     </div>
@@ -1448,7 +1501,7 @@ tr:hover td { background:#141414; }
     <h2>Novo Colaborador</h2>
     <p>Preencha os dados para adicionar à equipa</p>
     <div style="display:flex;flex-direction:column;align-items:center;margin-bottom:20px">
-      <div id="new-foto-preview" onclick="document.getElementById('new-foto-input').click()" style="width:80px;height:80px;border-radius:50%;background:var(--accent);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:1.8rem;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;border:3px solid var(--border)">📷</div>
+      <div id="new-foto-preview" onclick="document.getElementById('new-foto-input').click()" style="width:80px;height:80px;border-radius:50%;background:var(--accent);color:#000;font-family:'Inter',sans-serif;font-size:1.8rem;font-weight:900;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0;border:3px solid var(--border)">📷</div>
       <input type="file" id="new-foto-input" accept="image/*" style="display:none" onchange="previewFoto(this)">
       <input type="hidden" id="new-foto-url">
       <span style="font-size:.72rem;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace">Toca para adicionar foto</span>
@@ -1486,18 +1539,18 @@ tr:hover td { background:#141414; }
 
       <div class="section-title" style="margin-top:16px;color:var(--danger)">☕ Pausas do Dia</div>
       <div id="fix-pausas-list" style="margin-bottom:8px"></div>
-      <button onclick="addFixPausa()" style="width:100%;padding:8px;background:rgba(255,59,59,.12);border:1px dashed rgba(255,59,59,.4);color:var(--danger);border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;margin-bottom:12px">+ Adicionar Pausa</button>
+      <button onclick="addFixPausa()" style="width:100%;padding:8px;background:rgba(255,59,59,.12);border:1px dashed rgba(255,59,59,.4);color:var(--danger);border-radius:8px;font-family:'Inter',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;margin-bottom:12px">+ Adicionar Pausa</button>
 
       <div class="form-group" style="margin-top:4px"><label>Adicionar Registo Manual (Entrada — Saída)</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <input type="time" id="fix-entry" style="flex:1;min-width:80px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;">
           <input type="time" id="fix-exit" style="flex:1;min-width:80px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;">
-          <select id="fix-tipo" style="flex:1;min-width:100px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow Condensed',sans-serif;outline:none;">
+          <select id="fix-tipo" style="flex:1;min-width:100px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;outline:none;">
             <option value="normal">Normal</option>
             <option value="substituicao">🔄 Substituição</option>
             <option value="hybrid">🌀 Hybrid Day</option>
           </select>
-          <button onclick="addManualRecord()" style="padding:10px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;cursor:pointer;font-size:1rem;">+</button>
+          <button onclick="addManualRecord()" style="padding:10px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-weight:800;cursor:pointer;font-size:1rem;">+</button>
         </div>
         <div id="fix-manual-subcoaches" style="display:none;flex-wrap:wrap;gap:5px;margin-top:8px;padding:8px 10px;background:var(--surface2);border:1px solid var(--accent);border-radius:8px">
           <span style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>
@@ -1514,10 +1567,10 @@ tr:hover td { background:#141414; }
     <button class="modal-close" onclick="closeModal('falta-modal')">✕</button>
     <h2>Registar Falta</h2>
     <p>Registe uma falta ou ausência de um colaborador</p>
-    <div class="form-group"><label>Colaborador</label><select id="falta-coach" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"><option value="">-- Selecionar --</option></select></div>
+    <div class="form-group"><label>Colaborador</label><select id="falta-coach" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;"><option value="">-- Selecionar --</option></select></div>
     <div class="form-group"><label>Data</label><input type="date" id="falta-date"></div>
     <div class="form-group"><label>Tipo de Falta</label>
-      <select id="falta-tipo" onchange="toggleFaltaFields()" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+      <select id="falta-tipo" onchange="toggleFaltaFields()" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
         <option value="injustificada">🔴 Injustificada</option><option value="justificada">🟡 Justificada</option><option value="doenca">🔵 Doença</option><option value="ferias">🟢 Férias</option><option value="folga">⚪ Folga</option><option value="saida_antecipada">🟠 Saída Antecipada</option>
       </select>
     </div>
@@ -1541,9 +1594,9 @@ tr:hover td { background:#141414; }
     <button class="modal-close" onclick="closeModal('ferias-modal')">✕</button>
     <h2>Agendar Ausência</h2>
     <p>Registe férias, folgas ou outras ausências planeadas</p>
-    <div class="form-group"><label>Colaborador</label><select id="fer-coach" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;"><option value="">-- Selecionar --</option></select></div>
+    <div class="form-group"><label>Colaborador</label><select id="fer-coach" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;"><option value="">-- Selecionar --</option></select></div>
     <div class="form-group"><label>Tipo</label>
-      <select id="fer-tipo" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+      <select id="fer-tipo" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
         <option value="ferias">🌴 Férias</option><option value="folga">💤 Folga</option><option value="licenca">📋 Licença</option><option value="baixa">🏥 Baixa Médica</option><option value="outro">📌 Outro</option>
       </select>
     </div>
@@ -1616,7 +1669,7 @@ tr:hover td { background:#141414; }
     <div class="form-group"><label>Semana de início (quem trabalha primeiro)</label>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <input type="date" id="grupo-inicio" style="flex:1;min-width:120px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;outline:none;">
-        <select id="grupo-primeiro" style="flex:1;min-width:120px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;outline:none;"><option value="">-- Quem começa --</option></select>
+        <select id="grupo-primeiro" style="flex:1;min-width:120px;padding:10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;outline:none;"><option value="">-- Quem começa --</option></select>
       </div>
     </div>
     <input type="hidden" id="grupo-edit-id">
@@ -1644,7 +1697,7 @@ tr:hover td { background:#141414; }
       <div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Adicionar Novo Recorrente</div>
       <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:end">
         <div class="form-group" style="margin:0"><label>Tipo</label>
-          <select id="rec-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.95rem;outline:none;">
+          <select id="rec-desc" style="width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.95rem;outline:none;">
             <option value="">-- Selecionar --</option>
             <option value="Programação de Aulas">Programação de Aulas</option>
             <option value="Personal Planning">Personal Planning</option>
@@ -1658,7 +1711,7 @@ tr:hover td { background:#141414; }
         </div>
         <div>
           <label style="display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace">Tipo</label>
-          <select id="rec-tipo" onchange="toggleRecTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Barlow',sans-serif;font-size:.9rem;outline:none;width:130px">
+          <select id="rec-tipo" onchange="toggleRecTipo()" style="padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;outline:none;width:130px">
             <option value="horas">⏱ Horas Extra</option>
             <option value="fixo">💰 Valor Fixo</option>
           </select>
@@ -1668,7 +1721,7 @@ tr:hover td { background:#141414; }
           <input type="number" id="rec-val" placeholder="0" min="0" step="0.5" style="width:100px;padding:11px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'DM Mono',monospace;font-size:.95rem;outline:none;">
         </div>
       </div>
-      <button onclick="addRecorrente()" style="margin-top:10px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Recorrente</button>
+      <button onclick="addRecorrente()" style="margin-top:10px;width:100%;padding:10px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-weight:800;font-size:.95rem;text-transform:uppercase;cursor:pointer">+ Adicionar Recorrente</button>
     </div>
     <button class="btn-secondary" style="margin-top:10px" onclick="closeModal('recorrentes-modal')">Fechar</button>
   </div>
@@ -1881,7 +1934,7 @@ async function loadAllData() {
       sb.from('ev_presencas').select('*').eq('gym_id',GYM_ID),
       sb.from('avaliacoes').select('*').eq('gym_id',GYM_ID)
     ]);
-    coaches=(coachesRes.data||[]).map(c=>({id:c.id,name:c.name,role:c.role,aniv:c.aniv,horasSemana:c.horas_semana,valorHora:c.valor_hora,foto:c.foto||null,bio:c.bio||null,telefone:c.telefone||null,idade:c.idade||null}));
+    coaches=(coachesRes.data||[]).map(c=>({id:c.id,name:c.name,role:c.role,aniv:c.aniv,horasSemana:c.horas_semana,valorHora:c.valor_hora,foto:c.foto||null,bio:c.bio||null,telefone:c.telefone||null,idade:c.idade||null,competencias:c.competencias||[]}));
     records=(recordsRes.data||[]).map(r=>({id:r.id,coachId:r.coach_id,date:r.date,entry:r.entry,exit:r.exit,tipo:r.tipo||'normal',subCoachId:r.sub_coach_id,subCoachIds:(r.sub_coach_ids&&r.sub_coach_ids.length?r.sub_coach_ids:(r.sub_coach_id?[r.sub_coach_id]:[]))}));
     faltas=(faltasRes.data||[]).map(f=>({id:f.id,coachId:f.coach_id,date:f.date,tipo:f.tipo,obs:f.obs,feriasInicio:f.ferias_inicio,feriasFim:f.ferias_fim,saidaHora:f.saida_hora,saidaMotivo:f.saida_motivo,auto:f.auto}));
     horarios={};(horariosRes.data||[]).forEach(h=>{horarios[h.coach_id]={dias:h.dias,tolerancia:h.tolerancia};});
@@ -2418,9 +2471,9 @@ async function openCoachMonthSummary(coachId, ms){
 
   let html=`
   <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-    <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#000;font-family:'Barlow Condensed',sans-serif;font-size:1.3rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${coach.foto?`<img src="${coach.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:initials(coach.name)}</div>
+    <div style="width:52px;height:52px;border-radius:50%;background:var(--accent);color:#000;font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0">${coach.foto?`<img src="${coach.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:initials(coach.name)}</div>
     <div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:900;text-transform:uppercase">${coach.name}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:900;text-transform:uppercase">${coach.name}</div>
       <div style="font-size:.8rem;color:var(--muted)">${coach.role} · ${mesLabel}${isMesAtual?' <span style="background:rgba(255,214,0,.15);color:var(--accent);font-size:.65rem;padding:2px 8px;border-radius:10px;font-family:\'DM Mono\',monospace">ATÉ HOJE</span>':''}</div>
     </div>
   </div>
@@ -2428,21 +2481,21 @@ async function openCoachMonthSummary(coachId, ms){
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px">
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center">
       <div style="font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Horas</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
     </div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center">
       <div style="font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Dias</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900">${dias}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:900">${dias}</div>
     </div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:14px;text-align:center">
       <div style="font-size:.62rem;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">Média/Dia</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900">${formatHours(avgMs)}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:900">${formatHours(avgMs)}</div>
     </div>
   </div>`;
 
   // Faltas
   if(mFaltas.length>0||mFerias.length>0){
-    html+=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px">Ausências <span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
+    html+=`<div style="font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px">Ausências <span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
     mFaltas.forEach(f=>{
       const dStr=new Date(f.date+'T12:00:00').toLocaleDateString('pt-PT',{weekday:'short',day:'2-digit',month:'2-digit'});
       html+=`<div style="display:flex;justify-content:space-between;padding:8px 12px;background:rgba(255,59,59,.06);border:1px solid rgba(255,59,59,.2);border-radius:8px;margin-bottom:6px;font-size:.84rem"><span>${dStr}</span><span class="badge badge-danger">${FALTA_TIPOS[f.tipo]||f.tipo}</span></div>`;
@@ -2454,7 +2507,7 @@ async function openCoachMonthSummary(coachId, ms){
 
   // Extras
   if(extrasDB.length>0){
-    html+=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 10px;display:flex;align-items:center;gap:8px">Extras <span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
+    html+=`<div style="font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:14px 0 10px;display:flex;align-items:center;gap:8px">Extras <span style="flex:1;height:1px;background:var(--border);display:block"></span></div>`;
     extrasDB.forEach(e=>{
       html+=`<div style="display:flex;justify-content:space-between;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:.84rem"><span>${e.descricao}</span><span style="color:var(--success);font-family:'DM Mono',monospace;font-weight:700">+${parseFloat(e.valor_euros).toFixed(2)} €</span></div>`;
     });
@@ -2463,12 +2516,12 @@ async function openCoachMonthSummary(coachId, ms){
   // Financeiro
   if(totalPagar!=null){
     html+=`<div style="background:var(--surface2);border:2px solid var(--accent);border-radius:10px;padding:16px;margin-top:16px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">💰 Resumo Financeiro</div>
+      <div style="font-family:'Inter',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">💰 Resumo Financeiro</div>
       <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem"><span style="color:var(--muted)">Horas base (${baseHoras}h × ${coach.valorHora}€/h)</span><span style="font-family:'DM Mono',monospace">${baseValor.toFixed(2)} €</span></div>
       ${extrasTotal>0?`<div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:.85rem"><span style="color:var(--muted)">Extras</span><span style="color:var(--success);font-family:'DM Mono',monospace">+${extrasTotal.toFixed(2)} €</span></div>`:''}
       <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:900;text-transform:uppercase">Total a Pagar</span>
-        <span style="font-family:'Barlow Condensed',sans-serif;font-size:1.6rem;font-weight:900;color:var(--accent)">${totalPagar.toFixed(2)} €</span>
+        <span style="font-family:'Inter',sans-serif;font-size:.9rem;font-weight:900;text-transform:uppercase">Total a Pagar</span>
+        <span style="font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:900;color:var(--accent)">${totalPagar.toFixed(2)} €</span>
       </div>
     </div>`;
   }
@@ -2580,6 +2633,195 @@ function renderGames57Admin(){
   // Sem tabela/scorecard próprios ainda: a página mostra apenas o aviso "Ainda por configurar".
   // Quando o formato das provas for definido, esta função passa a carregar e listar os resultados,
   // no mesmo padrão de renderHyroxAdmin().
+}
+
+// ══════════════════════════════════════════════
+// STAFF (documentos, competências, avaliações)
+// ══════════════════════════════════════════════
+let staffDocuments=[];
+let pendingStaffAvalCoachId=null;
+
+function renderStaffCoachSelect(){
+  const sel=document.getElementById('staff-coach-select');
+  const current=sel.value;
+  sel.innerHTML='<option value="">-- Selecionar --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(current){sel.value=current;renderStaffDetail();}
+}
+
+async function loadStaffDocuments(coachId){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/staff_documents?select=*&gym_id=eq.'+GYM_ID+'&coach_id=eq.'+coachId+'&order=created_at.desc&apikey='+SUPABASE_ANON,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao carregar documentos:',res.status,await res.text().catch(()=>''));staffDocuments=[];return;}
+    staffDocuments=await res.json();
+  }catch(e){console.error('Erro ao carregar documentos:',e);staffDocuments=[];}
+}
+
+async function renderStaffDetail(){
+  const coachId=document.getElementById('staff-coach-select').value;
+  const wrap=document.getElementById('staff-detail-wrap');
+  if(!coachId){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  const coach=coaches.find(c=>c.id===coachId);
+  if(!coach)return;
+  document.getElementById('staff-coach-header').innerHTML=`
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div style="width:60px;height:60px;border-radius:50%;background:var(--accent);color:#000;font-family:'Inter',sans-serif;font-size:1.4rem;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">${coach.foto?`<img src="${coach.foto}" style="width:100%;height:100%;object-fit:cover">`:initials(coach.name)}</div>
+      <div>
+        <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase">${coach.name}</div>
+        <div style="font-size:.85rem;color:var(--muted)">${coach.role}</div>
+      </div>
+    </div>`;
+  renderCompetenciasList(coach);
+  await loadStaffDocuments(coachId);
+  renderStaffDocsList();
+}
+
+function renderCompetenciasList(coach){
+  const list=document.getElementById('staff-competencias-list');
+  const comps=coach.competencias||[];
+  if(comps.length===0){list.innerHTML='<div style="color:var(--muted);font-size:.85rem">Sem competências registadas</div>';return;}
+  list.innerHTML=comps.map((c,i)=>`<span class="badge badge-info" style="display:inline-flex;align-items:center;gap:6px;padding:5px 6px 5px 12px">${c}<button onclick="removeCompetencia(${i})" style="background:none;border:none;color:inherit;cursor:pointer;font-size:.85rem;padding:2px 4px;line-height:1">✕</button></span>`).join('');
+}
+
+async function addCompetencia(){
+  const coachId=document.getElementById('staff-coach-select').value;
+  if(!coachId)return;
+  const input=document.getElementById('staff-comp-input');
+  const val=input.value.trim();
+  if(!val)return;
+  const coach=coaches.find(c=>c.id===coachId);
+  coach.competencias=[...(coach.competencias||[]),val];
+  input.value='';
+  renderCompetenciasList(coach);
+  await saveCompetenciasDB(coach);
+}
+
+async function removeCompetencia(idx){
+  const coachId=document.getElementById('staff-coach-select').value;
+  const coach=coaches.find(c=>c.id===coachId);
+  if(!coach||!coach.competencias)return;
+  coach.competencias.splice(idx,1);
+  renderCompetenciasList(coach);
+  await saveCompetenciasDB(coach);
+}
+
+async function saveCompetenciasDB(coach){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/coaches?id=eq.'+coach.id,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify({competencias:coach.competencias})
+    });
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      console.error('Erro ao guardar competências:',res.status,errBody);
+      showToast('⚠️','Erro ao Guardar','Não foi possível guardar as competências ('+res.status+'). Verifica se a coluna "competencias" existe na tabela coaches.','danger',8000);
+    }
+  }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',8000);}
+}
+
+function renderStaffDocsList(){
+  const list=document.getElementById('staff-docs-list');
+  if(staffDocuments.length===0){list.innerHTML='<div style="color:var(--muted);font-size:.85rem;padding:8px 0">Sem documentos adicionados</div>';return;}
+  const tipoLabel={seguro:'🛡️ Seguro',certificacao:'🎓 Certificação',outro:'📄 Outro'};
+  const today=todayStr();
+  list.innerHTML=staffDocuments.map(d=>{
+    const expirado=d.data_validade&&d.data_validade<today;
+    const proximoVencer=d.data_validade&&!expirado&&(new Date(d.data_validade+'T12:00:00')-new Date())/86400000<=30;
+    return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface2);border:1px solid ${expirado?'rgba(255,59,59,.4)':proximoVencer?'rgba(245,158,11,.4)':'var(--border)'};border-radius:8px;margin-bottom:6px;flex-wrap:wrap">
+      <span class="badge badge-info">${tipoLabel[d.tipo]||d.tipo}</span>
+      <div style="flex:1;min-width:140px">
+        <div style="font-size:.88rem;font-weight:600">${d.nome}</div>
+        ${d.data_validade?`<div style="font-size:.72rem;color:${expirado?'var(--danger)':proximoVencer?'var(--warning)':'var(--muted)'};font-family:'DM Mono',monospace">${expirado?'⚠ Expirado em ':proximoVencer?'⏰ Expira em ':'Válido até '}${new Date(d.data_validade+'T12:00:00').toLocaleDateString('pt-PT')}</div>`:''}
+      </div>
+      ${d.file_url?`<a href="${d.file_url}" target="_blank" rel="noopener" style="color:var(--accent);font-size:.8rem;text-decoration:none;white-space:nowrap">📎 Ver Ficheiro</a>`:''}
+      <button onclick="deleteStaffDoc('${d.id}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:1rem">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+async function uploadStaffDoc(){
+  const coachId=document.getElementById('staff-coach-select').value;
+  if(!coachId)return;
+  const tipo=document.getElementById('staff-doc-tipo').value;
+  const nome=document.getElementById('staff-doc-nome').value.trim();
+  const validade=document.getElementById('staff-doc-validade').value||null;
+  const fileInput=document.getElementById('staff-doc-file');
+  const file=fileInput.files[0];
+  if(!nome){alert('Indica o nome do documento.');return;}
+  let fileUrl=null;
+  if(file){
+    if(file.size>10*1024*1024){alert('Ficheiro demasiado grande (máx. 10MB).');return;}
+    const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+    const path=GYM_ID+'/'+coachId+'/'+Date.now()+'_'+safeName;
+    try{
+      const upRes=await fetch(SUPABASE_URL+'/storage/v1/object/staff-docs/'+path,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':file.type||'application/octet-stream'},
+        body:file
+      });
+      if(!upRes.ok){
+        const errBody=await upRes.text().catch(()=>'');
+        console.error('Erro ao enviar ficheiro:',upRes.status,errBody);
+        showToast('⚠️','Erro ao Enviar Ficheiro','O Supabase recusou o upload ('+upRes.status+'). Verifica se o bucket "staff-docs" existe e tem permissões.','danger',9000);
+        return;
+      }
+      fileUrl=SUPABASE_URL+'/storage/v1/object/public/staff-docs/'+path;
+    }catch(e){
+      console.error(e);
+      showToast('⚠️','Erro ao Enviar Ficheiro','Erro de ligação: '+e.message,'danger',8000);
+      return;
+    }
+  }
+  const row={gym_id:GYM_ID,coach_id:coachId,tipo,nome,file_url:fileUrl,data_validade:validade};
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/staff_documents',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(row)
+    });
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      console.error('Erro ao guardar documento:',res.status,errBody);
+      showToast('⚠️','Erro ao Guardar','O Supabase recusou o registo ('+res.status+'). Verifica a tabela "staff_documents".','danger',8000);
+      return;
+    }
+    showToast('✅','Documento Adicionado',nome,'success',4000);
+  }catch(e){
+    console.error(e);
+    showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',8000);
+    return;
+  }
+  document.getElementById('staff-doc-nome').value='';
+  document.getElementById('staff-doc-validade').value='';
+  fileInput.value='';
+  await loadStaffDocuments(coachId);
+  renderStaffDocsList();
+}
+
+async function deleteStaffDoc(id){
+  if(!confirm('Remover este documento?'))return;
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/staff_documents?id=eq.'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao apagar documento:',res.status,await res.text().catch(()=>''));showToast('⚠️','Erro','Não foi possível remover o documento.','danger',6000);return;}
+  }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',6000);return;}
+  const coachId=document.getElementById('staff-coach-select').value;
+  await loadStaffDocuments(coachId);
+  renderStaffDocsList();
+}
+
+function openStaffAvaliacoes(){
+  const coachId=document.getElementById('staff-coach-select').value;
+  if(!coachId)return;
+  if(!avalUnlocked){
+    document.getElementById('aval-pin-input').value='';
+    document.getElementById('aval-pin-error').style.display='none';
+    pendingStaffAvalCoachId=coachId;
+    document.getElementById('aval-pin-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('aval-pin-input').focus(),100);
+    return;
+  }
+  openAvaliacaoModal(coachId);
 }
 
 // ══════════════════════════════════════════════
@@ -3080,7 +3322,7 @@ function renderSugestoes(){
   list.innerHTML=pending.map((r,i)=>`
     <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(255,214,0,.06);border:1px solid rgba(255,214,0,.2);border-radius:8px;margin-bottom:6px">
       <div style="flex:1;font-size:.85rem">${r.desc} <span style="color:var(--success);font-family:'DM Mono',monospace;font-size:.8rem">+${r.valorEuros.toFixed(2)} €</span></div>
-      <button onclick="aplicarSugestao(${extrasRecorrentes.indexOf(r)})" style="padding:5px 12px;background:var(--accent);color:#000;border:none;border-radius:6px;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer">✅ Adicionar</button>
+      <button onclick="aplicarSugestao(${extrasRecorrentes.indexOf(r)})" style="padding:5px 12px;background:var(--accent);color:#000;border:none;border-radius:6px;font-family:'Inter',sans-serif;font-weight:800;font-size:.8rem;cursor:pointer">✅ Adicionar</button>
     </div>`).join('');
 }
 
@@ -3376,7 +3618,7 @@ function renderFixManualSubcoaches(){
   const label='<span style="font-size:.68rem;color:var(--muted);font-family:\'DM Mono\',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>';
   wrap.innerHTML=label+coaches.filter(c=>c.id!==coachId).map(c=>{
     const sel=fixManualSubCoaches.includes(c.id);
-    return`<button type="button" onclick="toggleFixManualSubCoach('${c.id}',this)" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;
+    return`<button type="button" onclick="toggleFixManualSubCoach('${c.id}',this)" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;
   }).join('');
 }
 
@@ -3394,7 +3636,7 @@ function renderFixMonthSummary(coachId,date){
   box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
     <div>
       <div style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em">${coach.name.split(' ')[0]} · ${mesLabel}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
+      <div style="font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:900;color:var(--accent)">${formatHours(totalMs)}</div>
     </div>
     <div style="text-align:right;font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace">
       ${diasTrabalhados} dia${diasTrabalhados!==1?'s':''} trabalhado${diasTrabalhados!==1?'s':''}
@@ -3442,7 +3684,7 @@ function renderFixRecords(){
       </div>
       ${showPicker?`<div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">
         <span style="font-size:.68rem;color:var(--muted);font-family:'DM Mono',monospace;align-self:center;margin-right:2px">A SUBSTITUIR:</span>
-        ${coaches.filter(c=>c.id!==r.coachId).map(c=>{const sel=subIds.includes(c.id);return`<button type="button" onclick="toggleRecordSubCoach('${r.id}','${c.id}')" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Barlow Condensed',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;}).join('')}
+        ${coaches.filter(c=>c.id!==r.coachId).map(c=>{const sel=subIds.includes(c.id);return`<button type="button" onclick="toggleRecordSubCoach('${r.id}','${c.id}')" style="padding:4px 10px;border-radius:14px;border:1px solid ${sel?'var(--accent)':'var(--border)'};background:${sel?'rgba(255,214,0,.12)':'transparent'};color:${sel?'var(--accent)':'var(--muted)'};font-size:.72rem;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer">${c.name.split(' ')[0]}</button>`;}).join('')}
       </div>`:''}
     </div>`;
   }).join('');}
@@ -3540,7 +3782,7 @@ function openFeriasModal(editId){const f=editId?feriasPlaneadas.find(x=>x.id===e
 async function saveFerias(){const coachId=document.getElementById('fer-coach').value;const tipo=document.getElementById('fer-tipo').value;const inicio=document.getElementById('fer-inicio').value;const fim=document.getElementById('fer-fim').value;const notas=document.getElementById('fer-notas').value.trim();const editId=document.getElementById('fer-edit-id').value;if(!coachId||!inicio||!fim){alert('Preencha todos os campos obrigatórios.');return;}if(fim<inicio){alert('A data de fim deve ser posterior ao início.');return;}const entry={id:editId||crypto.randomUUID(),coachId,tipo,inicio,fim,notas};const result=await saveFeriasDB(entry);if(result&&result.error){alert('Erro ao guardar: '+(result.error.message||JSON.stringify(result.error)));return;}if(editId){const idx=feriasPlaneadas.findIndex(f=>f.id===editId);if(idx>=0)feriasPlaneadas[idx]=entry;else feriasPlaneadas.push(entry);}else{feriasPlaneadas.push(entry);addNotif('🌴','Ausência Agendada',`${coaches.find(c=>c.id===coachId)?.name} — ${FERIAS_TIPOS[tipo]||tipo} de ${inicio} a ${fim}`,'info');showToast('🌴','Ausência Agendada',`${coaches.find(c=>c.id===coachId)?.name} — ${FERIAS_TIPOS[tipo]||tipo}`,'success',5000);}renderFeriasPane();closeModal('ferias-modal');}
 async function deleteFerias(id){if(!confirm('Remover esta ausência?'))return;await deleteFeriasDB(id);feriasPlaneadas=feriasPlaneadas.filter(f=>f.id!==id);renderFeriasPane();}
 function changeFeriasMes(dir){feriasMes+=dir;if(feriasMes<0){feriasMes=11;feriasMesAno--;}if(feriasMes>11){feriasMes=0;feriasMesAno++;}renderFeriasPane();}
-function renderFeriasPane(){document.getElementById('ferias-month-label').textContent=MONTHS_PT[feriasMes]+' '+feriasMesAno;const filterWrap=document.getElementById('ferias-coach-filter');filterWrap.innerHTML=`<button class="coach-filter-btn ${feriasFilterCoach==='all'?'active':''}" onclick="feriasFilterCoach='all';renderFeriasPane()">Todos</button>`+coaches.map(c=>`<button class="coach-filter-btn ${feriasFilterCoach===c.id?'active':''}" onclick="feriasFilterCoach='${c.id}';renderFeriasPane()">${c.name.split(' ')[0]}</button>`).join('');const cal=document.getElementById('ferias-calendar');const daysInMonth=new Date(feriasMesAno,feriasMes+1,0).getDate();const firstDay=new Date(feriasMesAno,feriasMes,1).getDay();const msStr=feriasMesAno+'-'+String(feriasMes+1).padStart(2,'0');const dayMap={};feriasPlaneadas.forEach(f=>{if(feriasFilterCoach!=='all'&&f.coachId!==feriasFilterCoach)return;const dates=datesBetween(f.inicio,f.fim);dates.forEach(d=>{if(d.startsWith(msStr)){if(!dayMap[d])dayMap[d]=[];dayMap[d].push(f);}});});let html=`<div style="font-family:'Barlow Condensed',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Legenda: <span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;margin-left:4px">🌴 Férias/Folga</span><span style="background:#1d4ed8;color:#fff;padding:2px 8px;border-radius:4px;margin-left:6px">🏥 Baixa/Licença</span></div>`;html+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">`;['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d=>html+=`<div style="font-size:.65rem;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;padding:4px 0;border-bottom:1px solid var(--border)">${d}</div>`);for(let i=0;i<firstDay;i++)html+='<div></div>';const todayStr2=todayStr();for(let d=1;d<=daysInMonth;d++){const dateStr=feriasMesAno+'-'+String(feriasMes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const ausencias=dayMap[dateStr]||[];const isToday=dateStr===todayStr2;const hasAus=ausencias.length>0;const isMedical=hasAus&&(ausencias[0].tipo==='baixa'||ausencias[0].tipo==='licenca');const bgColor=hasAus?(isMedical?'#1e3a6e':'#14532d'):'var(--surface2)';const txtColor=hasAus?'#fff':'var(--muted)';const borderColor=isToday?'var(--accent)':hasAus?(isMedical?'#3b82f6':'#22c55e'):'var(--border)';html+=`<div style="border:${isToday?'2px':'1px'} solid ${borderColor};border-radius:6px;padding:4px 5px;min-height:${hasAus?'64px':'34px'};background:${bgColor};font-size:.72rem;font-family:'DM Mono',monospace;"><div style="color:${isToday?'var(--accent)':txtColor};font-weight:700;margin-bottom:${hasAus?'4px':'0'}">${d}</div>`;if(hasAus){ausencias.forEach(a=>{const c=coaches.find(x=>x.id===a.coachId);const firstName=c?.name.split(' ')[0]||'?';const tipoShort={ferias:'Férias',folga:'Folga',licenca:'Licença',baixa:'Baixa',outro:'Ausente'}[a.tipo]||a.tipo;html+=`<div style="font-size:.6rem;color:#fff;line-height:1.3;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${firstName} ${tipoShort}</div>`;});}html+='</div>';}html+='</div>';cal.innerHTML=html;const tbody=document.getElementById('ferias-list-body');let data=feriasFilterCoach==='all'?feriasPlaneadas:feriasPlaneadas.filter(f=>f.coachId===feriasFilterCoach);data=[...data].sort((a,b)=>a.inicio.localeCompare(b.inicio));if(data.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem ausências agendadas</td></tr>';return;}tbody.innerHTML=data.map(f=>{const coach=coaches.find(c=>c.id===f.coachId);const ini=new Date(f.inicio+'T12:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const fim=new Date(f.fim+'T12:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const diasTotal=datesBetween(f.inicio,f.fim).length;const diasUteis=workingDaysBetween(f.inicio,f.fim,f.coachId).length;const isAtivo=todayStr()>=f.inicio&&todayStr()<=f.fim;const badgeClass={ferias:'badge-success',folga:'badge-in',licenca:'badge-warning',baixa:'badge-info',outro:'badge-out'}[f.tipo]||'badge-out';return`<tr><td><strong>${coach?.name||'?'}</strong></td><td><span class="badge ${badgeClass}">${FERIAS_TIPOS[f.tipo]||f.tipo}</span>${isAtivo?'<span class="badge badge-in" style="margin-left:4px">Ativo</span>':''}</td><td style="font-family:'DM Mono',monospace">${ini}</td><td style="font-family:'DM Mono',monospace">${fim}</td><td style="font-family:'DM Mono',monospace"><span style="color:var(--accent);font-weight:700">${diasUteis}d úteis</span><span style="color:var(--muted);font-size:.75rem"> / ${diasTotal}d total</span></td><td style="color:var(--muted);font-size:.85rem">${f.notas||'–'}</td><td><button class="btn-add" style="font-size:.72rem;padding:5px 10px;margin-right:4px" onclick="openFeriasModal('${f.id}')">✏️</button><button class="delete-btn" onclick="deleteFerias('${f.id}')">🗑</button></td></tr>`;}).join('');}
+function renderFeriasPane(){document.getElementById('ferias-month-label').textContent=MONTHS_PT[feriasMes]+' '+feriasMesAno;const filterWrap=document.getElementById('ferias-coach-filter');filterWrap.innerHTML=`<button class="coach-filter-btn ${feriasFilterCoach==='all'?'active':''}" onclick="feriasFilterCoach='all';renderFeriasPane()">Todos</button>`+coaches.map(c=>`<button class="coach-filter-btn ${feriasFilterCoach===c.id?'active':''}" onclick="feriasFilterCoach='${c.id}';renderFeriasPane()">${c.name.split(' ')[0]}</button>`).join('');const cal=document.getElementById('ferias-calendar');const daysInMonth=new Date(feriasMesAno,feriasMes+1,0).getDate();const firstDay=new Date(feriasMesAno,feriasMes,1).getDay();const msStr=feriasMesAno+'-'+String(feriasMes+1).padStart(2,'0');const dayMap={};feriasPlaneadas.forEach(f=>{if(feriasFilterCoach!=='all'&&f.coachId!==feriasFilterCoach)return;const dates=datesBetween(f.inicio,f.fim);dates.forEach(d=>{if(d.startsWith(msStr)){if(!dayMap[d])dayMap[d]=[];dayMap[d].push(f);}});});let html=`<div style="font-family:'Inter',sans-serif;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">Legenda: <span style="background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;margin-left:4px">🌴 Férias/Folga</span><span style="background:#1d4ed8;color:#fff;padding:2px 8px;border-radius:4px;margin-left:6px">🏥 Baixa/Licença</span></div>`;html+=`<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px">`;['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(d=>html+=`<div style="font-size:.65rem;font-family:'DM Mono',monospace;color:var(--muted);text-align:center;padding:4px 0;border-bottom:1px solid var(--border)">${d}</div>`);for(let i=0;i<firstDay;i++)html+='<div></div>';const todayStr2=todayStr();for(let d=1;d<=daysInMonth;d++){const dateStr=feriasMesAno+'-'+String(feriasMes+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');const ausencias=dayMap[dateStr]||[];const isToday=dateStr===todayStr2;const hasAus=ausencias.length>0;const isMedical=hasAus&&(ausencias[0].tipo==='baixa'||ausencias[0].tipo==='licenca');const bgColor=hasAus?(isMedical?'#1e3a6e':'#14532d'):'var(--surface2)';const txtColor=hasAus?'#fff':'var(--muted)';const borderColor=isToday?'var(--accent)':hasAus?(isMedical?'#3b82f6':'#22c55e'):'var(--border)';html+=`<div style="border:${isToday?'2px':'1px'} solid ${borderColor};border-radius:6px;padding:4px 5px;min-height:${hasAus?'64px':'34px'};background:${bgColor};font-size:.72rem;font-family:'DM Mono',monospace;"><div style="color:${isToday?'var(--accent)':txtColor};font-weight:700;margin-bottom:${hasAus?'4px':'0'}">${d}</div>`;if(hasAus){ausencias.forEach(a=>{const c=coaches.find(x=>x.id===a.coachId);const firstName=c?.name.split(' ')[0]||'?';const tipoShort={ferias:'Férias',folga:'Folga',licenca:'Licença',baixa:'Baixa',outro:'Ausente'}[a.tipo]||a.tipo;html+=`<div style="font-size:.6rem;color:#fff;line-height:1.3;font-family:'Inter',sans-serif;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${firstName} ${tipoShort}</div>`;});}html+='</div>';}html+='</div>';cal.innerHTML=html;const tbody=document.getElementById('ferias-list-body');let data=feriasFilterCoach==='all'?feriasPlaneadas:feriasPlaneadas.filter(f=>f.coachId===feriasFilterCoach);data=[...data].sort((a,b)=>a.inicio.localeCompare(b.inicio));if(data.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem ausências agendadas</td></tr>';return;}tbody.innerHTML=data.map(f=>{const coach=coaches.find(c=>c.id===f.coachId);const ini=new Date(f.inicio+'T12:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const fim=new Date(f.fim+'T12:00:00').toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const diasTotal=datesBetween(f.inicio,f.fim).length;const diasUteis=workingDaysBetween(f.inicio,f.fim,f.coachId).length;const isAtivo=todayStr()>=f.inicio&&todayStr()<=f.fim;const badgeClass={ferias:'badge-success',folga:'badge-in',licenca:'badge-warning',baixa:'badge-info',outro:'badge-out'}[f.tipo]||'badge-out';return`<tr><td><strong>${coach?.name||'?'}</strong></td><td><span class="badge ${badgeClass}">${FERIAS_TIPOS[f.tipo]||f.tipo}</span>${isAtivo?'<span class="badge badge-in" style="margin-left:4px">Ativo</span>':''}</td><td style="font-family:'DM Mono',monospace">${ini}</td><td style="font-family:'DM Mono',monospace">${fim}</td><td style="font-family:'DM Mono',monospace"><span style="color:var(--accent);font-weight:700">${diasUteis}d úteis</span><span style="color:var(--muted);font-size:.75rem"> / ${diasTotal}d total</span></td><td style="color:var(--muted);font-size:.85rem">${f.notas||'–'}</td><td><button class="btn-add" style="font-size:.72rem;padding:5px 10px;margin-right:4px" onclick="openFeriasModal('${f.id}')">✏️</button><button class="delete-btn" onclick="deleteFerias('${f.id}')">🗑</button></td></tr>`;}).join('');}
 
 // ══════════════════════════════════════════════════
 // HORÁRIOS
@@ -3584,7 +3826,7 @@ function openHorarioModal(coachId){
     return`<tr><td colspan="3" style="padding:5px 0">
     <div id="dia-card-${key}" style="background:var(--surface2);border:2px solid ${dia.ativo?'var(--accent)':'var(--border)'};border-radius:10px;padding:14px;transition:all .15s">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${dia.ativo?'14px':'0'}">
-        <span style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.05rem;text-transform:uppercase">${DIAS_SEMANA[i]}</span>
+        <span style="font-family:'Inter',sans-serif;font-weight:900;font-size:1.05rem;text-transform:uppercase">${DIAS_SEMANA[i]}</span>
         <div onclick="toggleDiaCard('${key}')" style="display:flex;align-items:center;gap:8px;cursor:pointer">
           <span id="dia-label-${key}" style="font-size:.7rem;font-family:'DM Mono',monospace;color:${dia.ativo?'var(--accent)':'var(--muted)'}">${dia.ativo?'ATIVO':'INATIVO'}</span>
           <div style="width:46px;height:26px;border-radius:13px;background:${dia.ativo?'var(--accent)':'var(--border)'};position:relative;transition:background .15s" id="dia-toggle-bg-${key}">
@@ -3701,12 +3943,12 @@ function checkHorario(coachId,tipo){const h=horarios[coachId];if(!h||!h.dias)ret
 // ══════════════════════════════════════════════════
 function getWeekNumber(date){const d=new Date(date);d.setHours(0,0,0,0);d.setDate(d.getDate()+4-(d.getDay()||7));const yearStart=new Date(d.getFullYear(),0,1);return Math.ceil((((d-yearStart)/86400000)+1)/7);}
 function getCoachEscalado(grupoId,date){const grupo=grupos.find(g=>g.id===grupoId);if(!grupo||!grupo.coaches.length)return null;const diff=getWeekNumber(date)-getWeekNumber(new Date(grupo.inicio));const primeiroIdx=grupo.coaches.indexOf(grupo.primeiro);const coachIdx=(primeiroIdx+diff)%grupo.coaches.length;return grupo.coaches[((coachIdx)%grupo.coaches.length+grupo.coaches.length)%grupo.coaches.length];}
-function openGrupoModal(editId){document.getElementById('grupo-edit-id').value=editId||'';const g=editId?grupos.find(x=>x.id===editId):null;document.getElementById('grupo-nome').value=g?g.nome:'';document.getElementById('grupo-sab-entrada').value=g?(g.sabado?.entrada||''):'';document.getElementById('grupo-sab-saida').value=g?(g.sabado?.saida||''):'';document.getElementById('grupo-dom-e1').value=g?(g.domingo?.t1?.entrada||''):'';document.getElementById('grupo-dom-s1').value=g?(g.domingo?.t1?.saida||''):'';document.getElementById('grupo-dom-e2').value=g?(g.domingo?.t2?.entrada||''):'';document.getElementById('grupo-dom-s2').value=g?(g.domingo?.t2?.saida||''):'';document.getElementById('grupo-inicio').value=g?g.inicio:todayStr();const list=document.getElementById('grupo-coaches-list');list.innerHTML=coaches.map(c=>`<div onclick="toggleGrupoCoach('${c.id}',this)" id="gc-${c.id}" data-id="${c.id}" data-selected="${g&&g.coaches.includes(c.id)?'1':'0'}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:${g&&g.coaches.includes(c.id)?'rgba(255,214,0,.08)':'var(--surface2)'};border:2px solid ${g&&g.coaches.includes(c.id)?'var(--accent)':'var(--border)'};border-radius:8px;cursor:pointer;"><div id="gc-dot-${c.id}" style="width:22px;height:22px;border-radius:50%;border:2px solid ${g&&g.coaches.includes(c.id)?'var(--accent)':'var(--border)'};background:${g&&g.coaches.includes(c.id)?'var(--accent)':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#000;font-weight:900">${g&&g.coaches.includes(c.id)?'✓':''}</div><span style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${c.name}</span></div>`).join('');const sel=document.getElementById('grupo-primeiro');sel.innerHTML='<option value="">-- Quem começa --</option>'+coaches.map(c=>`<option value="${c.id}" ${g&&g.primeiro===c.id?'selected':''}>${c.name}</option>`).join('');document.getElementById('grupo-modal').classList.add('open');}
+function openGrupoModal(editId){document.getElementById('grupo-edit-id').value=editId||'';const g=editId?grupos.find(x=>x.id===editId):null;document.getElementById('grupo-nome').value=g?g.nome:'';document.getElementById('grupo-sab-entrada').value=g?(g.sabado?.entrada||''):'';document.getElementById('grupo-sab-saida').value=g?(g.sabado?.saida||''):'';document.getElementById('grupo-dom-e1').value=g?(g.domingo?.t1?.entrada||''):'';document.getElementById('grupo-dom-s1').value=g?(g.domingo?.t1?.saida||''):'';document.getElementById('grupo-dom-e2').value=g?(g.domingo?.t2?.entrada||''):'';document.getElementById('grupo-dom-s2').value=g?(g.domingo?.t2?.saida||''):'';document.getElementById('grupo-inicio').value=g?g.inicio:todayStr();const list=document.getElementById('grupo-coaches-list');list.innerHTML=coaches.map(c=>`<div onclick="toggleGrupoCoach('${c.id}',this)" id="gc-${c.id}" data-id="${c.id}" data-selected="${g&&g.coaches.includes(c.id)?'1':'0'}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;background:${g&&g.coaches.includes(c.id)?'rgba(255,214,0,.08)':'var(--surface2)'};border:2px solid ${g&&g.coaches.includes(c.id)?'var(--accent)':'var(--border)'};border-radius:8px;cursor:pointer;"><div id="gc-dot-${c.id}" style="width:22px;height:22px;border-radius:50%;border:2px solid ${g&&g.coaches.includes(c.id)?'var(--accent)':'var(--border)'};background:${g&&g.coaches.includes(c.id)?'var(--accent)':'transparent'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:#000;font-weight:900">${g&&g.coaches.includes(c.id)?'✓':''}</div><span style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px">${c.name}</span></div>`).join('');const sel=document.getElementById('grupo-primeiro');sel.innerHTML='<option value="">-- Quem começa --</option>'+coaches.map(c=>`<option value="${c.id}" ${g&&g.primeiro===c.id?'selected':''}>${c.name}</option>`).join('');document.getElementById('grupo-modal').classList.add('open');}
 function toggleGrupoCoach(id,el){const isSelected=el.dataset.selected==='1';if(!isSelected){el.style.border='2px solid var(--accent)';el.style.background='rgba(255,214,0,.08)';el.dataset.selected='1';document.getElementById('gc-dot-'+id).style.border='2px solid var(--accent)';document.getElementById('gc-dot-'+id).style.background='var(--accent)';document.getElementById('gc-dot-'+id).textContent='✓';}else{el.style.border='2px solid var(--border)';el.style.background='var(--surface2)';el.dataset.selected='0';document.getElementById('gc-dot-'+id).style.border='2px solid var(--border)';document.getElementById('gc-dot-'+id).style.background='transparent';document.getElementById('gc-dot-'+id).textContent='';}}
 async function saveGrupo(){const nome=document.getElementById('grupo-nome').value.trim();if(!nome){alert('Insere o nome do grupo.');return;}const selectedCoaches=[...document.querySelectorAll('#grupo-coaches-list [data-id]')].filter(el=>el.dataset.selected==='1').map(el=>el.dataset.id);if(selectedCoaches.length<2){alert('Seleciona pelo menos 2 coaches.');return;}const primeiro=document.getElementById('grupo-primeiro').value;if(!primeiro){alert('Define quem trabalha primeiro.');return;}const inicio=document.getElementById('grupo-inicio').value;if(!inicio){alert('Define a semana de início.');return;}const grupo={id:document.getElementById('grupo-edit-id').value||crypto.randomUUID(),nome,coaches:selectedCoaches,primeiro,inicio,sabado:{entrada:document.getElementById('grupo-sab-entrada').value,saida:document.getElementById('grupo-sab-saida').value},domingo:{t1:{entrada:document.getElementById('grupo-dom-e1').value,saida:document.getElementById('grupo-dom-s1').value},t2:{entrada:document.getElementById('grupo-dom-e2').value,saida:document.getElementById('grupo-dom-s2').value}}};const idx=grupos.findIndex(g=>g.id===grupo.id);if(idx>=0)grupos[idx]=grupo;else grupos.push(grupo);await saveGrupoDB(grupo);renderEscalonamento();closeModal('grupo-modal');}
 async function deleteGrupo(id){if(!confirm('Remover este grupo?'))return;await deleteGrupoDB(id);grupos=grupos.filter(g=>g.id!==id);renderEscalonamento();}
 function changeEscMes(dir){escMes+=dir;if(escMes<0){escMes=11;escAno--;}if(escMes>11){escMes=0;escAno++;}renderEscalonamento();}
-function renderEscalonamento(){document.getElementById('esc-month-label').textContent=MONTHS_PT[escMes]+' '+escAno;const gruposList=document.getElementById('grupos-list');if(grupos.length===0){gruposList.innerHTML='<div style="color:var(--muted);font-size:.85rem">Nenhum grupo criado ainda.</div>';}else{gruposList.innerHTML=grupos.map(g=>{const coachNames=g.coaches.map(id=>{const c=coaches.find(x=>x.id===id);return c?c.name:'?';}).join(' ↔ ');return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div><div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">${g.nome}</div><div style="font-size:.8rem;color:var(--muted);margin-top:2px">${coachNames}</div></div><div style="display:flex;gap:6px"><button class="btn-add" style="font-size:.75rem;padding:5px 10px" onclick="openGrupoModal('${g.id}')">✏️ Editar</button><button class="delete-btn" onclick="deleteGrupo('${g.id}')">Remover</button></div></div>`;}).join('');}const cal=document.getElementById('esc-calendar');if(grupos.length===0){cal.innerHTML='';return;}const weekends=[];const daysInMonth=new Date(escAno,escMes+1,0).getDate();for(let d=1;d<=daysInMonth;d++){const date=new Date(escAno,escMes,d);if(date.getDay()===6||date.getDay()===0)weekends.push(date);}let html='<div style="display:flex;flex-direction:column;gap:14px">';weekends.forEach(date=>{const dow=date.getDay();const dowLabel=dow===6?'Sábado':'Domingo';const dateStr=date.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const dateKey=date.toISOString().split('T')[0];let grupoHtml=grupos.map(g=>{const overrideKey=dateKey+'-'+g.id;const override=escOverrides[overrideKey];const autoCoachId=getCoachEscalado(g.id,date);const coachId=override||autoCoachId;const coach=coaches.find(c=>c.id===coachId);const horario=dow===6?(g.sabado?.entrada&&g.sabado?.saida?g.sabado.entrada+' → '+g.sabado.saida:'–'):(g.domingo?.t1?.entrada?g.domingo.t1.entrada+' → '+g.domingo.t1.saida+(g.domingo.t2?.entrada?' / '+g.domingo.t2.entrada+' → '+g.domingo.t2.saida:''):'–');const isOverride=!!override;const coachOptions=g.coaches.map(id=>{const c=coaches.find(x=>x.id===id);return`<option value="${id}" ${id===coachId?'selected':''}>${c?c.name:'?'}</option>`;}).join('');return`<div style="margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid ${isOverride?'var(--accent)':'var(--border)'}"><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">${g.nome.toUpperCase()}${isOverride?' <span style="color:var(--accent)">✏ EDITADO</span>':''}</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><select onchange="setEscOverride('${overrideKey}','${autoCoachId}',this.value)" style="flex:1;min-width:140px;padding:7px 10px;background:var(--surface);border:1px solid ${isOverride?'var(--accent)':'var(--border)'};border-radius:7px;color:${isOverride?'var(--accent)':'var(--text)'};font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:.95rem;outline:none">${coachOptions}</select>${isOverride?`<button onclick="clearEscOverride('${overrideKey}')" style="padding:6px 10px;background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:.75rem;cursor:pointer;white-space:nowrap">↩ Auto</button>`:''}</div><div style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">${horario}</div></div>`;}).join('');html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:1.1rem;text-transform:uppercase">${dowLabel}</div><div style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted)">${dateStr}</div></div>${grupoHtml}</div>`;});html+='</div>';cal.innerHTML=html;}
+function renderEscalonamento(){document.getElementById('esc-month-label').textContent=MONTHS_PT[escMes]+' '+escAno;const gruposList=document.getElementById('grupos-list');if(grupos.length===0){gruposList.innerHTML='<div style="color:var(--muted);font-size:.85rem">Nenhum grupo criado ainda.</div>';}else{gruposList.innerHTML=grupos.map(g=>{const coachNames=g.coaches.map(id=>{const c=coaches.find(x=>x.id===id);return c?c.name:'?';}).join(' ↔ ');return`<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;margin-bottom:8px"><div><div style="font-family:'Inter',sans-serif;font-weight:800;font-size:1rem;text-transform:uppercase">${g.nome}</div><div style="font-size:.8rem;color:var(--muted);margin-top:2px">${coachNames}</div></div><div style="display:flex;gap:6px"><button class="btn-add" style="font-size:.75rem;padding:5px 10px" onclick="openGrupoModal('${g.id}')">✏️ Editar</button><button class="delete-btn" onclick="deleteGrupo('${g.id}')">Remover</button></div></div>`;}).join('');}const cal=document.getElementById('esc-calendar');if(grupos.length===0){cal.innerHTML='';return;}const weekends=[];const daysInMonth=new Date(escAno,escMes+1,0).getDate();for(let d=1;d<=daysInMonth;d++){const date=new Date(escAno,escMes,d);if(date.getDay()===6||date.getDay()===0)weekends.push(date);}let html='<div style="display:flex;flex-direction:column;gap:14px">';weekends.forEach(date=>{const dow=date.getDay();const dowLabel=dow===6?'Sábado':'Domingo';const dateStr=date.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const dateKey=date.toISOString().split('T')[0];let grupoHtml=grupos.map(g=>{const overrideKey=dateKey+'-'+g.id;const override=escOverrides[overrideKey];const autoCoachId=getCoachEscalado(g.id,date);const coachId=override||autoCoachId;const coach=coaches.find(c=>c.id===coachId);const horario=dow===6?(g.sabado?.entrada&&g.sabado?.saida?g.sabado.entrada+' → '+g.sabado.saida:'–'):(g.domingo?.t1?.entrada?g.domingo.t1.entrada+' → '+g.domingo.t1.saida+(g.domingo.t2?.entrada?' / '+g.domingo.t2.entrada+' → '+g.domingo.t2.saida:''):'–');const isOverride=!!override;const coachOptions=g.coaches.map(id=>{const c=coaches.find(x=>x.id===id);return`<option value="${id}" ${id===coachId?'selected':''}>${c?c.name:'?'}</option>`;}).join('');return`<div style="margin-top:8px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid ${isOverride?'var(--accent)':'var(--border)'}"><div style="font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px">${g.nome.toUpperCase()}${isOverride?' <span style="color:var(--accent)">✏ EDITADO</span>':''}</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><select onchange="setEscOverride('${overrideKey}','${autoCoachId}',this.value)" style="flex:1;min-width:140px;padding:7px 10px;background:var(--surface);border:1px solid ${isOverride?'var(--accent)':'var(--border)'};border-radius:7px;color:${isOverride?'var(--accent)':'var(--text)'};font-family:'Inter',sans-serif;font-weight:700;font-size:.95rem;outline:none">${coachOptions}</select>${isOverride?`<button onclick="clearEscOverride('${overrideKey}')" style="padding:6px 10px;background:none;border:1px solid var(--border);border-radius:7px;color:var(--muted);font-size:.75rem;cursor:pointer;white-space:nowrap">↩ Auto</button>`:''}</div><div style="font-size:.75rem;color:var(--muted);font-family:'DM Mono',monospace;margin-top:4px">${horario}</div></div>`;}).join('');html+=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><div style="font-family:'Inter',sans-serif;font-weight:900;font-size:1.1rem;text-transform:uppercase">${dowLabel}</div><div style="font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted)">${dateStr}</div></div>${grupoHtml}</div>`;});html+='</div>';cal.innerHTML=html;}
 function setEscOverride(key,autoId,newId){if(newId===autoId){delete escOverrides[key];}else{escOverrides[key]=newId;}saveEscOverrides();}
 function clearEscOverride(key){delete escOverrides[key];saveEscOverrides();renderEscalonamento();}
 async function saveEscOverrides(){const config={...gymConfig,escOverrides};await sb.from('gyms').update({config:JSON.stringify(config)}).eq('id',GYM_ID);renderEscalonamento();}
@@ -3763,10 +4005,10 @@ async function clearData(){if(!confirm('⚠️ Apagar TODOS os dados? Irreversí
 // ══════════════════════════════════════════════════
 // NAV & PIN
 // ══════════════════════════════════════════════════
-const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','games57'];
-function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='games57')renderGames57Admin();}
+const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','games57','staff'];
+function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='games57')renderGames57Admin();if(page==='staff')renderStaffCoachSelect();}
 
-function unlockAdminNav(){document.getElementById('group-relatorios').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-games57').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+function unlockAdminNav(){document.getElementById('group-relatorios').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-games57').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-staff').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 
@@ -3787,7 +4029,7 @@ function toggleNavGroup(headerBtn){
 document.querySelectorAll('.sidebar-menu .nav-tab').forEach(function(b){
   b.addEventListener('click', function(){ if(window.innerWidth<=900) closeSidebar(); });
 });
-function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='games57')renderGames57Admin();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
+function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='games57')renderGames57Admin();if(target==='staff')renderStaffCoachSelect();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
 
 // ══════════════════════════════════════════════════
 // EVENTOS
@@ -3820,7 +4062,7 @@ function scoreColor(s){return s>=80?'#22c55e':s>=60?'#FFD600':'#ff3b3b';}
 function updateAvalScorePreview(){const score=calcAvalScore();document.getElementById('aval-score-preview').style.display='block';const circ=301.6,arc=document.getElementById('aval-ring-nova-arc'),pct=document.getElementById('aval-ring-nova-pct');arc.style.strokeDashoffset=circ-(score/100)*circ;arc.style.stroke=scoreColor(score);pct.textContent=score+'%';pct.style.color=scoreColor(score);document.getElementById('aval-section-bars').innerHTML=Object.keys(AVAL_SECTIONS).map(s=>{const sv=calcSectionScore(s),c=scoreColor(sv);return`<div style="margin-bottom:7px"><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">${AVAL_SECTIONS[s].icon} ${AVAL_SECTIONS[s].label}</span><span style="font-size:.7rem;font-family:'DM Mono',monospace;color:${c}">${sv}%</span></div><div class="aval-bar-wrap"><div class="aval-bar-fill" style="width:${sv}%;background:${c}"></div></div></div>`;}).join('');}
 function switchAvalTab(tab,btn){document.querySelectorAll('.aval-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.aval-pane').forEach(p=>p.classList.remove('active'));btn.classList.add('active');document.getElementById('aval-pane-'+tab).classList.add('active');if(tab==='historico')renderAvalHistorico();if(tab==='resultados')renderAvalResultados();if(tab==='graficos')renderAvalGraficos();}
 function openAvaliacaoFromProfile(){if(!avalUnlocked){document.getElementById('aval-pin-input').value='';document.getElementById('aval-pin-error').style.display='none';document.getElementById('aval-pin-modal').classList.add('open');setTimeout(()=>document.getElementById('aval-pin-input').focus(),100);return;}const name=document.getElementById('profile-name').textContent;const coach=coaches.find(c=>c.name===name);openAvaliacaoModal(coach?.id);}
-function checkAvalPin(){if(document.getElementById('aval-pin-input').value===AVAL_PIN){avalUnlocked=true;closeModal('aval-pin-modal');const name=document.getElementById('profile-name').textContent;const coach=coaches.find(c=>c.name===name);openAvaliacaoModal(coach?.id);}else{document.getElementById('aval-pin-error').style.display='block';document.getElementById('aval-pin-input').value='';}}
+function checkAvalPin(){if(document.getElementById('aval-pin-input').value===AVAL_PIN){avalUnlocked=true;closeModal('aval-pin-modal');if(pendingStaffAvalCoachId){const cid=pendingStaffAvalCoachId;pendingStaffAvalCoachId=null;openAvaliacaoModal(cid);}else{const name=document.getElementById('profile-name').textContent;const coach=coaches.find(c=>c.name===name);openAvaliacaoModal(coach?.id);}}else{document.getElementById('aval-pin-error').style.display='block';document.getElementById('aval-pin-input').value='';}}
 function openAvaliacaoModal(coachId){currentAvalCoachId=coachId;const coach=coaches.find(c=>c.id===coachId);document.getElementById('aval-coach-name-title').textContent=(coach?.name||'Coach')+' — Avaliação de Aula';document.getElementById('aval-coach-role-title').textContent=coach?.role||'';const now=new Date();document.getElementById('aval-feedback-dt').value=new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,16);initAvalState();renderAllAvalItems();document.querySelectorAll('.aval-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.aval-pane').forEach(p=>p.classList.remove('active'));document.querySelector('.aval-tab').classList.add('active');document.getElementById('aval-pane-nova').classList.add('active');document.getElementById('aval-score-preview').style.display='none';closeModal('profile-modal');document.getElementById('aval-modal').classList.add('open');}
 function resetAvaliacao(){if(!confirm('Limpar todos os dados da avaliação atual?'))return;initAvalState();renderAllAvalItems();['aval-avaliador','aval-n-alunos','aval-trainee'].forEach(id=>document.getElementById(id).value='');document.getElementById('aval-score-preview').style.display='none';}
 async function saveAvaliacao(){const avaliador=document.getElementById('aval-avaliador').value.trim();if(!avaliador){alert('Indica o nome do avaliador.');return;}const score=calcAvalScore();const a={id:crypto.randomUUID(),coachId:currentAvalCoachId,avaliador,tipoAula:document.getElementById('aval-tipo-aula').value,nAlunos:parseInt(document.getElementById('aval-n-alunos').value)||0,trainee:document.getElementById('aval-trainee').value.trim(),feedbackDt:document.getElementById('aval-feedback-dt').value,data:new Date().toISOString(),score,sections:JSON.parse(JSON.stringify(AVAL_STATE))};avaliacoes.push(a);await saveAvaliacaoDB(a);showToast('💾','Avaliação Guardada!','Score: '+score+'%','success',4000);switchAvalTab('historico',document.querySelectorAll('.aval-tab')[1]);}
@@ -3837,7 +4079,7 @@ setTimeout(()=>{
 const barCtx=document.getElementById('chart-aval-bar');if(barCtx){if(avalCharts.secBar)avalCharts.secBar.destroy();avalCharts.secBar=new Chart(barCtx,{type:'bar',data:{labels:secKeys.map(k=>(AVAL_SECTIONS[k]?.icon||'')+' '+(AVAL_SECTIONS[k]?.label||k)),datasets:[{data:avgScores,backgroundColor:secKeys.map(k=>(SCOLOR[k]||'#aaa')+'cc'),borderColor:secKeys.map(k=>SCOLOR[k]||'#aaa'),borderWidth:2,borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,max:100,ticks:{color:'#555',callback:v=>v+'%'},grid:{color:'#1a1a1a'}},x:{ticks:{color:'#aaa',font:{size:10}},grid:{display:false}}}}});}
 const radarCtx=document.getElementById('chart-aval-radar');if(radarCtx){if(avalCharts.secRadar)avalCharts.secRadar.destroy();avalCharts.secRadar=new Chart(radarCtx,{type:'radar',data:{labels:secKeys.map(k=>(AVAL_SECTIONS[k]?.icon||'')+' '+(AVAL_SECTIONS[k]?.label||k)),datasets:[{data:avgScores,borderColor:'#FFD600',backgroundColor:'rgba(255,214,0,.15)',pointBackgroundColor:'#FFD600',pointRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{r:{min:0,max:100,ticks:{color:'#444',backdropColor:'transparent',stepSize:25},grid:{color:'#222'},pointLabels:{color:'#888',font:{size:10}}}}}});}
 const evoCtx=document.getElementById('chart-aval-evo');if(evoCtx){if(avalCharts.secEvo)avalCharts.secEvo.destroy();const last10=[...allAvals].sort((a,b)=>(a.data||'').localeCompare(b.data||'')).slice(-10);avalCharts.secEvo=new Chart(evoCtx,{type:'line',data:{labels:last10.map((a,i)=>a.data?new Date(a.data).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}):`#${i+1}`),datasets:secKeys.map(k=>({label:(AVAL_SECTIONS[k]?.icon||'')+' '+(AVAL_SECTIONS[k]?.label||k),data:last10.map(a=>Math.round(secScore(a,k))),borderColor:SCOLOR[k]||'#aaa',backgroundColor:'transparent',pointBackgroundColor:SCOLOR[k]||'#aaa',pointRadius:3,tension:0.3,borderWidth:2}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#888',font:{size:10},boxWidth:12,padding:12}}},scales:{y:{min:0,max:100,ticks:{color:'#555',callback:v=>v+'%'},grid:{color:'#1a1a1a'}},x:{ticks:{color:'#555'},grid:{color:'#1a1a1a'}}}}});}
-const detailDiv=document.getElementById('aval-sec-detail');if(detailDiv){detailDiv.innerHTML=secKeys.map((k,i)=>{const sc=avgScores[i];const color=sc>=80?'#22c55e':sc>=60?'#FFD600':'#ff3b3b';const SECS_items=AVAL_SECTIONS[k]?.items||[];const naoCount=SECS_items.map((q,qi)=>({q,count:allAvals.filter(a=>a.sections?.[k]?.items?.[qi]==='nao').length})).sort((a,b)=>b.count-a.count);const worst=naoCount[0];return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:.82rem;font-weight:600">${AVAL_SECTIONS[k]?.icon} ${AVAL_SECTIONS[k]?.label}</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:900;color:${color}">${sc}%</div></div><div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;width:${sc}%;background:${color};transition:width .6s ease"></div></div>${worst&&worst.count>0?`<div style="font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace">⚠ Ponto a melhorar: ${worst.q.substring(0,60)}${worst.q.length>60?'…':''} (${worst.count}× não realizado)</div>`:''}</div>`;}).join('');}
+const detailDiv=document.getElementById('aval-sec-detail');if(detailDiv){detailDiv.innerHTML=secKeys.map((k,i)=>{const sc=avgScores[i];const color=sc>=80?'#22c55e':sc>=60?'#FFD600':'#ff3b3b';const SECS_items=AVAL_SECTIONS[k]?.items||[];const naoCount=SECS_items.map((q,qi)=>({q,count:allAvals.filter(a=>a.sections?.[k]?.items?.[qi]==='nao').length})).sort((a,b)=>b.count-a.count);const worst=naoCount[0];return`<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="font-size:.82rem;font-weight:600">${AVAL_SECTIONS[k]?.icon} ${AVAL_SECTIONS[k]?.label}</div><div style="font-family:'Inter',sans-serif;font-size:1rem;font-weight:900;color:${color}">${sc}%</div></div><div style="height:8px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;border-radius:4px;width:${sc}%;background:${color};transition:width .6s ease"></div></div>${worst&&worst.count>0?`<div style="font-size:.72rem;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace">⚠ Ponto a melhorar: ${worst.q.substring(0,60)}${worst.q.length>60?'…':''} (${worst.count}× não realizado)</div>`:''}</div>`;}).join('');}
 },100);}
 
 function exportAvaliacaoPDF(avalId){
