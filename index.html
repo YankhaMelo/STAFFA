@@ -104,6 +104,7 @@ input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-a
 .nav-group.open .nav-submenu { display:flex; }
 .nav-subitem { font-size:.82rem; padding:8px 14px; opacity:.92; }
 .nav-subitem::before { content:'– '; opacity:.5; }
+.nav-subdivider { padding:10px 14px 4px; font-size:.66rem; color:var(--muted); font-family:'Inter',sans-serif; font-weight:700; letter-spacing:.1em; text-transform:uppercase; opacity:.6; }
 
 .sidebar-footer { padding:14px 16px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; flex-shrink:0; }
 .sidebar-footer .notif-btn { flex-shrink:0; }
@@ -661,40 +662,45 @@ tr:hover td { background:#141414; }
   </div>
   <div class="sidebar-menu">
     <div class="nav-group open">
-      <button class="nav-group-header" onclick="toggleNavGroup(this)">👥 RH <span class="nav-group-arrow">▾</span></button>
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">RH <span class="nav-group-arrow">▾</span></button>
       <div class="nav-submenu">
-        <button class="nav-tab nav-subitem active" onclick="showPage('picagem',this)">🕐 Controlo de Ponto</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-staff" onclick="showPage('staff',this)" style="display:none">🧑‍💼 Staff</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">📋 Gestão de RH</button>
-      </div>
-    </div>
-
-    <div class="nav-group open">
-      <button class="nav-group-header" onclick="toggleNavGroup(this)">🏆 Eventos &amp; Competições <span class="nav-group-arrow">▾</span></button>
-      <div class="nav-submenu">
-        <button class="nav-tab nav-subitem" onclick="showPage('eventos',this)">📅 Calendário de Eventos</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)" style="display:none">🏋️ HYROX</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-games57" onclick="showPage('games57',this)" style="display:none">🎮 Games 5.7</button>
+        <button class="nav-tab nav-subitem active" onclick="showPage('picagem',this)">Registo Diário</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-ferias" onclick="goAdminTab('ferias',this)" style="display:none">Férias</button>
+        <button class="nav-tab nav-subitem" onclick="showPage('substituicoes',this)">Substituições</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-avalstaff" onclick="showPage('avalstaff',this)" style="display:none">Avaliações de Staff</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-satisfacao" onclick="showPage('satisfacao',this)" style="display:none">Avaliações de Clientes</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-staff" onclick="showPage('staff',this)" style="display:none">Staff</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-admin" onclick="showPage('admin',this)" style="display:none">Gestão de RH</button>
       </div>
     </div>
 
     <div class="nav-group">
-      <button class="nav-group-header" onclick="toggleNavGroup(this)">🔧 Operações <span class="nav-group-arrow">▾</span></button>
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">Operações <span class="nav-group-arrow">▾</span></button>
       <div class="nav-submenu">
-        <button class="nav-tab nav-subitem" onclick="showPage('limpezas',this)">🧹 Gestão de Limpezas</button>
-        <button class="nav-tab nav-subitem" onclick="showPage('substituicoes',this)">🔄 Gestão de Substituições</button>
+        <button class="nav-tab nav-subitem" onclick="showPage('limpezas',this)">Gestão de Limpezas</button>
+        <button class="nav-tab nav-subitem" onclick="showPage('manutencao',this)">Manutenção</button>
       </div>
     </div>
 
-    <div class="nav-group" id="group-relatorios" style="display:none">
-      <button class="nav-group-header" onclick="toggleNavGroup(this)">📊 Relatórios &amp; Analytics <span class="nav-group-arrow">▾</span></button>
+    <div class="nav-group open">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">Eventos <span class="nav-group-arrow">▾</span></button>
       <div class="nav-submenu">
-        <button class="nav-tab nav-subitem admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)">📈 Desempenho</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-satisfacao" onclick="showPage('satisfacao',this)">💬 Satisfação de Clientes</button>
+        <button class="nav-tab nav-subitem" onclick="showPage('eventos',this)">Calendário de Eventos</button>
       </div>
     </div>
 
-    <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">🔐 Admin</button>
+    <div class="nav-group" id="group-performance" style="display:none">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">Performance &amp; Análises <span class="nav-group-arrow">▾</span></button>
+      <div class="nav-submenu">
+        <button class="nav-tab nav-subitem admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)">Desempenho</button>
+        <div class="nav-subdivider">Provas</div>
+        <button class="nav-tab nav-subitem admin-only" id="nav-crossfit" onclick="showPage('crossfit',this)">CrossFit</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)">HYROX</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-athx" onclick="showPage('athx',this)">ATHX</button>
+      </div>
+    </div>
+
+    <button class="nav-tab" id="nav-admin-lock" onclick="showPage('admin',this)" title="Área Admin">Admin</button>
   </div>
   <div class="sidebar-footer">
     <button class="notif-btn" onclick="toggleNotifPanel()" id="notif-btn">🔔<span class="notif-badge" id="notif-badge" style="display:none">0</span></button>
@@ -739,7 +745,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-substituicoes">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🔄 Substituições</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Substituições</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Gestão de substituições entre coaches</p>
     </div>
     <button class="btn-add" onclick="openSubModal()">+ Nova Substituição</button>
@@ -792,7 +798,7 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-limpezas">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🧹 Limpezas</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Limpezas</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Registo de presenças do pessoal de limpeza</p>
     </div>
     <div style="display:flex;gap:8px">
@@ -931,16 +937,18 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-hyrox">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🏆 HYROX — Resultados</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">HYROX — Resultados</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Avaliações registadas pelo staff (link à parte, sem login)</p>
     </div>
-    <button class="btn-add" onclick="renderHyroxAdmin()">🔄 Atualizar</button>
+    <button class="btn-add" onclick="renderHyroxAdmin()">Atualizar</button>
   </div>
-  <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="hyrox-filter-wrap">
+  <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap" id="hyrox-filter-wrap">
     <button class="coach-filter-btn active" onclick="setHyroxFilter('todos',this)">Todos</button>
-    <button class="coach-filter-btn" onclick="setHyroxFilter('fitness',this)">🏃 Fitness Test</button>
-    <button class="coach-filter-btn" onclick="setHyroxFilter('conditioning',this)">💪 Conditioning Test</button>
+    <button class="coach-filter-btn" onclick="setHyroxFilter('fitness',this)">Fitness Test</button>
+    <button class="coach-filter-btn" onclick="setHyroxFilter('conditioning',this)">Conditioning Test</button>
+    <button class="coach-filter-btn" onclick="setHyroxFilter('speed_showdown',this)">Speed Showdown</button>
   </div>
+  <p style="color:var(--muted);font-size:.78rem;margin-bottom:16px">Speed Showdown ainda não tem scorecard público — falta partilhares o formato das repetições/estações para o construir, como fizemos para os outros dois.</p>
   <div class="stats-row" id="hyrox-stats-row"></div>
   <div class="table-wrap">
     <table><thead><tr><th>Atleta</th><th>Equipa</th><th>Género</th><th>Escalão</th><th>Teste</th><th>Resultado</th><th>Data</th></tr></thead>
@@ -948,12 +956,12 @@ tr:hover td { background:#141414; }
   </div>
 </div>
 
-<!-- GAMES 5.7 -->
-<div class="page" id="page-games57">
+<!-- CROSSFIT -->
+<div class="page" id="page-crossfit">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🎮 Games 5.7</h1>
-      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Competição interna 5.7CrossFit</p>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">CrossFit</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados e scorecards — Games 5.7</p>
     </div>
   </div>
   <div style="background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:28px;text-align:center;max-width:560px;margin:0 auto">
@@ -966,11 +974,65 @@ tr:hover td { background:#141414; }
     </p>
   </div>
 </div>
+
+<!-- ATHX -->
+<div class="page" id="page-athx">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">ATHX</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados e scorecards</p>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:28px;text-align:center;max-width:560px;margin:0 auto">
+    <div style="font-size:2.4rem;margin-bottom:12px">🚧</div>
+    <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
+      Tal como o CrossFit, falta definir o formato das provas do ATHX (estações, pontuação, escalões)
+      para construir o scorecard público e a página de resultados.
+    </p>
+  </div>
+</div>
+
+<!-- MANUTENÇÃO -->
+<div class="page" id="page-manutencao">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Manutenção</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Inventário e registo de manutenção</p>
+    </div>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:28px;text-align:center;max-width:560px;margin:0 auto">
+    <div style="font-size:2.4rem;margin-bottom:12px">🚧</div>
+    <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
+    <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
+      Falta perceber o que o inventário deve controlar (equipamento, consumíveis, quantidades) e como
+      deve funcionar o registo de avarias/pedidos de manutenção, para construir esta página.
+    </p>
+  </div>
+</div>
+
+<!-- AVALIAÇÕES DE STAFF -->
+<div class="page" id="page-avalstaff">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Avaliações de Staff</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Avaliações de aula por coach</p>
+    </div>
+  </div>
+  <div class="form-group" style="max-width:340px">
+    <label>Colaborador</label>
+    <select id="avalstaff-coach-select">
+      <option value="">-- Selecionar --</option>
+    </select>
+  </div>
+  <button class="btn-scan" style="max-width:300px" onclick="openAvalStaffEvaluation()">Ver / Nova Avaliação de Aula</button>
+</div>
+
 <!-- STAFF -->
 <div class="page" id="page-staff">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">🧑‍💼 Staff</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Staff</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Documentação, seguros, certificações, competências e avaliações por colaborador</p>
     </div>
   </div>
@@ -1017,16 +1079,16 @@ tr:hover td { background:#141414; }
 <div class="page" id="page-satisfacao">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">📊 Satisfação — Resultados</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Avaliações de Clientes</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Respostas anónimas do questionário público (satisfacao.html)</p>
     </div>
-    <button class="btn-add" onclick="renderSatisfacaoAdmin()">🔄 Atualizar</button>
+    <button class="btn-add" onclick="renderSatisfacaoAdmin()">Atualizar</button>
   </div>
 
   <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:24px">
     <div style="font-family:'Inter',sans-serif;font-weight:800;text-transform:uppercase;font-size:1rem;margin-bottom:10px">Gerar link de utilização única</div>
     <p style="color:var(--muted);font-size:.82rem;margin-bottom:12px">Cada link só pode ser respondido uma vez. Gera um link por pessoa e envia-o individualmente (WhatsApp, SMS, etc.).</p>
-    <button class="btn-add" onclick="gerarLinkSatisfacao()">➕ Gerar Novo Link</button>
+    <button class="btn-add" onclick="gerarLinkSatisfacao()">Gerar Novo Link</button>
     <div id="satisfacao-link-result" style="margin-top:12px"></div>
 
     <div style="margin-top:18px">
@@ -1055,7 +1117,7 @@ tr:hover td { background:#141414; }
 <!-- ADMIN -->
 <div class="page" id="page-admin">
   <div class="admin-header">
-    <h1>Administração</h1>
+    <h1>Gestão de RH</h1>
     <button class="btn-add" onclick="openAddCoach()">+ Adicionar</button>
   </div>
   <div class="admin-tabs">
@@ -2627,12 +2689,43 @@ function renderHyroxTable(){
 }
 
 // ══════════════════════════════════════════════
-// GAMES 5.7 (placeholder — aguarda formato da competição)
+// CROSSFIT / GAMES 5.7 (placeholder — aguarda formato da competição)
 // ══════════════════════════════════════════════
-function renderGames57Admin(){
+function renderCrossfitAdmin(){
   // Sem tabela/scorecard próprios ainda: a página mostra apenas o aviso "Ainda por configurar".
-  // Quando o formato das provas for definido, esta função passa a carregar e listar os resultados,
-  // no mesmo padrão de renderHyroxAdmin().
+  // Quando o formato das provas (Games 5.7) for definido, esta função passa a carregar e listar
+  // os resultados, no mesmo padrão de renderHyroxAdmin().
+}
+
+// ══════════════════════════════════════════════
+// ATHX (placeholder — aguarda formato da competição)
+// ══════════════════════════════════════════════
+function renderAthxAdmin(){
+  // Idem: aguarda definição do formato das provas.
+}
+
+// ══════════════════════════════════════════════
+// AVALIAÇÕES DE STAFF (acesso direto, sem passar pelo perfil do coach)
+// ══════════════════════════════════════════════
+function renderAvalStaffSelect(){
+  const sel=document.getElementById('avalstaff-coach-select');
+  const current=sel.value;
+  sel.innerHTML='<option value="">-- Selecionar --</option>'+coaches.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  if(current)sel.value=current;
+}
+
+function openAvalStaffEvaluation(){
+  const coachId=document.getElementById('avalstaff-coach-select').value;
+  if(!coachId){alert('Seleciona um colaborador.');return;}
+  if(!avalUnlocked){
+    document.getElementById('aval-pin-input').value='';
+    document.getElementById('aval-pin-error').style.display='none';
+    pendingStaffAvalCoachId=coachId;
+    document.getElementById('aval-pin-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('aval-pin-input').focus(),100);
+    return;
+  }
+  openAvaliacaoModal(coachId);
 }
 
 // ══════════════════════════════════════════════
@@ -2852,7 +2945,7 @@ async function gerarLinkSatisfacao(){
     if(!res.ok){
       console.error('Erro ao gerar link:', res.status, await res.text().catch(()=>''));
       alert('Erro ao gerar o link. Tenta novamente.');
-      btn.disabled=false; btn.textContent='➕ Gerar Novo Link';
+      btn.disabled=false; btn.textContent='Gerar Novo Link';
       return;
     }
     const link = window.location.origin + '/satisfacao.html?token=' + token;
@@ -2866,7 +2959,7 @@ async function gerarLinkSatisfacao(){
     console.error(e);
     alert('Erro de ligação ao gerar o link.');
   }
-  btn.disabled=false; btn.textContent='➕ Gerar Novo Link';
+  btn.disabled=false; btn.textContent='Gerar Novo Link';
 }
 
 async function carregarTokensSatisfacao(){
@@ -4005,10 +4098,30 @@ async function clearData(){if(!confirm('⚠️ Apagar TODOS os dados? Irreversí
 // ══════════════════════════════════════════════════
 // NAV & PIN
 // ══════════════════════════════════════════════════
-const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','games57','staff'];
-function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='games57')renderGames57Admin();if(page==='staff')renderStaffCoachSelect();}
+let pendingAdminTab=null;
+const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','crossfit','athx','staff','avalstaff'];
+function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='crossfit')renderCrossfitAdmin();if(page==='athx')renderAthxAdmin();if(page==='staff')renderStaffCoachSelect();if(page==='avalstaff')renderAvalStaffSelect();}
 
-function unlockAdminNav(){document.getElementById('group-relatorios').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-games57').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-staff').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+function goAdminTab(tab,sidebarBtn){
+  if(!adminUnlocked){
+    pendingAdminTab=tab;
+    pendingPage=document.getElementById('nav-admin-lock');
+    document.getElementById('pin-input').value='';
+    document.getElementById('pin-error').style.display='none';
+    document.getElementById('pin-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('pin-input').focus(),100);
+    return;
+  }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-admin').classList.add('active');
+  sidebarBtn.classList.add('active');
+  renderAdmin();
+  const tabBtn=[...document.querySelectorAll('.admin-tabs .admin-tab')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));
+  if(tabBtn)switchAdminTab(tab,tabBtn);
+}
+
+function unlockAdminNav(){document.getElementById('group-performance').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-ferias').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-crossfit').style.display='';document.getElementById('nav-athx').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-staff').style.display='';document.getElementById('nav-avalstaff').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 
@@ -4029,7 +4142,7 @@ function toggleNavGroup(headerBtn){
 document.querySelectorAll('.sidebar-menu .nav-tab').forEach(function(b){
   b.addEventListener('click', function(){ if(window.innerWidth<=900) closeSidebar(); });
 });
-function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='games57')renderGames57Admin();if(target==='staff')renderStaffCoachSelect();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
+function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingAdminTab){const tab=pendingAdminTab;pendingAdminTab=null;pendingPage=null;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-admin').classList.add('active');renderAdmin();const tabBtn=[...document.querySelectorAll('.admin-tabs .admin-tab')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));if(tabBtn)switchAdminTab(tab,tabBtn);const navBtn=document.getElementById('nav-ferias');if(navBtn)navBtn.classList.add('active');}else if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='crossfit')renderCrossfitAdmin();if(target==='athx')renderAthxAdmin();if(target==='staff')renderStaffCoachSelect();if(target==='avalstaff')renderAvalStaffSelect();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
 
 // ══════════════════════════════════════════════════
 // EVENTOS
