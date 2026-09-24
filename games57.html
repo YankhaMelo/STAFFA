@@ -103,14 +103,14 @@ button,input,select { font-family:inherit; -webkit-appearance:none; appearance:n
   <div class="section-card">
     <div class="section-title">Endurance</div>
     <div class="field-row"><label>Run 1 (mm:ss)</label><input type="text" id="e-run1" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
-    <div class="field-row"><label>Row 1 (mm:ss)</label><input type="text" id="e-row1" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Ski Erg 1 (mm:ss)</label><input type="text" id="e-skierg1" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
     <div class="field-row"><label>Run 2 (mm:ss)</label><input type="text" id="e-run2" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
-    <div class="field-row"><label>Row 2 (mm:ss)</label><input type="text" id="e-row2" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Ski Erg 2 (mm:ss)</label><input type="text" id="e-skierg2" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
     <div class="field-row"><label>Run 3 (mm:ss)</label><input type="text" id="e-run3" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
-    <div class="field-row"><label>Row 3 (mm:ss)</label><input type="text" id="e-row3" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Ski Erg 3 (mm:ss)</label><input type="text" id="e-skierg3" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
     <div class="total-row"><span>Tempo Total</span><span class="total-val" id="endurance-total">00:00</span></div>
-    <div class="field-row" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)"><label style="color:var(--accent)">Distância Total Row/Ski (m)</label><input type="number" id="e-distance" min="0" placeholder="0"></div>
-    <p style="color:var(--muted);font-size:.72rem;margin-top:4px">A distância é o que conta para o ranking desta prova — os tempos ficam só como registo.</p>
+    <div class="field-row" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)"><label style="color:var(--accent)">Distância Total Ski Erg (m)</label><input type="number" id="e-distance" min="0" placeholder="0"></div>
+    <p style="color:var(--muted);font-size:.72rem;margin-top:4px">A distância no Ski Erg é o que conta para o ranking desta prova — os tempos ficam só como registo.</p>
   </div>
 
   <div class="section-card">
@@ -189,7 +189,7 @@ function updateStrengthTotal(){
   document.getElementById('strength-total').textContent=(sp+bs+dl)+' kg';
 }
 function updateEnduranceTotal(){
-  const ids=['e-run1','e-row1','e-run2','e-row2','e-run3','e-row3'];
+  const ids=['e-run1','e-skierg1','e-run2','e-skierg2','e-run3','e-skierg3'];
   let total=0;
   ids.forEach(id=>{ total+=parseMMSS(document.getElementById(id).value); });
   document.getElementById('endurance-total').textContent=fmtMMSS(total);
@@ -220,11 +220,11 @@ function collectScorecard(){
   };
   strength.total = strength.strictPress+strength.backSquat+strength.deadlift;
 
-  const runRow = ['e-run1','e-row1','e-run2','e-row2','e-run3','e-row3'].map(id=>document.getElementById(id).value.trim());
+  const runRow = ['e-run1','e-skierg1','e-run2','e-skierg2','e-run3','e-skierg3'].map(id=>document.getElementById(id).value.trim());
   const enduranceSeconds = runRow.reduce((a,v)=>a+parseMMSS(v),0);
   const distanceM = parseInt(document.getElementById('e-distance').value)||0;
   const endurance = {
-    run1: runRow[0], row1: runRow[1], run2: runRow[2], row2: runRow[3], run3: runRow[4], row3: runRow[5],
+    run1: runRow[0], skierg1: runRow[1], run2: runRow[2], skierg2: runRow[3], run3: runRow[4], skierg3: runRow[5],
     total: fmtMMSS(enduranceSeconds), totalSeconds: enduranceSeconds,
     distanceM: distanceM
   };
@@ -331,9 +331,9 @@ function generatePDF(scorecard){
   ]);
   y+=8;
   y=drawSection(doc,y,'ENDURANCE',[
-    ['Run 1', e.run1||'-'],['Row 1', e.row1||'-'],
-    ['Run 2', e.run2||'-'],['Row 2', e.row2||'-'],
-    ['Run 3', e.run3||'-'],['Row 3', e.row3||'-'],
+    ['Run 1', e.run1||'-'],['Ski Erg 1', e.skierg1||'-'],
+    ['Run 2', e.run2||'-'],['Ski Erg 2', e.skierg2||'-'],
+    ['Run 3', e.run3||'-'],['Ski Erg 3', e.skierg3||'-'],
     ['Tempo Total', e.total],
     ['TOTAL', (e.distanceM||0)+' m']
   ]);
@@ -385,7 +385,7 @@ function resetAll(){
   document.getElementById('ath-b-wrap').style.display='none';
   document.getElementById('ath-team').value='';
   document.querySelectorAll('#ath-gender-row .chip, #ath-cat-row .chip').forEach(c=>c.classList.remove('active'));
-  ['f-strict-press','f-back-squat','f-deadlift','e-run1','e-row1','e-run2','e-row2','e-run3','e-row3','e-distance','m-time','m-reps'].forEach(id=>document.getElementById(id).value='');
+  ['f-strict-press','f-back-squat','f-deadlift','e-run1','e-skierg1','e-run2','e-skierg2','e-run3','e-skierg3','e-distance','m-time','m-reps'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('strength-total').textContent='0 kg';
   document.getElementById('endurance-total').textContent='00:00';
   goTo('screen-athlete');
