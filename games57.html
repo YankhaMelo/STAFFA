@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Games 5.7">
+<title>Games 5.7 — Scorecard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root {
+  --bg:#0a0a0a; --surface:#111; --surface2:#191919; --border:#222;
+  --accent:#FFD600; --accent-h:#e6c000; --text:#f5f5f5; --muted:#777;
+  --danger:#ff3b3b; --success:#22c55e;
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; min-height:-webkit-fill-available; overscroll-behavior:none; }
+button,input,select { font-family:inherit; -webkit-appearance:none; appearance:none; }
+.screen { display:none; min-height:100vh; padding:24px 20px 60px; max-width:520px; margin:0 auto; }
+.screen.active { display:block; }
+.logo { font-family:'Inter',sans-serif; font-size:1.6rem; font-weight:900; text-transform:uppercase; letter-spacing:1px; text-align:center; margin-bottom:6px; }
+.logo span { color:var(--accent); }
+.subtitle { text-align:center; color:var(--muted); font-size:.85rem; margin-bottom:32px; }
+
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:7px; letter-spacing:.08em; text-transform:uppercase; font-family:'DM Mono',monospace; }
+.form-group input, .form-group select { width:100%; padding:14px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:1rem; outline:none; }
+.form-group input:focus, .form-group select:focus { border-color:var(--accent); }
+.chip-row { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { padding:10px 18px; border-radius:20px; border:1px solid var(--border); background:var(--surface2); color:var(--muted); font-weight:700; cursor:pointer; font-size:.9rem; }
+.chip.active { border-color:var(--accent); background:rgba(255,214,0,.12); color:var(--accent); }
+
+.btn-primary { width:100%; padding:16px; border-radius:10px; background:var(--accent); color:#000; border:none; font-family:'Inter',sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:.5px; text-transform:uppercase; cursor:pointer; margin-top:8px; }
+.btn-primary:active { background:var(--accent-h); }
+.btn-primary:disabled { opacity:.4; }
+.btn-secondary { width:100%; padding:13px; border-radius:10px; background:transparent; color:var(--muted); border:1px solid var(--border); font-family:'Inter',sans-serif; font-weight:700; font-size:.95rem; text-transform:uppercase; cursor:pointer; margin-top:10px; }
+
+.section-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:16px; }
+.section-title { font-family:'Inter',sans-serif; font-size:1rem; font-weight:900; text-transform:uppercase; letter-spacing:.5px; color:var(--accent); margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+.field-row { display:grid; grid-template-columns:1fr 90px; gap:10px; align-items:center; margin-bottom:10px; }
+.field-row label { font-size:.85rem; color:var(--text); font-weight:600; }
+.field-row input { padding:10px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Mono',monospace; font-size:.95rem; outline:none; text-align:center; }
+.field-row input:focus { border-color:var(--accent); }
+.total-row { display:flex; justify-content:space-between; align-items:center; padding-top:12px; margin-top:6px; border-top:1px solid var(--border); }
+.total-row span:first-child { font-family:'Inter',sans-serif; font-weight:800; text-transform:uppercase; font-size:.85rem; color:var(--muted); }
+.total-val { font-family:'DM Mono',monospace; font-weight:700; font-size:1.1rem; color:var(--accent); }
+
+.loading-screen { position:fixed; inset:0; background:var(--bg); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:999; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--accent); border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg);} }
+.toast { position:fixed; bottom:24px; left:16px; right:16px; background:var(--surface); border:1px solid var(--accent); border-radius:10px; padding:14px 18px; text-align:center; font-size:.88rem; z-index:998; display:none; }
+</style>
+</head>
+<body>
+
+<div class="loading-screen" id="loading-screen">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-family:'DM Mono',monospace;font-size:.82rem">A ligar...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- SCREEN 1: dados do atleta -->
+<div class="screen" id="screen-athlete">
+  <div class="logo">GAMES <span>5.7</span></div>
+  <div class="subtitle">Scorecard — Preenche os teus dados</div>
+  <div class="form-group"><label>Juiz (nome de quem regista)</label><input type="text" id="ath-judge" placeholder="Ex: Marcos Pinto"></div>
+  <div class="form-group"><label>Primeiro Nome (Atleta A)</label><input type="text" id="ath-first" placeholder="Ex: João"></div>
+  <div class="form-group"><label>Último Nome (Atleta A)</label><input type="text" id="ath-last" placeholder="Ex: Fernandes"></div>
+  <div class="form-group" id="ath-b-wrap" style="display:none"><label>Nome Completo (Atleta B)</label><input type="text" id="ath-b-name" placeholder="Ex: Maria Silva"></div>
+  <div class="form-group"><label>Equipa (opcional)</label><input type="text" id="ath-team" placeholder="Ex: 5.7CrossFit"></div>
+  <div class="form-group"><label>Género</label><div class="chip-row" id="ath-gender-row">
+    <button type="button" class="chip" onclick="selectChip('gender','M',this)">Masculino</button>
+    <button type="button" class="chip" onclick="selectChip('gender','F',this)">Feminino</button>
+    <button type="button" class="chip" onclick="selectChip('gender','Mix',this)">Mix</button>
+  </div></div>
+  <div class="form-group"><label>Categoria</label><div class="chip-row" id="ath-cat-row">
+    <button type="button" class="chip" onclick="selectCategoria('IND PRO',this)">IND PRO</button>
+    <button type="button" class="chip" onclick="selectCategoria('PAIR PRO',this)">PAIR PRO</button>
+    <button type="button" class="chip" onclick="selectCategoria('IND SPORT',this)">IND SPORT</button>
+    <button type="button" class="chip" onclick="selectCategoria('PAIR SPORT',this)">PAIR SPORT</button>
+  </div></div>
+  <button class="btn-primary" onclick="startScorecard()">Continuar →</button>
+</div>
+
+<!-- SCREEN 2: scorecard -->
+<div class="screen" id="screen-scorecard">
+  <div class="logo">GAMES <span>5.7</span></div>
+  <div class="subtitle" id="sc-athlete-label"></div>
+
+  <div class="section-card">
+    <div class="section-title">Strength</div>
+    <div class="field-row"><label>Strict Press (kg)</label><input type="number" id="f-strict-press" min="0" step="0.5" oninput="updateStrengthTotal()"></div>
+    <div class="field-row"><label>Back Squat (kg)</label><input type="number" id="f-back-squat" min="0" step="0.5" oninput="updateStrengthTotal()"></div>
+    <div class="field-row"><label>Deadlift (kg)</label><input type="number" id="f-deadlift" min="0" step="0.5" oninput="updateStrengthTotal()"></div>
+    <div class="total-row"><span>Total</span><span class="total-val" id="strength-total">0 kg</span></div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Endurance</div>
+    <div class="field-row"><label>Run 1 (mm:ss)</label><input type="text" id="e-run1" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Row 1 (mm:ss)</label><input type="text" id="e-row1" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Run 2 (mm:ss)</label><input type="text" id="e-run2" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Row 2 (mm:ss)</label><input type="text" id="e-row2" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Run 3 (mm:ss)</label><input type="text" id="e-run3" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="field-row"><label>Row 3 (mm:ss)</label><input type="text" id="e-row3" placeholder="00:00" oninput="updateEnduranceTotal()"></div>
+    <div class="total-row"><span>Tempo Total</span><span class="total-val" id="endurance-total">00:00</span></div>
+    <div class="field-row" style="margin-top:12px;padding-top:12px;border-top:1px dashed var(--border)"><label style="color:var(--accent)">Distância Total Row/Ski (m)</label><input type="number" id="e-distance" min="0" placeholder="0"></div>
+    <p style="color:var(--muted);font-size:.72rem;margin-top:4px">A distância é o que conta para o ranking desta prova — os tempos ficam só como registo.</p>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">Metcon</div>
+    <div class="field-row"><label>Tempo (mm:ss)</label><input type="text" id="m-time" placeholder="00:00"></div>
+    <div class="field-row"><label>Reps</label><input type="number" id="m-reps" min="0"></div>
+  </div>
+
+  <button class="btn-primary" id="save-btn" onclick="saveAndGeneratePDF()">Gravar &amp; Gerar PDF</button>
+  <button class="btn-secondary" onclick="resetAll()">Novo Atleta</button>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://whebhkikgjfuuycdfsti.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndoZWJoa2lrZ2pmdXV5Y2Rmc3RpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMjk1MDUsImV4cCI6MjA5MDcwNTUwNX0.uHMy8xOLi8KxB5cjX0I5ocLivpXLpBU73WJ59ykMupU';
+let GYM_ID = null;
+let GYM_NAME = '5.7CrossFit';
+
+let athlete = { first:'', last:'', team:'', gender:'', categoria:'', judge:'', athleteB:'' };
+
+function selectCategoria(val,el){
+  athlete.categoria=val;
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('ath-b-wrap').style.display=val.startsWith('PAIR')?'block':'none';
+}
+
+async function init(){
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/gyms?select=id,name&apikey='+SUPABASE_ANON);
+    const data = await res.json();
+    if(data && data.length===1){ GYM_ID = data[0].id; GYM_NAME = data[0].name; }
+    else if(data && data.length>1){
+      const match = data.find(g=>g.name && g.name.includes('5.7')) || data[0];
+      GYM_ID = match.id; GYM_NAME = match.name;
+    }
+  }catch(e){ console.error('Erro ao ligar à Supabase:',e); }
+  document.getElementById('loading-screen').style.display='none';
+  goTo('screen-athlete');
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.display='block';
+  setTimeout(()=>t.style.display='none',3500);
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function selectChip(field,val,el){
+  athlete[field]=val;
+  el.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function parseMMSS(str){
+  if(!str)return 0;
+  const m=str.trim().match(/^(\d{1,2}):(\d{2})$/);
+  if(!m)return 0;
+  return parseInt(m[1])*60+parseInt(m[2]);
+}
+function fmtMMSS(totalSeconds){
+  totalSeconds=Math.max(0,Math.round(totalSeconds));
+  const m=Math.floor(totalSeconds/60), s=totalSeconds%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function updateStrengthTotal(){
+  const sp=parseFloat(document.getElementById('f-strict-press').value)||0;
+  const bs=parseFloat(document.getElementById('f-back-squat').value)||0;
+  const dl=parseFloat(document.getElementById('f-deadlift').value)||0;
+  document.getElementById('strength-total').textContent=(sp+bs+dl)+' kg';
+}
+function updateEnduranceTotal(){
+  const ids=['e-run1','e-row1','e-run2','e-row2','e-run3','e-row3'];
+  let total=0;
+  ids.forEach(id=>{ total+=parseMMSS(document.getElementById(id).value); });
+  document.getElementById('endurance-total').textContent=fmtMMSS(total);
+}
+
+function startScorecard(){
+  athlete.judge=document.getElementById('ath-judge').value.trim();
+  athlete.first=document.getElementById('ath-first').value.trim();
+  athlete.last=document.getElementById('ath-last').value.trim();
+  athlete.athleteB=document.getElementById('ath-b-name').value.trim();
+  athlete.team=document.getElementById('ath-team').value.trim();
+  if(!athlete.judge){alert('Indica o nome do juiz.');return;}
+  if(!athlete.first||!athlete.last){alert('Preenche pelo menos o primeiro e último nome do Atleta A.');return;}
+  if(!athlete.gender){alert('Seleciona o género.');return;}
+  if(!athlete.categoria){alert('Seleciona a categoria.');return;}
+  if(athlete.categoria.startsWith('PAIR')&&!athlete.athleteB){alert('Indica o nome do Atleta B (categoria de duplas).');return;}
+  const nomes=athlete.first+' '+athlete.last+(athlete.athleteB?' & '+athlete.athleteB:'');
+  document.getElementById('sc-athlete-label').textContent = nomes+' · '+(athlete.team?athlete.team+' · ':'')+athlete.gender+' · '+athlete.categoria+' · Juiz: '+athlete.judge;
+  goTo('screen-scorecard');
+}
+
+function collectScorecard(){
+  const strength = {
+    strictPress: parseFloat(document.getElementById('f-strict-press').value)||0,
+    backSquat: parseFloat(document.getElementById('f-back-squat').value)||0,
+    deadlift: parseFloat(document.getElementById('f-deadlift').value)||0,
+    total: 0
+  };
+  strength.total = strength.strictPress+strength.backSquat+strength.deadlift;
+
+  const runRow = ['e-run1','e-row1','e-run2','e-row2','e-run3','e-row3'].map(id=>document.getElementById(id).value.trim());
+  const enduranceSeconds = runRow.reduce((a,v)=>a+parseMMSS(v),0);
+  const distanceM = parseInt(document.getElementById('e-distance').value)||0;
+  const endurance = {
+    run1: runRow[0], row1: runRow[1], run2: runRow[2], row2: runRow[3], run3: runRow[4], row3: runRow[5],
+    total: fmtMMSS(enduranceSeconds), totalSeconds: enduranceSeconds,
+    distanceM: distanceM
+  };
+
+  const metcon = {
+    time: document.getElementById('m-time').value.trim(),
+    reps: document.getElementById('m-reps').value?parseInt(document.getElementById('m-reps').value):null
+  };
+
+  return { strength, endurance, metcon };
+}
+
+async function saveAndGeneratePDF(){
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true; btn.textContent='A gerar PDF...';
+  const scorecard=collectScorecard();
+  const doc=generatePDF(scorecard);
+  const fname=gamesFileName();
+
+  let pdfUrl=null;
+  btn.textContent='A enviar PDF...';
+  try{
+    const blob=doc.output('blob');
+    const path=GYM_ID+'/'+Date.now()+'_'+fname;
+    const upRes=await fetch(SUPABASE_URL+'/storage/v1/object/games57-pdfs/'+path,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/pdf'},
+      body:blob
+    });
+    if(upRes.ok){
+      pdfUrl=SUPABASE_URL+'/storage/v1/object/public/games57-pdfs/'+path;
+    } else {
+      const errBody=await upRes.text().catch(()=>'');
+      console.error('Erro ao enviar PDF:',upRes.status,errBody);
+      showToast('Não consegui guardar o PDF na Staffa (' + upRes.status + '). Vais na mesma ter a cópia local.');
+    }
+  }catch(e){
+    console.error(e);
+    showToast('Erro de ligação ao enviar o PDF. Vais na mesma ter a cópia local.');
+  }
+
+  btn.textContent='A gravar...';
+  try{
+    const row = {
+      gym_id: GYM_ID,
+      first_name: athlete.first,
+      last_name: athlete.last,
+      athlete_b: athlete.athleteB||null,
+      judge: athlete.judge||null,
+      team: athlete.team||null,
+      gender: athlete.gender,
+      categoria: athlete.categoria,
+      data: scorecard,
+      pdf_url: pdfUrl
+    };
+    const res = await fetch(SUPABASE_URL+'/rest/v1/games57_results',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify(row)
+    });
+    if(!res.ok){
+      const errBody=await res.text().catch(()=>'');
+      console.error('Erro ao gravar:',res.status,errBody);
+      showToast('Erro ao gravar (' + res.status + '). O PDF vai ser descarregado à mesma.');
+    } else {
+      showToast(pdfUrl?'Resultado e PDF gravados com sucesso!':'Resultado gravado (sem PDF na Staffa).');
+    }
+  }catch(e){
+    console.error(e);
+    showToast('Erro de ligação ao gravar. O PDF vai ser descarregado à mesma.');
+  }
+
+  doc.save(fname);
+  btn.disabled=false; btn.textContent='Gravar & Gerar PDF';
+}
+
+function generatePDF(scorecard){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+
+  doc.setFillColor(0,0,0); doc.rect(0,0,210,26,'F');
+  doc.setFillColor(255,214,0); doc.rect(0,25,210,1.5,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(18); doc.setFont('helvetica','bold');
+  doc.text('GAMES 5.7', 14, 12);
+  doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','normal');
+  doc.text('Scorecard', 14, 19);
+  doc.setTextColor(180,180,180); doc.setFontSize(9);
+  doc.text(new Date().toLocaleDateString('pt-PT'), 196, 19, {align:'right'});
+
+  doc.setTextColor(20,20,20); doc.setFontSize(17); doc.setFont('helvetica','bold');
+  doc.text(athlete.first+' '+athlete.last+(athlete.athleteB?' & '+athlete.athleteB:''), 14, 40);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(110,110,110);
+  doc.text((athlete.team?athlete.team+'  |  ':'')+athlete.gender+'  |  '+athlete.categoria, 14, 47);
+  doc.text('Juiz: '+(athlete.judge||'-'), 14, 53);
+
+  let y=64;
+  const s=scorecard.strength, e=scorecard.endurance, m=scorecard.metcon;
+
+  y=drawSection(doc,y,'STRENGTH',[
+    ['Strict Press', s.strictPress+' kg'],
+    ['Back Squat', s.backSquat+' kg'],
+    ['Deadlift', s.deadlift+' kg'],
+    ['TOTAL', s.total+' kg']
+  ]);
+  y+=8;
+  y=drawSection(doc,y,'ENDURANCE',[
+    ['Run 1', e.run1||'-'],['Row 1', e.row1||'-'],
+    ['Run 2', e.run2||'-'],['Row 2', e.row2||'-'],
+    ['Run 3', e.run3||'-'],['Row 3', e.row3||'-'],
+    ['Tempo Total', e.total],
+    ['TOTAL', (e.distanceM||0)+' m']
+  ]);
+  y+=8;
+  y=drawSection(doc,y,'METCON',[
+    ['Tempo', m.time||'-'],
+    ['Reps', m.reps!=null?String(m.reps):'-']
+  ]);
+
+  doc.setFillColor(0,0,0); doc.rect(0,285,210,12,'F');
+  doc.setTextColor(120,120,120); doc.setFontSize(7);
+  doc.text('5.7CrossFit · Games 5.7 · Gerado em '+new Date().toLocaleString('pt-PT'), 14, 292);
+
+  return doc;
+}
+
+function gamesFileName(){
+  return ('Games57_'+athlete.first+'_'+athlete.last+(athlete.athleteB?'_'+athlete.athleteB:'')+'.pdf').replace(/\s+/g,'_');
+}
+
+function drawSection(doc,startY,title,rows){
+  let y=startY;
+  doc.setFillColor(0,0,0); doc.rect(14,y,182,9,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(9); doc.setFont('helvetica','bold');
+  doc.text(title,18,y+6);
+  y+=9;
+  rows.forEach((r,i)=>{
+    const isTotal = r[0]==='TOTAL';
+    if(isTotal){ doc.setFillColor(20,20,20); doc.rect(14,y,182,9,'F'); }
+    else if(i%2===1){ doc.setFillColor(245,245,245); doc.rect(14,y,182,9,'F'); }
+    doc.setTextColor(isTotal?255:30,isTotal?214:30,isTotal?0:30);
+    doc.setFontSize(9.5); doc.setFont('helvetica',isTotal?'bold':'normal');
+    doc.text(String(r[0]),18,y+6);
+    doc.setFont('helvetica','bold');
+    doc.setTextColor(isTotal?255:150,isTotal?214:120,isTotal?0:0);
+    doc.text(String(r[1]),190,y+6,{align:'right'});
+    y+=9;
+  });
+  doc.setDrawColor(220,220,220); doc.rect(14,startY,182,y-startY,'S');
+  return y;
+}
+
+function resetAll(){
+  athlete={first:'',last:'',team:'',gender:'',categoria:'',judge:'',athleteB:''};
+  document.getElementById('ath-judge').value='';
+  document.getElementById('ath-first').value='';
+  document.getElementById('ath-last').value='';
+  document.getElementById('ath-b-name').value='';
+  document.getElementById('ath-b-wrap').style.display='none';
+  document.getElementById('ath-team').value='';
+  document.querySelectorAll('#ath-gender-row .chip, #ath-cat-row .chip').forEach(c=>c.classList.remove('active'));
+  ['f-strict-press','f-back-squat','f-deadlift','e-run1','e-row1','e-run2','e-row2','e-run3','e-row3','e-distance','m-time','m-reps'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('strength-total').textContent='0 kg';
+  document.getElementById('endurance-total').textContent='00:00';
+  goTo('screen-athlete');
+}
+
+init();
+</script>
+</body>
+</html>
