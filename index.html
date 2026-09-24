@@ -693,10 +693,18 @@ tr:hover td { background:#141414; }
       <button class="nav-group-header" onclick="toggleNavGroup(this)">Performance &amp; Análises <span class="nav-group-arrow">▾</span></button>
       <div class="nav-submenu">
         <button class="nav-tab nav-subitem admin-only" id="nav-dashboard" onclick="showPage('dashboard',this)">Desempenho</button>
-        <div class="nav-subdivider">Provas</div>
-        <button class="nav-tab nav-subitem admin-only" id="nav-crossfit" onclick="showPage('crossfit',this)">CrossFit</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-hyrox" onclick="showPage('hyrox',this)">HYROX</button>
-        <button class="nav-tab nav-subitem admin-only" id="nav-athx" onclick="showPage('athx',this)">ATHX</button>
+      </div>
+    </div>
+
+    <div class="nav-group" id="group-scorecards" style="display:none">
+      <button class="nav-group-header" onclick="toggleNavGroup(this)">Score Cards <span class="nav-group-arrow">▾</span></button>
+      <div class="nav-submenu">
+        <div class="nav-subdivider">CrossFit</div>
+        <button class="nav-tab nav-subitem admin-only" id="nav-games" onclick="showPage('games',this)">Games</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-ergathlon" onclick="showPage('ergathlon',this)">Ergathlon</button>
+        <div class="nav-subdivider">Hyrox</div>
+        <button class="nav-tab nav-subitem admin-only" id="nav-pft" onclick="openHyroxFiltered('fitness',this)">PFT</button>
+        <button class="nav-tab nav-subitem admin-only" id="nav-conditioning" onclick="openHyroxFiltered('conditioning',this)">Conditioning Test</button>
       </div>
     </div>
 
@@ -967,30 +975,58 @@ tr:hover td { background:#141414; }
   </div>
 </div>
 
-<!-- CROSSFIT -->
-<div class="page" id="page-crossfit">
+<!-- GAMES 5.7 -->
+<div class="page" id="page-games">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">CrossFit</h1>
-      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados e scorecards — Games 5.7</p>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Games 5.7</h1>
+      <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados registados pelo staff (link à parte, sem login)</p>
+    </div>
+    <button class="btn-add" onclick="renderGamesAdmin()">Atualizar</button>
+  </div>
+
+  <div class="admin-tabs" style="margin-bottom:20px">
+    <button class="admin-tab active" id="games-view-leaderboard-btn" onclick="switchGamesView('leaderboard')">Leaderboard</button>
+    <button class="admin-tab" id="games-view-registos-btn" onclick="switchGamesView('registos')">Todos os Registos</button>
+  </div>
+
+  <!-- LEADERBOARD -->
+  <div id="games-view-leaderboard">
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="games-lb-cat-wrap">
+      <button class="coach-filter-btn active" onclick="setGamesLbCategoria('IND PRO',this)">IND PRO</button>
+      <button class="coach-filter-btn" onclick="setGamesLbCategoria('PAIR PRO',this)">PAIR PRO</button>
+      <button class="coach-filter-btn" onclick="setGamesLbCategoria('IND SPORT',this)">IND SPORT</button>
+      <button class="coach-filter-btn" onclick="setGamesLbCategoria('PAIR SPORT',this)">PAIR SPORT</button>
+    </div>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:16px">Pontos por prova = posição invertida dentro da categoria (1º lugar = mais pontos). Total = soma das 3 provas; quem tem mais pontos fica em 1º geral.</p>
+    <div class="table-wrap">
+      <table><thead><tr><th>#</th><th>Atleta(s)</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>Total Pontos</th></tr></thead>
+      <tbody id="games-leaderboard-body"></tbody></table>
     </div>
   </div>
-  <div style="background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:28px;text-align:center;max-width:560px;margin:0 auto">
-    <div style="font-size:2.4rem;margin-bottom:12px">🚧</div>
-    <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
-    <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
-      Falta definir o formato do Games 5.7 (provas, pontuação, escalões) para construir o scorecard
-      público e esta página de resultados — tal como foi feito para o HYROX. Assim que partilhares os
-      detalhes das provas, esta página passa a ter o mesmo tipo de tabela e filtros.
-    </p>
+
+  <!-- TODOS OS REGISTOS -->
+  <div id="games-view-registos" style="display:none">
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="games-filter-wrap">
+      <button class="coach-filter-btn active" onclick="setGamesFilter('todos',this)">Todos</button>
+      <button class="coach-filter-btn" onclick="setGamesFilter('IND PRO',this)">IND PRO</button>
+      <button class="coach-filter-btn" onclick="setGamesFilter('PAIR PRO',this)">PAIR PRO</button>
+      <button class="coach-filter-btn" onclick="setGamesFilter('IND SPORT',this)">IND SPORT</button>
+      <button class="coach-filter-btn" onclick="setGamesFilter('PAIR SPORT',this)">PAIR SPORT</button>
+    </div>
+    <div class="stats-row" id="games-stats-row"></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Atleta(s)</th><th>Equipa</th><th>Juiz</th><th>Género</th><th>Categoria</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>PDF</th><th>Data</th></tr></thead>
+      <tbody id="games-body"></tbody></table>
+    </div>
   </div>
 </div>
 
-<!-- ATHX -->
-<div class="page" id="page-athx">
+<!-- ERGATHLON -->
+<div class="page" id="page-ergathlon">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
     <div>
-      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">ATHX</h1>
+      <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Ergathlon</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados e scorecards</p>
     </div>
   </div>
@@ -998,8 +1034,8 @@ tr:hover td { background:#141414; }
     <div style="font-size:2.4rem;margin-bottom:12px">🚧</div>
     <div style="font-family:'Inter',sans-serif;font-size:1.3rem;font-weight:900;text-transform:uppercase;margin-bottom:10px">Ainda por configurar</div>
     <p style="color:var(--muted);font-size:.9rem;line-height:1.6">
-      Tal como o CrossFit, falta definir o formato das provas do ATHX (estações, pontuação, escalões)
-      para construir o scorecard público e a página de resultados.
+      Falta definir o formato do Ergathlon (provas, pontuação, escalões) para construir o scorecard
+      público e esta página de resultados — tal como foi feito para o Games 5.7.
     </p>
   </div>
 </div>
@@ -2700,19 +2736,150 @@ function renderHyroxTable(){
 }
 
 // ══════════════════════════════════════════════
-// CROSSFIT / GAMES 5.7 (placeholder — aguarda formato da competição)
+// GAMES 5.7 (resultados registados via link público sem login)
 // ══════════════════════════════════════════════
-function renderCrossfitAdmin(){
-  // Sem tabela/scorecard próprios ainda: a página mostra apenas o aviso "Ainda por configurar".
-  // Quando o formato das provas (Games 5.7) for definido, esta função passa a carregar e listar
-  // os resultados, no mesmo padrão de renderHyroxAdmin().
+let gamesResults=[];
+let gamesFilter='todos';
+let gamesLbCategoria='IND PRO';
+const GAMES_CATEGORIAS=['IND PRO','PAIR PRO','IND SPORT','PAIR SPORT'];
+
+function switchGamesView(view){
+  document.getElementById('games-view-leaderboard').style.display=view==='leaderboard'?'block':'none';
+  document.getElementById('games-view-registos').style.display=view==='registos'?'block':'none';
+  document.getElementById('games-view-leaderboard-btn').classList.toggle('active',view==='leaderboard');
+  document.getElementById('games-view-registos-btn').classList.toggle('active',view==='registos');
+  if(view==='leaderboard')renderGamesLeaderboard();
+}
+
+function setGamesFilter(f,btn){
+  gamesFilter=f;
+  document.querySelectorAll('#games-filter-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGamesTable();
+}
+
+function setGamesLbCategoria(cat,btn){
+  gamesLbCategoria=cat;
+  document.querySelectorAll('#games-lb-cat-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGamesLeaderboard();
+}
+
+async function loadGamesResults(){
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/games57_results?select=*&gym_id=eq.'+GYM_ID+'&order=created_at.desc&apikey='+SUPABASE_ANON,{headers:{'Authorization':'Bearer '+SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao carregar Games 5.7:',res.status,await res.text().catch(()=>''));gamesResults=[];return;}
+    gamesResults=await res.json();
+  }catch(e){console.error('Erro ao carregar Games 5.7:',e);gamesResults=[];}
+}
+
+async function renderGamesAdmin(){
+  await loadGamesResults();
+  const total=gamesResults.length;
+  const nIndPro=gamesResults.filter(r=>r.categoria==='IND PRO').length;
+  const nPairPro=gamesResults.filter(r=>r.categoria==='PAIR PRO').length;
+  const nIndSport=gamesResults.filter(r=>r.categoria==='IND SPORT').length;
+  const nPairSport=gamesResults.filter(r=>r.categoria==='PAIR SPORT').length;
+  document.getElementById('games-stats-row').innerHTML=statCard('Total Registados',total,true)+statCard('IND PRO',nIndPro)+statCard('PAIR PRO',nPairPro)+statCard('IND SPORT',nIndSport)+statCard('PAIR SPORT',nPairSport);
+  renderGamesTable();
+  renderGamesLeaderboard();
+}
+
+function renderGamesTable(){
+  let data=[...gamesResults];
+  if(gamesFilter!=='todos')data=data.filter(r=>r.categoria===gamesFilter);
+  const tbody=document.getElementById('games-body');
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
+  tbody.innerHTML=data.map(r=>{
+    const d=r.data||{};
+    const dateStr=new Date(r.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const forca=d.strength?d.strength.total+' kg':'–';
+    const resist=d.endurance?(d.endurance.distanceM||0)+' m':'–';
+    const metcon=[d.metcon?.time?'Tempo: '+d.metcon.time:null,d.metcon?.reps?'Reps: '+d.metcon.reps:null].filter(Boolean).join(' · ')||'–';
+    const nomes=r.first_name+' '+r.last_name+(r.athlete_b?' & '+r.athlete_b:'');
+    const pdfLink=r.pdf_url?`<a href="${r.pdf_url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Ver PDF</a>`:'<span style="color:var(--muted)">–</span>';
+    return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td></tr>`;
+  }).join('');
+}
+
+// ── LEADERBOARD: pontos por prova (posição invertida), soma das 3 provas, mais pontos = 1º ──
+function gamesRankToPoints(sortedIds,n){
+  // sortedIds: array de ids na ordem do melhor para o pior. Devolve {id: pontos}
+  const pts={};
+  sortedIds.forEach((id,idx)=>{ pts[id]=n-idx; });
+  return pts;
+}
+
+function gamesMetconSortValue(entry){
+  // Devolve [temTempo(0=sim,1=não), valorSegundos] para ordenar: quem terminou (tem tempo) vem primeiro, ordenado por tempo asc;
+  // quem não terminou vem depois, ordenado por reps desc.
+  const m=entry.data?.metcon||{};
+  if(m.time){
+    return [0, parseMMSSGlobal(m.time)];
+  }
+  return [1, -(m.reps||0)];
+}
+function parseMMSSGlobal(str){
+  if(!str)return 999999;
+  const mm=String(str).trim().match(/^(\d{1,2}):(\d{2})$/);
+  if(!mm)return 999999;
+  return parseInt(mm[1])*60+parseInt(mm[2]);
+}
+
+function computeGamesLeaderboard(categoria){
+  const entries=gamesResults.filter(r=>r.categoria===categoria);
+  const n=entries.length;
+  if(n===0)return[];
+
+  // Força: total kg desc (maior=melhor)
+  const byForca=[...entries].sort((a,b)=>(b.data?.strength?.total||0)-(a.data?.strength?.total||0));
+  const forcaPts=gamesRankToPoints(byForca.map(e=>e.id),n);
+
+  // Resistência: distância desc (maior=melhor)
+  const byResist=[...entries].sort((a,b)=>(b.data?.endurance?.distanceM||0)-(a.data?.endurance?.distanceM||0));
+  const resistPts=gamesRankToPoints(byResist.map(e=>e.id),n);
+
+  // Metcon: quem tem tempo vem primeiro (asc), depois quem só tem reps (desc)
+  const byMetcon=[...entries].sort((a,b)=>{
+    const va=gamesMetconSortValue(a), vb=gamesMetconSortValue(b);
+    if(va[0]!==vb[0])return va[0]-vb[0];
+    return va[1]-vb[1];
+  });
+  const metconPts=gamesRankToPoints(byMetcon.map(e=>e.id),n);
+
+  const result=entries.map(e=>{
+    const fp=forcaPts[e.id]||0, rp=resistPts[e.id]||0, mp=metconPts[e.id]||0;
+    return{
+      entry:e,
+      nomes:e.first_name+' '+e.last_name+(e.athlete_b?' & '+e.athlete_b:''),
+      forcaPts:fp, resistPts:rp, metconPts:mp,
+      total:fp+rp+mp
+    };
+  });
+  result.sort((a,b)=>b.total-a.total);
+  return result;
+}
+
+function renderGamesLeaderboard(){
+  const tbody=document.getElementById('games-leaderboard-body');
+  const ranked=computeGamesLeaderboard(gamesLbCategoria);
+  if(ranked.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados nesta categoria</td></tr>';return;}
+  const medal=['🥇','🥈','🥉'];
+  tbody.innerHTML=ranked.map((r,i)=>`<tr style="${i<3?'background:rgba(255,214,0,.05)':''}">
+    <td style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:900;color:${i===0?'var(--accent)':'var(--text)'}">${medal[i]||(i+1)}</td>
+    <td><strong>${r.nomes}</strong></td>
+    <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.forcaPts} pts</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.resistPts} pts</td>
+    <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.metconPts} pts</td>
+    <td style="font-family:'Inter',sans-serif;font-weight:900;color:var(--accent);font-size:1.05rem">${r.total} pts</td>
+  </tr>`).join('');
 }
 
 // ══════════════════════════════════════════════
-// ATHX (placeholder — aguarda formato da competição)
+// ERGATHLON (placeholder — aguarda formato da competição)
 // ══════════════════════════════════════════════
-function renderAthxAdmin(){
-  // Idem: aguarda definição do formato das provas.
+function renderErgathlonAdmin(){
+  // Aguarda definição do formato das provas.
 }
 
 // ══════════════════════════════════════════════
@@ -4110,8 +4277,19 @@ async function clearData(){if(!confirm('⚠️ Apagar TODOS os dados? Irreversí
 // NAV & PIN
 // ══════════════════════════════════════════════════
 let pendingAdminTab=null;
-const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','crossfit','athx','staff','avalstaff'];
-function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='crossfit')renderCrossfitAdmin();if(page==='athx')renderAthxAdmin();if(page==='staff')renderStaffCoachSelect();if(page==='avalstaff')renderAvalStaffSelect();}
+let pendingHyroxFilter=null;
+const PIN_GATED_PAGES=['admin','dashboard','hyrox','satisfacao','games','ergathlon','staff','avalstaff'];
+function showPage(page,btn){if(PIN_GATED_PAGES.includes(page)&&!adminUnlocked){pendingPage=btn;document.getElementById('pin-input').value='';document.getElementById('pin-error').style.display='none';document.getElementById('pin-modal').classList.add('open');setTimeout(()=>document.getElementById('pin-input').focus(),100);return;}document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');btn.classList.add('active');if(page==='admin')renderAdmin();if(page==='dashboard')renderDashboard();if(page==='eventos')renderEventos();if(page==='limpezas'){document.getElementById('limpeza-date').value=todayStr();renderLimpezas();}if(page==='substituicoes')renderSubstituicoes();if(page==='hyrox')renderHyroxAdmin();if(page==='satisfacao')renderSatisfacaoAdmin();if(page==='games')renderGamesAdmin();if(page==='ergathlon')renderErgathlonAdmin();if(page==='staff')renderStaffCoachSelect();if(page==='avalstaff')renderAvalStaffSelect();}
+
+function openHyroxFiltered(filterVal,btn){
+  showPage('hyrox',btn);
+  if(document.getElementById('page-hyrox').classList.contains('active')){
+    const filterBtn=[...document.querySelectorAll('#hyrox-filter-wrap .coach-filter-btn')].find(b=>b.getAttribute('onclick')?.includes("'"+filterVal+"'"));
+    if(filterBtn)setHyroxFilter(filterVal,filterBtn);
+  } else {
+    pendingHyroxFilter=filterVal;
+  }
+}
 
 function goAdminTab(tab,sidebarBtn){
   if(!adminUnlocked){
@@ -4132,7 +4310,7 @@ function goAdminTab(tab,sidebarBtn){
   if(tabBtn)switchAdminTab(tab,tabBtn);
 }
 
-function unlockAdminNav(){document.getElementById('group-performance').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-ferias').style.display='';document.getElementById('nav-hyrox').style.display='';document.getElementById('nav-crossfit').style.display='';document.getElementById('nav-athx').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-staff').style.display='';document.getElementById('nav-avalstaff').style.display='';document.getElementById('nav-admin-lock').style.display='none';}
+function unlockAdminNav(){document.getElementById('group-performance').style.display='block';document.getElementById('group-scorecards').style.display='block';document.getElementById('nav-dashboard').style.display='';document.getElementById('nav-admin').style.display='';document.getElementById('nav-ferias').style.display='';document.getElementById('nav-games').style.display='';document.getElementById('nav-ergathlon').style.display='';document.getElementById('nav-pft').style.display='';document.getElementById('nav-conditioning').style.display='';document.getElementById('nav-satisfacao').style.display='';document.getElementById('nav-staff').style.display='';document.getElementById('nav-avalstaff').style.display='';document.getElementById('nav-admin-lock').style.display='none';if(pendingHyroxFilter){const fv=pendingHyroxFilter;pendingHyroxFilter=null;setTimeout(()=>{const filterBtn=[...document.querySelectorAll('#hyrox-filter-wrap .coach-filter-btn')].find(b=>b.getAttribute('onclick')?.includes("'"+fv+"'"));if(filterBtn)setHyroxFilter(fv,filterBtn);},50);}}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
 
@@ -4153,7 +4331,7 @@ function toggleNavGroup(headerBtn){
 document.querySelectorAll('.sidebar-menu .nav-tab').forEach(function(b){
   b.addEventListener('click', function(){ if(window.innerWidth<=900) closeSidebar(); });
 });
-function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingAdminTab){const tab=pendingAdminTab;pendingAdminTab=null;pendingPage=null;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-admin').classList.add('active');renderAdmin();const tabBtn=[...document.querySelectorAll('.admin-tabs .admin-tab')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));if(tabBtn)switchAdminTab(tab,tabBtn);const navBtn=document.getElementById('nav-ferias');if(navBtn)navBtn.classList.add('active');}else if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const target=PIN_GATED_PAGES.find(p=>pendingPage.getAttribute('onclick')?.includes("'"+p+"'"))||'admin';document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='crossfit')renderCrossfitAdmin();if(target==='athx')renderAthxAdmin();if(target==='staff')renderStaffCoachSelect();if(target==='avalstaff')renderAvalStaffSelect();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
+function checkPin(){const pin=document.getElementById('pin-input').value;if(pin===ADMIN_PIN){adminUnlocked=true;unlockAdminNav();closeModal('pin-modal');if(pendingAdminTab){const tab=pendingAdminTab;pendingAdminTab=null;pendingPage=null;document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));document.getElementById('page-admin').classList.add('active');renderAdmin();const tabBtn=[...document.querySelectorAll('.admin-tabs .admin-tab')].find(b=>b.getAttribute('onclick')?.includes("'"+tab+"'"));if(tabBtn)switchAdminTab(tab,tabBtn);const navBtn=document.getElementById('nav-ferias');if(navBtn)navBtn.classList.add('active');}else if(pendingPage){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));const onclickAttr=pendingPage.getAttribute('onclick')||'';const target=PIN_GATED_PAGES.find(p=>onclickAttr.includes("'"+p+"'"))||(onclickAttr.includes('openHyroxFiltered')?'hyrox':'admin');document.getElementById('page-'+target).classList.add('active');if(target==='admin')renderAdmin();if(target==='dashboard')renderDashboard();if(target==='hyrox')renderHyroxAdmin();if(target==='satisfacao')renderSatisfacaoAdmin();if(target==='games')renderGamesAdmin();if(target==='ergathlon')renderErgathlonAdmin();if(target==='staff')renderStaffCoachSelect();if(target==='avalstaff')renderAvalStaffSelect();pendingPage.classList.add('active');pendingPage=null;}}else{document.getElementById('pin-error').style.display='block';document.getElementById('pin-input').value='';document.getElementById('pin-input').focus();}}
 
 // ══════════════════════════════════════════════════
 // EVENTOS
