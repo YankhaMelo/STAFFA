@@ -982,7 +982,10 @@ tr:hover td { background:#141414; }
       <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:900;text-transform:uppercase">Games 5.7</h1>
       <p style="color:var(--muted);font-size:.88rem;margin-top:4px">Resultados registados pelo staff (link à parte, sem login)</p>
     </div>
-    <button class="btn-add" onclick="renderGamesAdmin()">Atualizar</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-add" onclick="renderGamesAdmin()">Atualizar</button>
+      <button onclick="clearAllGamesResults()" style="padding:11px 22px;background:transparent;border:1px solid rgba(255,59,59,.4);color:var(--danger);border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:800;font-size:.95rem;letter-spacing:.5px;text-transform:uppercase">Limpar Tudo</button>
+    </div>
   </div>
 
   <div class="admin-tabs" style="margin-bottom:20px">
@@ -1016,7 +1019,7 @@ tr:hover td { background:#141414; }
     </div>
     <div class="stats-row" id="games-stats-row"></div>
     <div class="table-wrap">
-      <table><thead><tr><th>Atleta(s)</th><th>Equipa</th><th>Juiz</th><th>Género</th><th>Categoria</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>PDF</th><th>Data</th></tr></thead>
+      <table><thead><tr><th>Atleta(s)</th><th>Equipa</th><th>Juiz</th><th>Género</th><th>Categoria</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>PDF</th><th>Data</th><th>Ações</th></tr></thead>
       <tbody id="games-body"></tbody></table>
     </div>
   </div>
@@ -2789,7 +2792,7 @@ function renderGamesTable(){
   let data=[...gamesResults];
   if(gamesFilter!=='todos')data=data.filter(r=>r.categoria===gamesFilter);
   const tbody=document.getElementById('games-body');
-  if(data.length===0){tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
   tbody.innerHTML=data.map(r=>{
     const d=r.data||{};
     const dateStr=new Date(r.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -2798,8 +2801,29 @@ function renderGamesTable(){
     const metcon=[d.metcon?.time?'Tempo: '+d.metcon.time:null,d.metcon?.reps?'Reps: '+d.metcon.reps:null].filter(Boolean).join(' · ')||'–';
     const nomes=r.first_name+' '+r.last_name+(r.athlete_b?' & '+r.athlete_b:'');
     const pdfLink=r.pdf_url?`<a href="${r.pdf_url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Ver PDF</a>`:'<span style="color:var(--muted)">–</span>';
-    return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td></tr>`;
+    return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td><td><button class="delete-btn" onclick="deleteGamesResult('${r.id}')">Apagar</button></td></tr>`;
   }).join('');
+}
+
+async function deleteGamesResult(id){
+  if(!confirm('Apagar este resultado? Não apaga o PDF já gravado, só o registo.'))return;
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/games57_results?id=eq.'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao apagar resultado:',res.status,await res.text().catch(()=>''));showToast('⚠️','Erro','Não foi possível apagar este resultado.','danger',6000);return;}
+  }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',6000);return;}
+  await renderGamesAdmin();
+}
+
+async function clearAllGamesResults(){
+  if(gamesResults.length===0){alert('Não há resultados para apagar.');return;}
+  if(!confirm('Apagar TODOS os '+gamesResults.length+' resultados do Games 5.7? Isto é irreversível (os PDFs já gravados ficam no armazenamento, só os registos desaparecem).'))return;
+  if(!confirm('Última confirmação — apagar tudo mesmo?'))return;
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/games57_results?gym_id=eq.'+GYM_ID,{method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON}});
+    if(!res.ok){console.error('Erro ao limpar resultados:',res.status,await res.text().catch(()=>''));showToast('⚠️','Erro','Não foi possível apagar os resultados.','danger',6000);return;}
+    showToast('✅','Resultados Apagados','Todos os registos do Games 5.7 foram removidos.','success',4000);
+  }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',6000);return;}
+  await renderGamesAdmin();
 }
 
 // ── LEADERBOARD: pontos por prova (posição invertida), soma das 3 provas, mais pontos = 1º ──
