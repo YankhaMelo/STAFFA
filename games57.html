@@ -84,6 +84,7 @@ button,input,select { font-family:inherit; -webkit-appearance:none; appearance:n
     <button type="button" class="chip" onclick="selectCategoria('IND SPORT',this)">IND SPORT</button>
     <button type="button" class="chip" onclick="selectCategoria('PAIR SPORT',this)">PAIR SPORT</button>
   </div></div>
+  <div class="form-group"><label>Heat</label><input type="number" id="ath-heat" min="1" placeholder="Ex: 1 (até 6, ou mais se precisares)"></div>
   <button class="btn-primary" onclick="startScorecard()">Continuar →</button>
 </div>
 
@@ -129,7 +130,7 @@ const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 let GYM_ID = null;
 let GYM_NAME = '5.7CrossFit';
 
-let athlete = { first:'', last:'', team:'', gender:'', categoria:'', judge:'', athleteB:'' };
+let athlete = { first:'', last:'', team:'', gender:'', categoria:'', judge:'', athleteB:'', heat:'' };
 
 function selectCategoria(val,el){
   athlete.categoria=val;
@@ -201,13 +202,14 @@ function startScorecard(){
   athlete.last=document.getElementById('ath-last').value.trim();
   athlete.athleteB=document.getElementById('ath-b-name').value.trim();
   athlete.team=document.getElementById('ath-team').value.trim();
+  athlete.heat=document.getElementById('ath-heat').value.trim();
   if(!athlete.judge){alert('Indica o nome do juiz.');return;}
   if(!athlete.first||!athlete.last){alert('Preenche pelo menos o primeiro e último nome do Atleta A.');return;}
   if(!athlete.gender){alert('Seleciona o género.');return;}
   if(!athlete.categoria){alert('Seleciona a categoria.');return;}
   if(athlete.categoria.startsWith('PAIR')&&!athlete.athleteB){alert('Indica o nome do Atleta B (categoria de duplas).');return;}
   const nomes=athlete.first+' '+athlete.last+(athlete.athleteB?' & '+athlete.athleteB:'');
-  document.getElementById('sc-athlete-label').textContent = nomes+' · '+(athlete.team?athlete.team+' · ':'')+athlete.gender+' · '+athlete.categoria+' · Juiz: '+athlete.judge;
+  document.getElementById('sc-athlete-label').textContent = nomes+' · '+(athlete.team?athlete.team+' · ':'')+athlete.gender+' · '+athlete.categoria+(athlete.heat?' · Heat '+athlete.heat:'')+' · Juiz: '+athlete.judge;
   goTo('screen-scorecard');
 }
 
@@ -277,6 +279,7 @@ async function saveAndGeneratePDF(){
       team: athlete.team||null,
       gender: athlete.gender,
       categoria: athlete.categoria,
+      heat: athlete.heat?parseInt(athlete.heat):null,
       data: scorecard,
       pdf_url: pdfUrl
     };
@@ -318,7 +321,7 @@ function generatePDF(scorecard){
   doc.text(athlete.first+' '+athlete.last+(athlete.athleteB?' & '+athlete.athleteB:''), 14, 40);
   doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(110,110,110);
   doc.text((athlete.team?athlete.team+'  |  ':'')+athlete.gender+'  |  '+athlete.categoria, 14, 47);
-  doc.text('Juiz: '+(athlete.judge||'-'), 14, 53);
+  doc.text('Juiz: '+(athlete.judge||'-')+(athlete.heat?'   |   Heat: '+athlete.heat:''), 14, 53);
 
   let y=64;
   const s=scorecard.strength, e=scorecard.endurance, m=scorecard.metcon;
@@ -377,13 +380,14 @@ function drawSection(doc,startY,title,rows){
 }
 
 function resetAll(){
-  athlete={first:'',last:'',team:'',gender:'',categoria:'',judge:'',athleteB:''};
+  athlete={first:'',last:'',team:'',gender:'',categoria:'',judge:'',athleteB:'',heat:''};
   document.getElementById('ath-judge').value='';
   document.getElementById('ath-first').value='';
   document.getElementById('ath-last').value='';
   document.getElementById('ath-b-name').value='';
   document.getElementById('ath-b-wrap').style.display='none';
   document.getElementById('ath-team').value='';
+  document.getElementById('ath-heat').value='';
   document.querySelectorAll('#ath-gender-row .chip, #ath-cat-row .chip').forEach(c=>c.classList.remove('active'));
   ['f-strict-press','f-back-squat','f-deadlift','e-run1','e-skierg1','e-run2','e-skierg2','e-run3','e-skierg3','e-distance','m-time','m-reps'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('strength-total').textContent='0 kg';
