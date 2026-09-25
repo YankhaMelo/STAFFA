@@ -995,15 +995,20 @@ tr:hover td { background:#141414; }
 
   <!-- LEADERBOARD -->
   <div id="games-view-leaderboard">
-    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="games-lb-cat-wrap">
+    <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap" id="games-lb-cat-wrap">
       <button class="coach-filter-btn active" onclick="setGamesLbCategoria('IND PRO',this)">IND PRO</button>
       <button class="coach-filter-btn" onclick="setGamesLbCategoria('PAIR PRO',this)">PAIR PRO</button>
       <button class="coach-filter-btn" onclick="setGamesLbCategoria('IND SPORT',this)">IND SPORT</button>
       <button class="coach-filter-btn" onclick="setGamesLbCategoria('PAIR SPORT',this)">PAIR SPORT</button>
     </div>
-    <p style="color:var(--muted);font-size:.78rem;margin-bottom:16px">Pontos por prova = posição invertida dentro da categoria (1º lugar = mais pontos). Total = soma das 3 provas; quem tem mais pontos fica em 1º geral.</p>
+    <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap" id="games-lb-gender-wrap">
+      <button class="coach-filter-btn active" onclick="setGamesLbGenero('M',this)">Masculino</button>
+      <button class="coach-filter-btn" onclick="setGamesLbGenero('F',this)">Feminino</button>
+      <button class="coach-filter-btn" onclick="setGamesLbGenero('Mix',this)">Mix</button>
+    </div>
+    <p style="color:var(--muted);font-size:.78rem;margin-bottom:16px">Pontos por prova = posição invertida dentro do escalão (categoria + género) (1º lugar = mais pontos). Total = soma das 3 provas; quem tem mais pontos fica em 1º.</p>
     <div class="table-wrap">
-      <table><thead><tr><th>#</th><th>Atleta(s)</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>Total Pontos</th></tr></thead>
+      <table><thead><tr><th>#</th><th>Atleta(s)</th><th>Heat</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>Total Pontos</th></tr></thead>
       <tbody id="games-leaderboard-body"></tbody></table>
     </div>
   </div>
@@ -1019,7 +1024,7 @@ tr:hover td { background:#141414; }
     </div>
     <div class="stats-row" id="games-stats-row"></div>
     <div class="table-wrap">
-      <table><thead><tr><th>Atleta(s)</th><th>Equipa</th><th>Juiz</th><th>Género</th><th>Categoria</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>PDF</th><th>Data</th><th>Ações</th></tr></thead>
+      <table><thead><tr><th>Atleta(s)</th><th>Equipa</th><th>Juiz</th><th>Género</th><th>Categoria</th><th>Heat</th><th>Força</th><th>Resistência</th><th>Metcon</th><th>PDF</th><th>Data</th><th>Ações</th></tr></thead>
       <tbody id="games-body"></tbody></table>
     </div>
   </div>
@@ -2744,6 +2749,7 @@ function renderHyroxTable(){
 let gamesResults=[];
 let gamesFilter='todos';
 let gamesLbCategoria='IND PRO';
+let gamesLbGenero='M';
 const GAMES_CATEGORIAS=['IND PRO','PAIR PRO','IND SPORT','PAIR SPORT'];
 
 function switchGamesView(view){
@@ -2764,6 +2770,13 @@ function setGamesFilter(f,btn){
 function setGamesLbCategoria(cat,btn){
   gamesLbCategoria=cat;
   document.querySelectorAll('#games-lb-cat-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGamesLeaderboard();
+}
+
+function setGamesLbGenero(g,btn){
+  gamesLbGenero=g;
+  document.querySelectorAll('#games-lb-gender-wrap .coach-filter-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
   renderGamesLeaderboard();
 }
@@ -2792,7 +2805,7 @@ function renderGamesTable(){
   let data=[...gamesResults];
   if(gamesFilter!=='todos')data=data.filter(r=>r.categoria===gamesFilter);
   const tbody=document.getElementById('games-body');
-  if(data.length===0){tbody.innerHTML='<tr><td colspan="11" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
+  if(data.length===0){tbody.innerHTML='<tr><td colspan="12" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados registados</td></tr>';return;}
   tbody.innerHTML=data.map(r=>{
     const d=r.data||{};
     const dateStr=new Date(r.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});
@@ -2801,7 +2814,8 @@ function renderGamesTable(){
     const metcon=[d.metcon?.time?'Tempo: '+d.metcon.time:null,d.metcon?.reps?'Reps: '+d.metcon.reps:null].filter(Boolean).join(' · ')||'–';
     const nomes=r.first_name+' '+r.last_name+(r.athlete_b?' & '+r.athlete_b:'');
     const pdfLink=r.pdf_url?`<a href="${r.pdf_url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Ver PDF</a>`:'<span style="color:var(--muted)">–</span>';
-    return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td><td><button class="delete-btn" onclick="deleteGamesResult('${r.id}')">Apagar</button></td></tr>`;
+    const heatInput=`<input type="number" min="1" value="${r.heat||''}" onchange="updateGamesHeat('${r.id}',this.value)" style="width:56px;padding:5px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none;text-align:center">`;
+    return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td>${heatInput}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td><td><button class="delete-btn" onclick="deleteGamesResult('${r.id}')">Apagar</button></td></tr>`;
   }).join('');
 }
 
@@ -2812,6 +2826,21 @@ async function deleteGamesResult(id){
     if(!res.ok){console.error('Erro ao apagar resultado:',res.status,await res.text().catch(()=>''));showToast('⚠️','Erro','Não foi possível apagar este resultado.','danger',6000);return;}
   }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',6000);return;}
   await renderGamesAdmin();
+}
+
+async function updateGamesHeat(id,val){
+  const heat=val?parseInt(val):null;
+  try{
+    const res=await fetch(SUPABASE_URL+'/rest/v1/games57_results?id=eq.'+id,{
+      method:'PATCH',
+      headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Content-Type':'application/json','Prefer':'return=representation'},
+      body:JSON.stringify({heat})
+    });
+    if(!res.ok){console.error('Erro ao atualizar heat:',res.status,await res.text().catch(()=>''));showToast('⚠️','Erro','Não foi possível atualizar o heat.','danger',6000);return;}
+    const r=gamesResults.find(x=>x.id===id);
+    if(r)r.heat=heat;
+    showToast('✅','Heat Atualizado','','success',2000);
+  }catch(e){console.error(e);showToast('⚠️','Erro','Erro de ligação: '+e.message,'danger',6000);}
 }
 
 async function clearAllGamesResults(){
@@ -2850,8 +2879,8 @@ function parseMMSSGlobal(str){
   return parseInt(mm[1])*60+parseInt(mm[2]);
 }
 
-function computeGamesLeaderboard(categoria){
-  const entries=gamesResults.filter(r=>r.categoria===categoria);
+function computeGamesLeaderboard(categoria,genero){
+  const entries=gamesResults.filter(r=>r.categoria===categoria&&r.gender===genero);
   const n=entries.length;
   if(n===0)return[];
 
@@ -2876,6 +2905,7 @@ function computeGamesLeaderboard(categoria){
     return{
       entry:e,
       nomes:e.first_name+' '+e.last_name+(e.athlete_b?' & '+e.athlete_b:''),
+      heat:e.heat||'–',
       forcaPts:fp, resistPts:rp, metconPts:mp,
       total:fp+rp+mp
     };
@@ -2886,12 +2916,13 @@ function computeGamesLeaderboard(categoria){
 
 function renderGamesLeaderboard(){
   const tbody=document.getElementById('games-leaderboard-body');
-  const ranked=computeGamesLeaderboard(gamesLbCategoria);
-  if(ranked.length===0){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados nesta categoria</td></tr>';return;}
+  const ranked=computeGamesLeaderboard(gamesLbCategoria,gamesLbGenero);
+  if(ranked.length===0){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--muted)">Sem resultados neste escalão</td></tr>';return;}
   const medal=['🥇','🥈','🥉'];
   tbody.innerHTML=ranked.map((r,i)=>`<tr style="${i<3?'background:rgba(255,214,0,.05)':''}">
     <td style="font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:900;color:${i===0?'var(--accent)':'var(--text)'}">${medal[i]||(i+1)}</td>
     <td><strong>${r.nomes}</strong></td>
+    <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.heat}</td>
     <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.forcaPts} pts</td>
     <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.resistPts} pts</td>
     <td style="font-family:'DM Mono',monospace;color:var(--muted)">${r.metconPts} pts</td>
