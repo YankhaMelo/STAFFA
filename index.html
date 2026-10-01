@@ -2320,9 +2320,19 @@ function calcMsPayrollRaw(record){
 
   const tol=(h?.tolerancia||15)*60*1000;
 
-  // Always count the scheduled hours (not real hours)
+  // Saída antecipada registada em Faltas: a hora indicada substitui a saída agendada para efeitos de pagamento
+  const earlyLeaveFalta=faltas.find(f=>f.coachId===scheduleCoachId&&f.date===date&&f.tipo==='saida_antecipada'&&f.saidaHora);
+  let earlyLeaveMs=0, earlyLeaveExit=null;
+  if(earlyLeaveFalta){
+    const [elH,elM]=earlyLeaveFalta.saidaHora.split(':').map(Number);
+    earlyLeaveExit=new Date(date+'T00:00:00');earlyLeaveExit.setHours(elH,elM,0,0);
+    if(earlyLeaveExit<schedExit)earlyLeaveMs=schedExit-earlyLeaveExit;
+    else earlyLeaveExit=null;
+  }
+
+  // Always count the scheduled hours (not real hours), exceto se houver saída antecipada registada
   const effectiveEntry=schedEntry;
-  const effectiveExit=schedExit;
+  const effectiveExit=earlyLeaveExit||schedExit;
 
   // Only mark as cut if outside tolerance
   const entryOutside=Math.abs(rawEntry-schedEntry)>tol&&rawEntry<schedEntry;
@@ -2348,12 +2358,13 @@ function calcMsPayrollRaw(record){
     ms=Math.max(0,ms-pausaMs);
   }
 
-  const cutMs=cutEarlyMs+cutLateMs;
+  const cutMs=cutEarlyMs+cutLateMs+earlyLeaveMs;
   let cutInfo=null;
   if(cutMs>0){
     const parts=[];
     if(cutEarlyMs>0)parts.push('entrou '+formatHours(cutEarlyMs)+' antes');
     if(cutLateMs>0)parts.push('saiu '+formatHours(cutLateMs)+' depois');
+    if(earlyLeaveMs>0)parts.push('saída antecipada às '+earlyLeaveFalta.saidaHora+' (-'+formatHours(earlyLeaveMs)+')');
     cutInfo=parts.join(', ');
   }
 
