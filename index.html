@@ -1727,6 +1727,7 @@ tr:hover td { background:#141414; }
             <option value="normal">Normal</option>
             <option value="substituicao">🔄 Substituição</option>
             <option value="hybrid">🌀 Hybrid Day</option>
+            <option value="evento">📅 Evento</option>
           </select>
           <button onclick="addManualRecord()" style="padding:10px 16px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:'Space Grotesk',sans-serif;font-weight:800;cursor:pointer;font-size:1rem;">+</button>
         </div>
@@ -2285,8 +2286,8 @@ function calcMsPayrollRaw(record){
   if(!record.entry||!record.exit)return{ms:0,cutMs:0,cutInfo:null};
   const date=record.date||record.entry.substring(0,10);
   const scheduleCoachId=record.tipo==='substituicao'&&record.subCoachId?record.subCoachId:record.coachId;
-  // For substituicoes e hybrid days, always count real hours minus pausas (sem clamp ao horário estipulado)
-  if(record.tipo==='substituicao'||record.tipo==='hybrid'){
+  // For substituicoes, hybrid days e eventos, always count real hours minus pausas (sem clamp ao horário estipulado)
+  if(record.tipo==='substituicao'||record.tipo==='hybrid'||record.tipo==='evento'){
     return{ms:Math.max(0,calcMsNet(record.entry,record.exit,record.coachId,date)),cutMs:0,cutInfo:null};
   }
 
@@ -4110,8 +4111,8 @@ function renderFixMonthSummary(coachId,date){
   if(!coach){box.style.display='none';return;}
   const ms=date.substring(0,7); // YYYY-MM
   const mRecs=records.filter(r=>r.coachId===coachId&&r.date&&r.date.startsWith(ms)&&r.exit);
-  let totalMs=0,subMs=0,hybridMs=0;
-  mRecs.forEach(r=>{const{ms:m}=calcMsPayroll(r);totalMs+=m;if(r.tipo==='substituicao')subMs+=m;else if(r.tipo==='hybrid')hybridMs+=m;});
+  let totalMs=0,subMs=0,hybridMs=0,eventoMs=0;
+  mRecs.forEach(r=>{const{ms:m}=calcMsPayroll(r);totalMs+=m;if(r.tipo==='substituicao')subMs+=m;else if(r.tipo==='hybrid')hybridMs+=m;else if(r.tipo==='evento')eventoMs+=m;});
   const diasTrabalhados=[...new Set(mRecs.map(r=>r.date))].length;
   const mesLabel=MONTHS_PT[parseInt(ms.split('-')[1])-1]+' '+ms.split('-')[0];
   box.style.display='block';
@@ -4124,6 +4125,7 @@ function renderFixMonthSummary(coachId,date){
       ${diasTrabalhados} dia${diasTrabalhados!==1?'s':''} trabalhado${diasTrabalhados!==1?'s':''}
       ${subMs>0?`<br><span style="color:#ff9900">🔄 Sub: ${formatHours(subMs)}</span>`:''}
       ${hybridMs>0?`<br><span style="color:#a78bfa">🌀 Hybrid: ${formatHours(hybridMs)}</span>`:''}
+      ${eventoMs>0?`<br><span style="color:#2dd4bf">📅 Evento: ${formatHours(eventoMs)}</span>`:''}
     </div>
   </div>`;
 }
@@ -4145,20 +4147,23 @@ function renderFixRecords(){
   else{list.innerHTML=recs.map(r=>{
     const isSub=r.tipo==='substituicao';
     const isHybrid=r.tipo==='hybrid';
+    const isEvento=r.tipo==='evento';
     const subIds=r.subCoachIds&&r.subCoachIds.length?r.subCoachIds:(r.subCoachId?[r.subCoachId]:[]);
     const subNames=subIds.map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');
     const showPicker=isSub||isHybrid;
-    return`<div class="fix-record-row" style="flex-direction:column;align-items:stretch;border:1px solid ${isHybrid?'rgba(167,139,250,.35)':isSub?'rgba(255,153,0,.3)':'var(--border)'};border-radius:8px;padding:8px 10px;margin-bottom:6px;background:${isHybrid?'rgba(167,139,250,.06)':isSub?'rgba(255,153,0,.05)':'transparent'}">
+    return`<div class="fix-record-row" style="flex-direction:column;align-items:stretch;border:1px solid ${isHybrid?'rgba(167,139,250,.35)':isSub?'rgba(255,153,0,.3)':isEvento?'rgba(45,212,191,.35)':'var(--border)'};border-radius:8px;padding:8px 10px;margin-bottom:6px;background:${isHybrid?'rgba(167,139,250,.06)':isSub?'rgba(255,153,0,.05)':isEvento?'rgba(45,212,191,.06)':'transparent'}">
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <div style="flex:1;font-family:'DM Mono',monospace;font-size:.85rem;min-width:150px">
           <span style="color:var(--accent)">${formatTime(r.entry)}</span><span style="color:var(--muted)"> → </span><span style="color:${r.exit?'var(--text)':'var(--danger)'}">${r.exit?formatTime(r.exit):'Sem saída'}</span>
           ${isSub?`<br><span style="font-size:.7rem;color:#ff9900">🔄 Sub: ${subNames||'?'}</span>`:''}
           ${isHybrid?`<br><span style="font-size:.7rem;color:#a78bfa">🌀 Hybrid Day${subNames?' (subst. '+subNames+')':''}</span>`:''}
+          ${isEvento?`<br><span style="font-size:.7rem;color:#2dd4bf">📅 Evento</span>`:''}
         </div>
         <select class="fix-time-input" style="width:auto;padding:6px 8px" onchange="updateRecordTipo('${r.id}',this.value)">
           <option value="normal" ${r.tipo==='normal'?'selected':''}>Normal</option>
           <option value="substituicao" ${isSub?'selected':''}>🔄 Sub</option>
           <option value="hybrid" ${isHybrid?'selected':''}>🌀 Hybrid</option>
+          <option value="evento" ${isEvento?'selected':''}>📅 Evento</option>
         </select>
         <input class="fix-time-input" type="time" value="${r.entry?new Date(r.entry).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','entry',this.value,'${date}')">
         <input class="fix-time-input" type="time" value="${r.exit?new Date(r.exit).toTimeString().slice(0,5):''}" onchange="updateTime('${r.id}','exit',this.value,'${date}')">
@@ -4235,7 +4240,7 @@ async function addManualRecord(){
 }
 
 async function updateTime(id,field,val,date){const rec=records.find(r=>r.id===id);if(!rec||!val)return;rec[field]=new Date(date+'T'+val+':00').toISOString();await saveRecord(rec);renderGrid();renderAdmin();renderFixRecords();}
-async function updateRecordTipo(id,newTipo){const rec=records.find(r=>r.id===id);if(!rec)return;rec.tipo=newTipo;if(newTipo==='normal'){rec.subCoachId=null;rec.subCoachIds=[];}await saveRecord(rec);renderGrid();renderAdmin();renderFixRecords();}
+async function updateRecordTipo(id,newTipo){const rec=records.find(r=>r.id===id);if(!rec)return;rec.tipo=newTipo;if(newTipo==='normal'||newTipo==='evento'){rec.subCoachId=null;rec.subCoachIds=[];}await saveRecord(rec);renderGrid();renderAdmin();renderFixRecords();}
 async function toggleRecordSubCoach(recordId,coachId){
   const rec=records.find(r=>r.id===recordId);if(!rec)return;
   let ids=rec.subCoachIds&&rec.subCoachIds.length?[...rec.subCoachIds]:(rec.subCoachId?[rec.subCoachId]:[]);
