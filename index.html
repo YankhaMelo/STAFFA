@@ -1395,6 +1395,17 @@ tr:hover td { background:#141414; }
 <!-- ═══ MODALS ═══ -->
 
 <!-- MODAL: EXPORTAR RELATÓRIO -->
+<!-- MODAL: GAMES SCORECARD -->
+<div class="modal-overlay" id="games-scorecard-modal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('games-scorecard-modal')">✕</button>
+    <h2 id="games-sc-title">Scorecard</h2>
+    <p id="games-sc-subtitle" style="color:var(--muted);font-size:.85rem;margin-bottom:4px"></p>
+    <div id="games-sc-body" style="margin-top:12px"></div>
+    <button class="btn-secondary" style="margin-top:16px" onclick="closeModal('games-scorecard-modal')">Fechar</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="export-relatorio-modal">
   <div class="modal" style="max-width:380px">
     <button class="modal-close" onclick="closeModal('export-relatorio-modal')">✕</button>
@@ -2585,7 +2596,7 @@ function renderAdmin(){
 
   const tbody=document.getElementById('records-body');
   if(todayRecs.length===0){tbody.innerHTML='<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--muted)">Sem registos hoje</td></tr>';}
-  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;const subIds=r.subCoachIds&&r.subCoachIds.length?r.subCoachIds:(r.subCoachId?[r.subCoachId]:[]);const subNames=subIds.map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(subNames||'?')+'</span>':''}${r.tipo==='hybrid'?'<br><span style="font-size:.72rem;color:#a78bfa">🌀 Hybrid Day'+(subNames?' ('+subNames+')':'')+'</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
+  else{tbody.innerHTML=[...todayRecs].reverse().map(r=>{const coach=coaches.find(c=>c.id===r.coachId);const{ms:payMs,cutMs,cutInfo}=r.exit?calcMsPayroll(r):{ms:0,cutMs:0,cutInfo:null};const hasCut=cutMs>0;const subIds=r.subCoachIds&&r.subCoachIds.length?r.subCoachIds:(r.subCoachId?[r.subCoachId]:[]);const subNames=subIds.map(id=>coaches.find(c=>c.id===id)?.name.split(' ')[0]||'?').join(', ');return`<tr style="${hasCut?'background:rgba(255,150,0,.07);border-left:3px solid #f97316':''}"><td><strong>${coach?coach.name:'?'}</strong>${r.tipo==='substituicao'?'<br><span style="font-size:.72rem;color:#ff9900">🔄 Sub: '+(subNames||'?')+'</span>':''}${r.tipo==='hybrid'?'<br><span style="font-size:.72rem;color:#a78bfa">🌀 Hybrid Day'+(subNames?' ('+subNames+')':'')+'</span>':''}${r.tipo==='evento'?'<br><span style="font-size:.72rem;color:#2dd4bf">📅 Evento</span>':''}${hasCut?`<br><span style="font-size:.68rem;color:#f97316;font-family:'DM Mono',monospace">⚠ Fora de horas: ${cutInfo}</span>`:''}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace;${hasCut?'color:#f97316':''}">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${r.exit?formatHours(payMs):'–'}</td><td><span class="badge ${!r.exit?'badge-in':'badge-out'}">${!r.exit?'Presente':'Saiu'}</span></td></tr>`;}).join('');}
 
   const ms2=new Date().getFullYear()+'-'+String(new Date().getMonth()+1).padStart(2,'0');
   document.getElementById('coaches-manage-body').innerHTML=coaches.map(c=>{
@@ -2624,7 +2635,7 @@ function renderMonthly(){
   html+='</tbody></table></div><div class="section-title">Detalhe por Dia</div>';
   Object.keys(byDay).sort().reverse().forEach(day=>{const dayRecs=byDay[day];let dayMs=0;dayRecs.forEach(r=>{dayMs+=calcMsPayroll(r).ms;});const dateObj=new Date(day+'T12:00:00');const dateStr=dateObj.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'});const weekday=dateObj.toLocaleDateString('pt-PT',{weekday:'long'});const uid='day-'+day;const byCoachDay={};dayRecs.forEach(r=>{if(!byCoachDay[r.coachId])byCoachDay[r.coachId]=[];byCoachDay[r.coachId].push(r);});
   html+=`<div class="monthly-card"><div class="monthly-card-header" onclick="toggleDay('${uid}')"><div><div class="mc-name">${dateStr}</div><div class="mc-role" style="text-transform:capitalize">${weekday}</div></div><div class="mc-right"><div class="mc-total">${formatHours(dayMs)}</div><div class="mc-days">${Object.keys(byCoachDay).length} colaborador${Object.keys(byCoachDay).length!==1?'es':''}</div></div><div class="mc-chevron" id="chev-${uid}">▼</div></div><div class="monthly-detail" id="${uid}"><table><thead><tr><th>Colaborador</th><th>Turno</th><th>Entrada</th><th>Saída</th><th>H. Turno</th><th>Pausas</th><th>Total Dia</th></tr></thead><tbody>`;
-  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}${r.tipo==='hybrid'?'<br>🌀 Hybrid':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
+  Object.keys(byCoachDay).forEach(coachId=>{const coach=coaches.find(c=>c.id===coachId);const name=coach?coach.name:'?';const turnos=byCoachDay[coachId].sort((a,b)=>new Date(a.entry)-new Date(b.entry));let coachDayMs=0;turnos.forEach(r=>{coachDayMs+=calcMsPayroll(r).ms;});turnos.forEach((r,i)=>{const{ms:tMs,cutMs,cutInfo}=calcMsPayroll(r);const pausaMs=calcMs(r.entry,r.exit)-tMs;const turno=new Date(r.entry).getHours()<13?'🌅 Manhã':'🌆 Tarde';html+=`<tr>${i===0?`<td rowspan="${turnos.length}"><strong>${name}</strong>${coach?'<br><span style="font-size:.75rem;color:var(--muted)">'+coach.role+'</span>':''}  </td>`:''}<td style="font-size:.8rem;color:var(--muted)">${turno}${r.tipo==='substituicao'?'<br>🔄 Sub':''}${r.tipo==='hybrid'?'<br>🌀 Hybrid':''}${r.tipo==='evento'?'<br>📅 Evento':''}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.entry)}</td><td style="font-family:'DM Mono',monospace">${formatTime(r.exit)}</td><td style="font-family:'DM Mono',monospace">${formatHours(tMs)}</td><td style="font-family:'DM Mono',monospace;color:var(--danger);font-size:.82rem">${pausaMs>0?'-'+formatHours(pausaMs):'–'}</td>${i===0?`<td rowspan="${turnos.length}" style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:700">${formatHours(coachDayMs)}</td>`:''}</tr>`;});});
   html+='</tbody></table></div></div>';});
   container.innerHTML=html;
 }
@@ -2886,10 +2897,45 @@ function renderGamesTable(){
     const resist=d.endurance?(d.endurance.distanceM||0)+' m':'–';
     const metcon=[d.metcon?.time?'Tempo: '+d.metcon.time:null,d.metcon?.reps?'Reps: '+d.metcon.reps:null].filter(Boolean).join(' · ')||'–';
     const nomes=r.first_name+' '+r.last_name+(r.athlete_b?' & '+r.athlete_b:'');
-    const pdfLink=r.pdf_url?`<a href="${r.pdf_url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Ver PDF</a>`:'<span style="color:var(--muted)">–</span>';
+    const pdfLink=`<button onclick="openGamesScorecard('${r.id}')" style="background:none;border:none;color:var(--accent);text-decoration:underline;text-underline-offset:2px;cursor:pointer;font-family:'Space Grotesk',sans-serif;font-size:.85rem;padding:0">Ver Scorecard</button>${r.pdf_url?`<br><a href="${r.pdf_url}" target="_blank" rel="noopener" style="color:var(--muted);text-decoration:none;font-size:.72rem">PDF ↗</a>`:''}`;
     const heatInput=`<input type="number" min="1" value="${r.heat||''}" onchange="updateGamesHeat('${r.id}',this.value)" style="width:56px;padding:5px 6px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:.85rem;outline:none;text-align:center">`;
     return`<tr><td><strong>${nomes}</strong></td><td style="color:var(--muted)">${r.team||'–'}</td><td style="color:var(--muted)">${r.judge||'–'}</td><td>${r.gender||'–'}</td><td><span class="badge badge-info">${r.categoria||'–'}</span></td><td>${heatInput}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${forca}</td><td style="font-family:'DM Mono',monospace;color:var(--accent)">${resist}</td><td style="font-family:'DM Mono',monospace">${metcon}</td><td>${pdfLink}</td><td style="font-family:'DM Mono',monospace;color:var(--muted)">${dateStr}</td><td><button class="delete-btn" onclick="deleteGamesResult('${r.id}')">Apagar</button></td></tr>`;
   }).join('');
+}
+
+function openGamesScorecard(id){
+  const r=gamesResults.find(x=>x.id===id);
+  if(!r)return;
+  const d=r.data||{};
+  const s=d.strength||{}, e=d.endurance||{}, m=d.metcon||{};
+  const nomes=r.first_name+' '+r.last_name+(r.athlete_b?' & '+r.athlete_b:'');
+  const dateStr=new Date(r.created_at).toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric'})+' '+new Date(r.created_at).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('games-sc-title').textContent=nomes;
+  document.getElementById('games-sc-subtitle').textContent=(r.team?r.team+' · ':'')+(r.categoria||'')+' · '+(r.gender||'')+(r.heat?' · Heat '+r.heat:'')+' · Juiz: '+(r.judge||'–')+' · '+dateStr;
+  const row=(label,val)=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted);font-size:.85rem">${label}</span><span style="font-family:'DM Mono',monospace;font-weight:700">${val}</span></div>`;
+  document.getElementById('games-sc-body').innerHTML=`
+    <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <div class="extras-panel-title" style="margin-bottom:8px">💪 Força</div>
+      ${row('Strict Press',(s.strictPress||0)+' kg')}
+      ${row('Back Squat',(s.backSquat||0)+' kg')}
+      ${row('Deadlift',(s.deadlift||0)+' kg')}
+      <div style="display:flex;justify-content:space-between;padding-top:10px"><span style="font-weight:800;text-transform:uppercase;font-size:.8rem;letter-spacing:.06em">Total</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:900;color:var(--accent);font-size:1.1rem">${(s.total||0)} kg</span></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;margin-bottom:14px">
+      <div class="extras-panel-title" style="margin-bottom:8px">🏃 Resistência</div>
+      ${row('Run Atleta 1',e.runA1||e.run1||'–')}
+      ${e.runA2?row('Run Atleta 2',e.runA2):''}
+      ${row('Ski Erg — Distância',(e.distanceM||0)+' m')}
+      <div style="display:flex;justify-content:space-between;padding-top:10px"><span style="font-weight:800;text-transform:uppercase;font-size:.8rem;letter-spacing:.06em">Tempo Total</span><span style="font-family:'Space Grotesk',sans-serif;font-weight:900;color:var(--accent);font-size:1.1rem">${e.total||'–'}</span></div>
+    </div>
+    <div style="background:var(--surface2);border-radius:10px;padding:14px 16px">
+      <div class="extras-panel-title" style="margin-bottom:8px">🔥 Metcon</div>
+      ${row('Tempo',m.time||'–')}
+      ${row('Reps',m.reps!=null?m.reps:'–')}
+    </div>
+    ${r.pdf_url?`<a href="${r.pdf_url}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:16px;padding:11px;border-radius:8px;background:var(--surface2);border:1px solid var(--accent);color:var(--accent);text-decoration:none;font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:.9rem;text-transform:uppercase">Abrir PDF</a>`:`<p style="color:var(--muted);font-size:.78rem;margin-top:14px;text-align:center">Sem PDF gravado para este registo (apenas os dados do scorecard)</p>`}
+  `;
+  document.getElementById('games-scorecard-modal').classList.add('open');
 }
 
 async function deleteGamesResult(id){
