@@ -3460,10 +3460,16 @@ async function renderSatisfacaoAdmin(){
 
   const recepcaoAvg = avg(satisfacaoResults.map(r=>r.data?.recepcao).filter(v=>v!=null));
   const npsAvg = avg(satisfacaoResults.map(r=>r.data?.nps).filter(v=>v!=null));
+  const treinoAvg = avg(satisfacaoResults.map(r=>r.data?.instalacoes_treino).filter(v=>v!=null));
+  const balneAvg = avg(satisfacaoResults.map(r=>r.data?.instalacoes_balneario).filter(v=>v!=null));
+  const comunAvg = avg(satisfacaoResults.map(r=>r.data?.comunicacao).filter(v=>v!=null));
 
   document.getElementById('satisfacao-stats-row').innerHTML =
     statCard('Total Respostas', total, true) +
     statCard('Receção (média)', recepcaoAvg) +
+    statCard('Áreas de treino (média)', treinoAvg) +
+    statCard('Balneários (média)', balneAvg) +
+    statCard('Comunicação (média)', comunAvg) +
     statCard('NPS (média)', npsAvg);
 
   const coachAgg = {};
