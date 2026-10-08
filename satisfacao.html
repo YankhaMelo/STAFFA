@@ -111,13 +111,12 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
   <div class="logo">5.7 <span>CrossFit</span></div>
   <div class="subtitle">Questionário de Satisfação — Coaches &amp; Comunidade</div>
 
-  <div class="anon-note">🔒 As tuas respostas são anónimas — não fica guardado quem respondeu o quê.</div>
-
-  <p style="color:var(--muted);font-size:.86rem;line-height:1.55;margin-bottom:20px">
-    A cada 6 meses pedimos-te 5 minutos para avaliares os coaches e o ginásio. Pensa nas aulas dos
-    últimos 6 meses e responde com sinceridade — mesmo as críticas nos ajudam a melhorar. Avalia o
-    trabalho de cada coach nas aulas, não a relação pessoal que tenhas com ele.
-  </p>
+  <div style="color:var(--muted);font-size:.86rem;line-height:1.65;margin-bottom:20px">
+    <p style="margin-bottom:12px"><strong style="color:var(--text)">Caros alunos,</strong></p>
+    <p style="margin-bottom:12px">Levamos muito a sério o serviço que prestamos e a evolução individual de cada um dos elementos do nosso staff e achamos, que o que diferencia a nossa empresa é a nossa equipa técnica. Para isso fazemos uma sondagem de satisfação com a comunidade. O questionário a seguir deve ser respondido com seriedade e neutralidade.</p>
+    <p style="margin-bottom:12px">Abaixo, deves dar notas de 1 a 10 relacionada com a performance dos nossos Coaches em aula, sendo que: 1 é a nota mais baixa e 10 a mais alta. Tu não deves colocar o teu nome no questionário.</p>
+    <p>Na tua avaliação deve ser o mais imparcial possível. Não deve ser levado em conta o relacionamento pessoal ou “favoritismo” que tu tens com algum dos treinadores mas sim, o trabalho realizado em aula. Queremos saber o que tu achas da aula de cada um, somente e apenas isso deve ser analisado ao dares as tuas notas. Caso tu não tenhas estado presente em nenhuma aula do treinador referenciado abaixo ou não conheças o trabalho dele o suficiente para atribuir uma pontuação, não coloques nenhuma nota para o treinador em questão.</p>
+  </div>
 
   <div class="form-group">
     <label>Há quanto tempo treinas na 5.7 CrossFit?</label>
@@ -159,25 +158,32 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
 <div class="screen" id="screen-ginasio">
   <div class="progress-wrap"><div class="progress-seg done"></div><div class="progress-seg done"></div><div class="progress-seg"></div><div class="progress-seg"></div></div>
   <div class="section-label">Receção</div>
-  <div class="form-group">
-    <label>Quando precisas da receção (marcar aula, tirar dúvidas, resolver algo), como te tratam?</label>
-    <div class="scale-row" id="scale-recepcao"></div>
-    <div class="scale-anchors"><span>Mau atendimento</span><span>Ótimo atendimento</span></div>
-  </div>
+    <div class="form-group">
+      <label>Como avalias a disponibilidade e o auxílio às tuas dúvidas pelo Staff?</label>
+      <div class="scale-row" id="scale-recepcao"></div>
+      <div class="scale-anchors"><span>Mau atendimento</span><span>Ótimo atendimento</span></div>
+    </div>
 
-  <div class="section-label">Instalações e Ginásio</div>
-  <div class="form-group">
-    <label>Como avalias a limpeza e o estado de conservação do ginásio e do equipamento?</label>
-    <div class="scale-row" id="scale-instalacoes"></div>
-    <div class="scale-anchors"><span>Muito mau</span><span>Excelente</span></div>
-  </div>
-  <div class="form-group">
-    <label>Achas fácil marcar aulas e ficar a saber de horários e avisos importantes (app, grupos, avisos na receção)?</label>
-    <div class="scale-row" id="scale-comunicacao"></div>
-    <div class="scale-anchors"><span>Muito difícil</span><span>Muito fácil</span></div>
-  </div>
+    <div class="section-label">Instalações</div>
+    <div class="form-group">
+      <label>Como avalias a limpeza e manutenção das áreas de treino?</label>
+      <div class="scale-row" id="scale-instalacoes-treino"></div>
+      <div class="scale-anchors"><span>Muito mau</span><span>Excelente</span></div>
+    </div>
+    <div class="form-group">
+      <label>Como avalias a limpeza e manutenção dos balneários?</label>
+      <div class="scale-row" id="scale-instalacoes-balneario"></div>
+      <div class="scale-anchors"><span>Muito mau</span><span>Excelente</span></div>
+    </div>
 
-  <button class="btn-primary" onclick="goTo('screen-final')">Continuar →</button>
+    <div class="section-label">Comunicação</div>
+    <div class="form-group">
+      <label>Como avalias a comunicação interna entre 5.7 CrossFit e a Comunidade (eventos, atualizações, aulas, outros)?</label>
+      <div class="scale-row" id="scale-comunicacao"></div>
+      <div class="scale-anchors"><span>Muito má</span><span>Excelente</span></div>
+    </div>
+
+    <button class="btn-primary" onclick="goTo('screen-final')">Continuar →</button>
   <button class="btn-secondary" onclick="goTo('screen-coaches')">← Voltar</button>
 </div>
 
@@ -192,7 +198,7 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
 
   <div class="section-label">O teu feedback</div>
   <div class="form-group">
-    <label>Há algo que não perguntámos e que gostavas de nos dizer? Uma sugestão, uma crítica ou um elogio — fica à vontade.</label>
+    <label>Gostarias de fazer uma sugestão ou deixar-nos um elogio pela experiência vivida até aqui? Deixa-nos a tua opinião, vai ajudar imenso!</label>
     <textarea id="feedback-text" placeholder="Escreve aqui... (opcional)"></textarea>
   </div>
 
@@ -234,7 +240,8 @@ let state = {
   horario_frequente: null,
   coaches: {},
   recepcao: null,
-  instalacoes: null,
+  instalacoes_treino: null,
+  instalacoes_balneario: null,
   comunicacao: null,
   nps: null,
   feedback: ''
@@ -271,7 +278,8 @@ async function init(){
   buildChipRow('tempo-row', v => state.tempo_membro = v);
   buildChipRow('horario-row', v => state.horario_frequente = v);
   buildScale('scale-recepcao', v => state.recepcao = v);
-  buildScale('scale-instalacoes', v => state.instalacoes = v);
+  buildScale('scale-instalacoes-treino', v => state.instalacoes_treino = v);
+  buildScale('scale-instalacoes-balneario', v => state.instalacoes_balneario = v);
   buildScale('scale-comunicacao', v => state.comunicacao = v);
   buildScale('scale-nps', v => state.nps = v);
   buildCoachCards();
@@ -416,7 +424,8 @@ async function submitAll(){
     data: {
       coaches: state.coaches,
       recepcao: state.recepcao,
-      instalacoes: state.instalacoes,
+      instalacoes_treino: state.instalacoes_treino,
+      instalacoes_balneario: state.instalacoes_balneario,
       comunicacao: state.comunicacao,
       nps: state.nps,
       feedback: state.feedback
