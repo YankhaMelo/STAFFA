@@ -24,7 +24,7 @@
   --radius: 10px;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: -webkit-fill-available; overscroll-behavior: none; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; min-height: -webkit-fill-available; }
 button, input, select, textarea { -webkit-appearance: none; appearance: none; font-family: inherit; }
 input[type="date"], input[type="time"], input[type="datetime-local"] { -webkit-appearance: none; }
 
@@ -629,7 +629,8 @@ tr:hover td { background:#141414; }
 /* ══════════════════════════════
    MOBILE / iPHONE — sidebar drawer, topbar e overflow
 ══════════════════════════════ */
-html, body { max-width:100%; overflow-x:hidden; -webkit-text-size-adjust:100%; }
+html { max-width:100%; overflow-x:hidden; overflow-y:auto; height:auto; -webkit-text-size-adjust:100%; -webkit-overflow-scrolling:touch; }
+body { max-width:100%; overflow-x:clip; overflow-y:visible; height:auto; touch-action:pan-x pan-y; }
 @media (max-width:900px) {
   .mobile-topbar { padding-top:env(safe-area-inset-top); height:calc(56px + env(safe-area-inset-top)); padding-left:max(14px,env(safe-area-inset-left)); padding-right:max(14px,env(safe-area-inset-right)); }
   .mobile-menu-btn { width:44px; height:44px; font-size:1.3rem; }
@@ -1243,7 +1244,10 @@ html, body { max-width:100%; overflow-x:hidden; -webkit-text-size-adjust:100%; }
     <canvas id="chart-satisfacao-notas"></canvas>
   </div>
 
-  <div class="section-title">Média por Coach</div>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+    <div class="section-title" style="flex:1;min-width:160px">Média por Coach</div>
+    <button class="btn-add" style="background:var(--danger);color:#fff;padding:6px 12px;font-size:.75rem" onclick="apagarRespostasSatisfacao()">🗑️ Apagar todas as respostas</button>
+  </div>
   <div class="table-wrap">
     <table><thead><tr><th>Coach</th><th>Nº Avaliações</th><th>Nota Média</th><th>Já Faz Bem (+ votado)</th><th>Deve Melhorar (+ votado)</th><th></th></tr></thead>
     <tbody id="satisfacao-coach-body"></tbody></table>
@@ -3446,6 +3450,22 @@ async function loadSatisfacaoResults(){
     if(!res.ok){ console.error('Erro ao carregar Satisfação:', res.status, await res.text().catch(()=>'')); satisfacaoResults=[]; return; }
     satisfacaoResults = await res.json();
   }catch(e){ console.error('Erro ao carregar Satisfação:', e); satisfacaoResults=[]; }
+}
+
+
+async function apagarRespostasSatisfacao(){
+  const n = (satisfacaoResults||[]).length;
+  if(!n){ alert('Não há respostas para apagar.'); return; }
+  if(!confirm('Apagar TODAS as '+n+' respostas de satisfação? Esta ação não pode ser desfeita.')) return;
+  if(!confirm('Tens a certeza? Os dados e médias dos coaches serão eliminados.')) return;
+  try{
+    const res = await fetch(SUPABASE_URL+'/rest/v1/satisfacao_respostas?gym_id=eq.'+GYM_ID,{method:'DELETE',headers:{'Authorization':'Bearer '+SUPABASE_ANON,'apikey':SUPABASE_ANON,'Prefer':'return=representation'}});
+    if(!res.ok){ alert('Erro ao apagar: '+res.status+' '+await res.text().catch(()=>'')); return; }
+    const apagadas = await res.json().catch(()=>[]);
+    if(!apagadas.length){ alert('Nada foi apagado. Falta a permissão de DELETE na tabela satisfacao_respostas (ver SQL).'); return; }
+    await renderSatisfacaoAdmin();
+    alert(apagadas.length+' respostas apagadas.');
+  }catch(e){ alert('Erro ao apagar: '+e.message); }
 }
 
 let satisfacaoCoachAgg = {};
