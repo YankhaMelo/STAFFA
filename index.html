@@ -3476,8 +3476,8 @@ async function renderSatisfacaoAdmin(){
   satisfacaoResults.forEach(r=>{
     const coaches = r.data?.coaches || {};
     Object.entries(coaches).forEach(([nome, c])=>{
-      if(!coachAgg[nome]) coachAgg[nome] = { notas:[], forte:{}, melhorar:{} };
-      if(c.nota!=null) coachAgg[nome].notas.push(c.nota);
+      if(!coachAgg[nome]) coachAgg[nome] = { notas:[], datas:[], forte:{}, melhorar:{} };
+      if(c.nota!=null){ coachAgg[nome].notas.push(c.nota); coachAgg[nome].datas.push((r.created_at||'').slice(0,7)); }
       (c.forte||[]).forEach(a=> coachAgg[nome].forte[a] = (coachAgg[nome].forte[a]||0)+1);
       (c.melhorar||[]).forEach(a=> coachAgg[nome].melhorar[a] = (coachAgg[nome].melhorar[a]||0)+1);
     });
@@ -3549,7 +3549,7 @@ async function renderSatisfacaoAdmin(){
 // ══════════════════════════════════════════════
 // PDF individual por coach (Satisfação)
 // ══════════════════════════════════════════════
-function gerarPDFCoachSatisfacao(nome){
+function _pdfCoachComparacao(nome, ctx){
   const agg = satisfacaoCoachAgg[nome];
   if(!agg){ alert('Sem dados para este coach.'); return; }
 
@@ -3559,138 +3559,238 @@ function gerarPDFCoachSatisfacao(nome){
   const attrSet = new Set([...Object.keys(agg.forte), ...Object.keys(agg.melhorar)]);
   const attrs = [...attrSet].sort((a,b)=> ((agg.forte[b]||0)+(agg.melhorar[b]||0)) - ((agg.forte[a]||0)+(agg.melhorar[a]||0)));
 
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
-  const dataGeracao = new Date().toLocaleDateString('pt-PT');
+  const {doc,dataGeracao} = _coachPdfBase(nome,'Relatório de Satisfação — Coach',ctx);
 
-  // Cabeçalho
-  doc.setFillColor(0,0,0); doc.rect(0,0,210,32,'F');
-  doc.setFillColor(255,214,0); doc.rect(0,31,210,1.5,'F');
-  doc.setTextColor(255,214,0); doc.setFontSize(16); doc.setFont('helvetica','bold');
-  doc.text('5.7 CROSSFIT', 14, 14);
-  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal');
-  doc.text('Relatório de Satisfação — Coach', 14, 22);
-  doc.setTextColor(150,150,150); doc.setFontSize(8);
-  doc.text('Gerado em '+dataGeracao, 196, 14, {align:'right'});
+  const n = agg.notas.length;
+  const allNotas = Object.values(satisfacaoCoachAgg).flatMap(x=>x.notas);
+  const teamAvg = allNotas.length ? allNotas.reduce((p,c)=>p+c,0)/allNotas.length : 0;
+  const diff = avgNota - teamAvg;
 
-  // Nome do coach
-  doc.setTextColor(0,0,0); doc.setFontSize(20); doc.setFont('helvetica','bold');
-  doc.text(nome, 14, 46);
-
-  // KPIs
+  // KPIs (3 caixas)
   const kpis = [
-    {l:'AVALIAÇÕES', v:String(agg.notas.length)},
-    {l:'NOTA MÉDIA', v:avgNota.toFixed(1)+' / 10'}
+    {l:'NOTA MÉDIA', v:avgNota.toFixed(1)+' / 10', big:true},
+    {l:'AVALIAÇÕES', v:String(n)},
+    {l:'VS MÉDIA DA EQUIPA', v:(diff>=0?'+':'')+diff.toFixed(1), sub:'Equipa: '+teamAvg.toFixed(1), c: diff>=0?[34,150,80]:[200,40,40]}
   ];
   kpis.forEach((k,i)=>{
-    const x = 14 + i*97;
-    doc.setFillColor(245,245,245); doc.roundedRect(x,52,90,22,3,3,'F');
-    doc.setFillColor(255,214,0); doc.rect(x,52,3,22,'F');
+    const x = 14 + i*62, w = 58;
+    doc.setFillColor(245,245,245); doc.roundedRect(x,56,w,26,3,3,'F');
+    doc.setFillColor(255,214,0); doc.rect(x,56,3,26,'F');
     doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','normal');
-    doc.text(k.l, x+8, 61);
-    doc.setTextColor(0,0,0); doc.setFontSize(15); doc.setFont('helvetica','bold');
-    doc.text(k.v, x+8, 70);
+    doc.text(k.l, x+8, 64);
+    const c = k.c||[0,0,0]; doc.setTextColor(c[0],c[1],c[2]); doc.setFontSize(k.big?18:16); doc.setFont('helvetica','bold');
+    doc.text(k.v, x+8, 74);
+    if(k.sub){ doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','normal'); doc.text(k.sub, x+8, 79); }
   });
 
-  doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica','bold');
-  doc.text('PONTOS FORTES vs A MELHORAR', 14, 88);
-  doc.setFillColor(255,214,0); doc.rect(14,90,doc.getTextWidth('PONTOS FORTES vs A MELHORAR'),0.8,'F');
+  const secTitle = (t,yy)=>{
+    doc.setTextColor(0,0,0); doc.setFontSize(11); doc.setFont('helvetica','bold');
+    doc.text(t, 14, yy);
+    doc.setFillColor(255,214,0); doc.rect(14, yy+2, doc.getTextWidth(t), 0.8, 'F');
+  };
 
+  // Distribuição das notas 1–10
   let y = 96;
-
-  if(attrs.length === 0){
-    doc.setTextColor(150,150,150); doc.setFontSize(9); doc.setFont('helvetica','normal');
-    doc.text('Ainda sem atributos assinalados pelos alunos.', 14, y+8);
-    y += 18;
-  } else {
-    // Canvas temporário (fora do ecrã) para gerar a imagem do gráfico
-    const rowH = 15; // altura por atributo, em "px de canvas" (escala 4x para nitidez)
-    const scale = 4;
-    const cw = 680*scale, chHeader = 34*scale, chPerRow = rowH*scale;
-    const ch = chHeader + attrs.length*chPerRow + 20*scale;
-    const tmpCanvas = document.createElement('canvas');
-    tmpCanvas.width = cw; tmpCanvas.height = ch;
-    document.body.appendChild(tmpCanvas);
-
-    const maxCount = Math.max(1, ...attrs.map(a=>Math.max(agg.forte[a]||0, agg.melhorar[a]||0)));
-
-    const tmpChart = new Chart(tmpCanvas, {
-      type:'bar',
-      data:{
-        labels: attrs,
-        datasets:[
-          {label:'Já faz bem', data: attrs.map(a=>agg.forte[a]||0), backgroundColor:'#22c55e', borderRadius:3, maxBarThickness:22*scale},
-          {label:'A melhorar', data: attrs.map(a=>agg.melhorar[a]||0), backgroundColor:'#ff3b3b', borderRadius:3, maxBarThickness:22*scale}
-        ]
-      },
-      options:{
-        indexAxis:'y', responsive:false, animation:false, devicePixelRatio:1,
-        layout:{padding:{top:6*scale, right:16*scale, bottom:4*scale, left:4*scale}},
-        plugins:{
-          legend:{position:'top', align:'start', labels:{color:'#333', font:{size:12*scale}, boxWidth:11*scale, padding:14*scale}}
-        },
-        scales:{
-          x:{
-            beginAtZero:true, max: maxCount+1,
-            ticks:{color:'#888', stepSize:1, font:{size:10*scale}},
-            grid:{color:'#eee'},
-            title:{display:true, text:'Nº de respostas', color:'#999', font:{size:10*scale}}
-          },
-          y:{
-            ticks:{color:'#222', font:{size:11*scale}},
-            grid:{display:false}
-          }
-        }
-      }
-    });
-
-    // fundo branco atrás do canvas (Chart.js não pinta fundo por defeito)
-    const ctx = tmpCanvas.getContext('2d');
-    ctx.save();
-    ctx.globalCompositeOperation = 'destination-over';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0,0,tmpCanvas.width,tmpCanvas.height);
-    ctx.restore();
-
-    const chartImg = tmpCanvas.toDataURL('image/png');
-    tmpChart.destroy();
-    document.body.removeChild(tmpCanvas);
-
-    const imgW = 182, imgH = imgW * (ch/cw);
-    doc.setDrawColor(230,230,230);
-    doc.roundedRect(14, y, imgW, imgH, 2, 2, 'S');
-    doc.addImage(chartImg, 'PNG', 14, y, imgW, imgH);
-    y += imgH + 10;
+  secTitle('DISTRIBUIÇÃO DAS NOTAS', y); y += 8;
+  const dist = Array(11).fill(0);
+  agg.notas.forEach(v=>{ const k=Math.max(1,Math.min(10,Math.round(v))); dist[k]++; });
+  const maxD = Math.max(1, ...dist);
+  const chartH = 28, baseY = y + chartH, colW = 182/10;
+  for(let k=1;k<=10;k++){
+    const x = 14 + (k-1)*colW;
+    const h = dist[k] ? Math.max(2, (dist[k]/maxD)*(chartH-6)) : 0;
+    if(h){
+      doc.setFillColor(255,214,0); doc.roundedRect(x+3, baseY-h, colW-6, h, 1, 1, 'F');
+      doc.setTextColor(0,0,0); doc.setFontSize(8); doc.setFont('helvetica','bold');
+      doc.text(String(dist[k]), x+colW/2, baseY-h-1.5, {align:'center'});
+    } else {
+      doc.setFillColor(235,235,235); doc.rect(x+3, baseY-0.6, colW-6, 0.6, 'F');
+    }
+    doc.setTextColor(110,110,110); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text(String(k), x+colW/2, baseY+5, {align:'center'});
   }
+  y = baseY + 16;
 
-  // Tabela de atributos
-  const rows = attrs.map(a => [a, String(agg.forte[a]||0), String(agg.melhorar[a]||0)]);
-  if(y > 240){ doc.addPage(); y = 20; }
-  if(rows.length){
+  // Evolução por mês
+  const porMes = {};
+  (agg.datas||[]).forEach((m,i)=>{ if(!m) return; (porMes[m]=porMes[m]||[]).push(agg.notas[i]); });
+  const meses = Object.keys(porMes).sort();
+  if(meses.length){
+    if(y > 235){ doc.addPage(); y = 20; }
+    secTitle('EVOLUÇÃO POR MÊS', y); y += 5;
     doc.autoTable({
       startY:y,
-      head:[['Atributo','Já Faz Bem','A Melhorar']],
-      body: rows,
-      styles:{fontSize:8.5, cellPadding:3.5},
-      headStyles:{fillColor:[0,0,0], textColor:[255,214,0], fontStyle:'bold', fontSize:8},
+      head:[['Mês','Avaliações','Nota média','Variação']],
+      body: meses.map((m,i)=>{
+        const a = porMes[m].reduce((p,c)=>p+c,0)/porMes[m].length;
+        const prev = i? porMes[meses[i-1]].reduce((p,c)=>p+c,0)/porMes[meses[i-1]].length : null;
+        const [yy,mm]=m.split('-');
+        return [mm+'/'+yy, String(porMes[m].length), a.toFixed(1), prev==null?'–':((a-prev>=0?'+':'')+(a-prev).toFixed(1))];
+      }),
+      styles:{fontSize:8.5, cellPadding:3},
+      headStyles:{fillColor:[0,0,0], textColor:[255,214,0], fontSize:8},
       alternateRowStyles:{fillColor:[248,248,248]},
-      columnStyles:{1:{textColor:[34,150,80], fontStyle:'bold'}, 2:{textColor:[200,40,40], fontStyle:'bold'}},
       margin:{left:14,right:14}
     });
+    y = doc.lastAutoTable.finalY + 10;
   }
 
-  const pageCount = doc.getNumberOfPages();
-  for(let i=1;i<=pageCount;i++){
+  // Listas de atributos com barras
+  const drawList = (titulo, obj, cor, x0, y0)=>{
+    const w = 88;
+    doc.setFillColor(cor[0],cor[1],cor[2]); doc.roundedRect(x0, y0, w, 8, 2, 2, 'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','bold');
+    doc.text(titulo, x0+4, y0+5.6);
+    let yy = y0 + 15;
+    const entries = Object.entries(obj).sort((p,q)=>q[1]-p[1]);
+    if(!entries.length){
+      doc.setTextColor(150,150,150); doc.setFontSize(8.5); doc.setFont('helvetica','italic');
+      doc.text('Sem atributos assinalados.', x0+2, yy+2);
+      return yy + 10;
+    }
+    entries.forEach(([attr,cnt])=>{
+      const lines = doc.splitTextToSize(attr, w-4).slice(0,2);
+      doc.setTextColor(30,30,30); doc.setFontSize(8.5); doc.setFont('helvetica','normal');
+      doc.text(lines, x0+2, yy);
+      const by = yy + (lines.length-1)*3.8 + 2.5;
+      const pct = n ? cnt/n : 0;
+      doc.setFillColor(235,235,235); doc.roundedRect(x0+2, by, w-26, 3, 1.5, 1.5, 'F');
+      doc.setFillColor(cor[0],cor[1],cor[2]); doc.roundedRect(x0+2, by, Math.max(2,(w-26)*pct), 3, 1.5, 1.5, 'F');
+      doc.setTextColor(cor[0],cor[1],cor[2]); doc.setFont('helvetica','bold'); doc.setFontSize(8.5);
+      doc.text(cnt+' ('+Math.round(pct*100)+'%)', x0+w-1, by+2.6, {align:'right'});
+      yy = by + 9;
+    });
+    return yy;
+  };
+  secTitle('O QUE OS ALUNOS DESTACAM', y); y += 7;
+  const yA = drawList('PONTOS FORTES', agg.forte, [34,150,80], 14, y);
+  const yB = drawList('A MELHORAR', agg.melhorar, [200,40,40], 108, y);
+  y = Math.max(yA, yB) + 4;
+
+  if(n < 5){
+    if(y > 265){ doc.addPage(); y = 20; }
+    doc.setFillColor(255,248,225); doc.roundedRect(14, y, 182, 12, 2, 2, 'F');
+    doc.setTextColor(120,90,0); doc.setFontSize(8); doc.setFont('helvetica','normal');
+    doc.text('Nota: amostra reduzida ('+n+' avaliações). Interpretar com cautela e preservar o anonimato dos alunos.', 18, y+7.3);
+  }
+
+  if(!ctx){ _coachPdfFooter(doc,dataGeracao); doc.save('5.7CrossFit_Satisfacao_'+nome.replace(/ /g,'_')+'.pdf'); }
+}
+
+// ── Helpers + outros formatos ──
+function _coachPdfBase(nome, subtitulo, ctx){
+  const { jsPDF } = window.jspdf;
+  let doc;
+  if(ctx){ doc = ctx.doc; if(ctx.started) doc.addPage(); ctx.started = true; }
+  else doc = new jsPDF({orientation:'portrait', unit:'mm', format:'a4'});
+  const dataGeracao = new Date().toLocaleDateString('pt-PT');
+  doc.setFillColor(0,0,0); doc.rect(0,0,210,32,'F');
+  doc.setFillColor(255,214,0); doc.rect(0,31,210,1.5,'F');
+  doc.setTextColor(255,214,0); doc.setFontSize(16); doc.setFont('helvetica','bold'); doc.text('5.7 CROSSFIT',14,14);
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont('helvetica','normal'); doc.text(subtitulo,14,22);
+  doc.setTextColor(150,150,150); doc.setFontSize(8); doc.text('Gerado em '+dataGeracao,196,14,{align:'right'});
+  doc.setTextColor(0,0,0); doc.setFontSize(22); doc.setFont('helvetica','bold'); doc.text(nome,14,48);
+  return {doc, dataGeracao};
+}
+function _coachPdfFooter(doc, dataGeracao){
+  const pc = doc.getNumberOfPages();
+  for(let i=1;i<=pc;i++){
     doc.setPage(i);
     doc.setFillColor(0,0,0); doc.rect(0,285,210,12,'F');
     doc.setTextColor(150,150,150); doc.setFontSize(7); doc.setFont('helvetica','normal');
-    doc.text('5.7 CrossFit · Respostas anónimas · Gerado em '+dataGeracao, 14, 292);
-    doc.text('Pág. '+i+'/'+pageCount, 196, 292, {align:'right'});
+    doc.text('5.7 CrossFit · Respostas anónimas · Gerado em '+dataGeracao,14,292);
+    doc.text('Pág. '+i+'/'+pc,196,292,{align:'right'});
   }
-
-  doc.save('5.7CrossFit_Satisfacao_'+nome.replace(/ /g,'_')+'.pdf');
+}
+function _coachStats(nome){
+  const agg = satisfacaoCoachAgg[nome]; if(!agg) return null;
+  const n = agg.notas.length;
+  const avgNota = n ? agg.notas.reduce((a,b)=>a+b,0)/n : 0;
+  const top = (o,k)=>Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,k);
+  return {agg,n,avgNota,top};
 }
 
+// Formato 1 — Cartão visual (1 página, top 3)
+function _pdfCoachVisual(nome, ctx){
+  const st=_coachStats(nome); if(!st) return; const {agg,n,avgNota,top}=st;
+  const {doc,dataGeracao}=_coachPdfBase(nome,'Cartão de Feedback — Coach',ctx);
+  // nota grande
+  doc.setFillColor(245,245,245); doc.roundedRect(14,56,182,48,4,4,'F');
+  doc.setFillColor(255,214,0); doc.rect(14,56,4,48,'F');
+  doc.setTextColor(0,0,0); doc.setFontSize(46); doc.setFont('helvetica','bold');
+  doc.text(avgNota.toFixed(1),30,88);
+  doc.setFontSize(14); doc.setTextColor(120,120,120); doc.text('/ 10',72,88);
+  doc.setFontSize(8); doc.text('NOTA MÉDIA · '+n+(n===1?' AVALIAÇÃO':' AVALIAÇÕES'),30,66);
+  const bx=100,bw=86;
+  doc.setFillColor(225,225,225); doc.roundedRect(bx,76,bw,6,3,3,'F');
+  const col = avgNota>=8?[34,150,80]:avgNota>=6?[255,190,0]:[200,40,40];
+  doc.setFillColor(col[0],col[1],col[2]); doc.roundedRect(bx,76,Math.max(4,bw*avgNota/10),6,3,3,'F');
+  doc.setTextColor(120,120,120); doc.setFontSize(7); doc.setFont('helvetica','normal');
+  doc.text('0',bx,90); doc.text('10',bx+bw,90,{align:'right'});
+  const box=(titulo,lista,cor,x)=>{
+    doc.setFillColor(cor[0],cor[1],cor[2]); doc.roundedRect(x,116,88,9,2,2,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont('helvetica','bold'); doc.text(titulo,x+4,122);
+    let yy=136;
+    if(!lista.length){ doc.setTextColor(150,150,150); doc.setFont('helvetica','italic'); doc.setFontSize(9); doc.text('Sem atributos assinalados.',x+2,yy); return; }
+    lista.forEach(([a,c],i)=>{
+      doc.setFillColor(cor[0],cor[1],cor[2]); doc.circle(x+5,yy-1.2,3.5,'F');
+      doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont('helvetica','bold'); doc.text(String(i+1),x+5,yy+0.2,{align:'center'});
+      const ls=doc.splitTextToSize(a,74).slice(0,3);
+      doc.setTextColor(30,30,30); doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.text(ls,x+12,yy);
+      yy += ls.length*4.6 + 8;
+    });
+  };
+  box('O QUE JÁ FAZES BEM',top(agg.forte,3),[34,150,80],14);
+  box('ONDE PODES EVOLUIR',top(agg.melhorar,3),[200,40,40],108);
+  if(!ctx){ _coachPdfFooter(doc,dataGeracao); doc.save('5.7CrossFit_Satisfacao_Cartao_'+nome.replace(/ /g,'_')+'.pdf'); }
+}
+
+// Formato 3 — Texto de feedback (prosa)
+function _pdfCoachTexto(nome, ctx){
+  const st=_coachStats(nome); if(!st) return; const {agg,n,avgNota,top}=st;
+  const allN=Object.values(satisfacaoCoachAgg).flatMap(x=>x.notas);
+  const team=allN.length?allN.reduce((a,b)=>a+b,0)/allN.length:0;
+  const d=avgNota-team;
+  const lista=l=>{ const t=l.map(([a])=>a.charAt(0).toLowerCase()+a.slice(1)); return t.length>1? t.slice(0,-1).join('; ')+' e '+t[t.length-1] : t[0]; };
+  const nome1=nome.split(' ')[0];
+  const paras=[];
+  paras.push(`${nome1}, com base em ${n} ${n===1?'avaliação anónima':'avaliações anónimas'} dos alunos, a tua nota média é de ${avgNota.toFixed(1)} em 10, ${Math.abs(d)<0.05?'em linha com':(d>0?'acima d':'abaixo d')+(Math.abs(d)<0.05?'':'a')+' média da equipa'} (${team.toFixed(1)}).`.replace('acima da a','acima da').replace('abaixo da a','abaixo da'));
+  const f=top(agg.forte,3), m=top(agg.melhorar,3);
+  paras.push(f.length?`Os alunos reconhecem sobretudo que ${lista(f)}. É uma base sólida a manter e a reforçar nas aulas.`:'Ainda não existem pontos fortes assinalados pelos alunos.');
+  paras.push(m.length?`Como oportunidades de evolução, os alunos apontam: ${lista(m)}. Sugerimos definir uma ação concreta para o próximo mês e rever a evolução na próxima ronda de avaliações.`:'Não foram assinaladas áreas a melhorar nesta ronda.');
+  if(n<5) paras.push(`Nota: a amostra é reduzida (${n} ${n===1?'resposta':'respostas'}); os resultados devem ser interpretados com cautela.`);
+  const {doc,dataGeracao}=_coachPdfBase(nome,'Feedback de Satisfação — Coach',ctx);
+  let y=66; doc.setTextColor(30,30,30); doc.setFontSize(11); doc.setFont('helvetica','normal');
+  paras.forEach(p=>{ const ls=doc.splitTextToSize(p,178); doc.text(ls,16,y,{lineHeightFactor:1.5}); y+=ls.length*6.2+7; });
+  doc.setDrawColor(255,214,0); doc.setLineWidth(1); doc.line(14,60,14,y-6);
+  if(!ctx){ _coachPdfFooter(doc,dataGeracao); doc.save('5.7CrossFit_Satisfacao_Texto_'+nome.replace(/ /g,'_')+'.pdf'); }
+}
+
+// Formato 4 — Tabela simples
+function _pdfCoachTabela(nome, ctx){
+  const st=_coachStats(nome); if(!st) return; const {agg,n,avgNota}=st;
+  const {doc,dataGeracao}=_coachPdfBase(nome,'Resumo de Satisfação — Coach',ctx);
+  doc.setFontSize(10); doc.setFont('helvetica','normal'); doc.setTextColor(60,60,60);
+  doc.text(`Avaliações: ${n}    ·    Nota média: ${avgNota.toFixed(1)} / 10`,14,58);
+  const attrs=[...new Set([...Object.keys(agg.forte),...Object.keys(agg.melhorar)])].sort((a,b)=>((agg.forte[b]||0)+(agg.melhorar[b]||0))-((agg.forte[a]||0)+(agg.melhorar[a]||0)));
+  doc.autoTable({startY:64,head:[['Atributo','Já Faz Bem','A Melhorar']],body:attrs.length?attrs.map(a=>[a,String(agg.forte[a]||0),String(agg.melhorar[a]||0)]):[['Sem atributos assinalados','–','–']],
+    styles:{fontSize:9,cellPadding:3.5},headStyles:{fillColor:[0,0,0],textColor:[255,214,0],fontSize:8},alternateRowStyles:{fillColor:[248,248,248]},
+    columnStyles:{1:{textColor:[34,150,80],fontStyle:'bold',halign:'center'},2:{textColor:[200,40,40],fontStyle:'bold',halign:'center'}},margin:{left:14,right:14}});
+  if(!ctx){ _coachPdfFooter(doc,dataGeracao); doc.save('5.7CrossFit_Satisfacao_Tabela_'+nome.replace(/ /g,'_')+'.pdf'); }
+}
+
+// PDF único com todos os formatos
+function gerarPDFCoachSatisfacao(nome){
+  if(!satisfacaoCoachAgg[nome]){ alert('Sem dados para este coach.'); return; }
+  const { jsPDF } = window.jspdf;
+  const ctx = { doc: new jsPDF({orientation:'portrait', unit:'mm', format:'a4'}), started:false };
+  _pdfCoachVisual(nome, ctx);
+  _pdfCoachTexto(nome, ctx);
+  _pdfCoachComparacao(nome, ctx);
+  _pdfCoachTabela(nome, ctx);
+  _coachPdfFooter(ctx.doc, new Date().toLocaleDateString('pt-PT'));
+  ctx.doc.save('5.7CrossFit_Satisfacao_'+nome.replace(/ /g,'_')+'.pdf');
+}
 
 
 // ══════════════════════════════════════════════════
