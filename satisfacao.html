@@ -163,6 +163,10 @@ button,input,select,textarea { font-family:inherit; -webkit-appearance:none; app
       <div class="scale-row" id="scale-recepcao"></div>
       <div class="scale-anchors"><span>Mau atendimento</span><span>Ótimo atendimento</span></div>
     </div>
+    <div class="form-group">
+      <label>Queres deixar um comentário sobre a Receção? (opcional)</label>
+      <textarea id="recepcao-comentario" placeholder="Escreve aqui... (opcional)"></textarea>
+    </div>
 
     <div class="section-label">Instalações</div>
     <div class="form-group">
@@ -240,6 +244,7 @@ let state = {
   horario_frequente: null,
   coaches: {},
   recepcao: null,
+  recepcao_comentario: '',
   instalacoes_treino: null,
   instalacoes_balneario: null,
   comunicacao: null,
@@ -397,6 +402,7 @@ async function submitAll(){
   const btn = document.getElementById('submit-btn');
   btn.disabled = true; btn.textContent = '⏳ A enviar...';
   state.feedback = document.getElementById('feedback-text').value.trim();
+  state.recepcao_comentario = (document.getElementById('recepcao-comentario')?.value||'').trim();
 
   try{
     const patchRes = await fetch(SUPABASE_URL+'/rest/v1/satisfacao_tokens?token=eq.'+encodeURIComponent(TOKEN)+'&used=eq.false', {
@@ -424,6 +430,7 @@ async function submitAll(){
     data: {
       coaches: state.coaches,
       recepcao: state.recepcao,
+      recepcao_comentario: state.recepcao_comentario,
       instalacoes_treino: state.instalacoes_treino,
       instalacoes_balneario: state.instalacoes_balneario,
       comunicacao: state.comunicacao,
