@@ -1390,6 +1390,14 @@ body { max-width:100%; overflow-x:clip; overflow-y:visible; height:auto; touch-a
         </div>
         <div class="form-group"><label>Confirmar PIN Avaliações</label><input type="password" id="cfg-aval-pin2" placeholder="Confirmar"></div>
         <button class="btn-scan" onclick="saveAvalPin()">Atualizar PIN Avaliações</button>
+        <div style="border-top:1px solid var(--border);margin:16px 0"></div>
+        <div class="form-group">
+          <label>PIN de Entrada (Picagem)</label>
+          <input type="password" id="cfg-pic-pin" placeholder="Novo PIN de entrada" style="font-family:'DM Mono',monospace;letter-spacing:4px">
+        </div>
+        <div class="form-group"><label>Confirmar PIN de Entrada</label><input type="password" id="cfg-pic-pin2" placeholder="Confirmar"></div>
+        <button class="btn-scan" onclick="savePicagemPin()">Atualizar PIN de Entrada</button>
+        <div style="font-size:.74rem;color:var(--muted);margin-top:6px">Este PIN abre o Staffa no tablet da picagem. A área de administração continua protegida pelo PIN de Administração.</div>
       </div>
       <div class="chart-card">
         <h3>🔔 Notificações</h3>
@@ -1974,6 +1982,7 @@ let sb = null;
 // ══════════════════════════════════════════════════
 let ADMIN_PIN = '57Affiliate';
 let AVAL_PIN = '57Aval';
+let PICAGEM_PIN = null;
 let GYM_ID = null;
 let GYM_NAME = '5.7CrossFit';
 
@@ -2098,17 +2107,11 @@ async function loadGyms() {
 
 async function selectGym(id,name){
   selectedGymId=id;
-  document.getElementById('login-loading-gyms').style.display='flex';
-  document.getElementById('gym-selector').style.display='none';
-  try{
-    const {data,error}=await sb.from('gyms').select('*').eq('id',id).single();
-    if(error)throw error;
-    await loginWithGym(data);
-  }catch(e){
-    document.getElementById('login-loading-gyms').style.display='none';
-    document.getElementById('gym-selector').style.display='grid';
-    alert('Erro ao entrar. Tenta novamente.');
-  }
+  document.getElementById('login-step-gym').style.display='none';
+  document.getElementById('login-step-pin').style.display='block';
+  document.getElementById('login-gym-selected').textContent=name||'';
+  const pinEl=document.getElementById('login-pin'); pinEl.value=''; setTimeout(()=>pinEl.focus(),50);
+  document.getElementById('login-pin-error').style.display='none';
 }
 function backToGymSelect(){selectedGymId=null;document.getElementById('login-step-gym').style.display='block';document.getElementById('login-step-pin').style.display='none';}
 
@@ -2120,7 +2123,8 @@ async function doLogin() {
   try {
     const {data,error}=await sb.from('gyms').select('*').eq('id',selectedGymId).single();
     if(error)throw error;
-    if(data.pin!==pin){loadingEl.style.display='none';errorEl.style.display='block';document.getElementById('login-pin').value='';document.getElementById('login-pin').focus();return;}
+    let picPin=null;try{const c=typeof data.config==='string'?JSON.parse(data.config):data.config;picPin=c&&c.picagemPin?c.picagemPin:null;}catch(e){}
+    if(pin!==data.pin&&!(picPin&&pin===picPin)){loadingEl.style.display='none';errorEl.style.display='block';document.getElementById('login-pin').value='';document.getElementById('login-pin').focus();return;}
     await loginWithGym(data);
   } catch(e){loadingEl.style.display='none';errorEl.textContent='Erro de ligação. Tenta novamente.';errorEl.style.display='block';}
 }
@@ -2128,7 +2132,7 @@ async function doLogin() {
 async function loginWithGym(gym) {
   GYM_ID=gym.id; GYM_NAME=gym.name; ADMIN_PIN=gym.pin; cfgEmpresa.nome=gym.name;
   sessionStorage.setItem('staffa_gym',JSON.stringify(gym));
-  if(gym.config){try{const cfg=typeof gym.config==='string'?JSON.parse(gym.config):gym.config;gymConfig=cfg;if(cfg.cfgNotif)cfgNotif=cfg.cfgNotif;if(cfg.gymHorario)gymHorario=cfg.gymHorario;if(cfg.avalPin)AVAL_PIN=cfg.avalPin;if(cfg.escOverrides)escOverrides=cfg.escOverrides;}catch(e){}}
+  if(gym.config){try{const cfg=typeof gym.config==='string'?JSON.parse(gym.config):gym.config;gymConfig=cfg;if(cfg.cfgNotif)cfgNotif=cfg.cfgNotif;if(cfg.gymHorario)gymHorario=cfg.gymHorario;if(cfg.avalPin)AVAL_PIN=cfg.avalPin;if(cfg.picagemPin)PICAGEM_PIN=cfg.picagemPin;if(cfg.escOverrides)escOverrides=cfg.escOverrides;}catch(e){}}
   document.querySelector('.logo').innerHTML='Staff<span>a</span>';
   document.getElementById('gym-name-nav').textContent=gym.name;
   showNetStatus('saving','⏳ A carregar dados...');
@@ -2236,7 +2240,7 @@ async function saveAvaliacaoDB(a){
   await sb.from('avaliacoes').insert(row);
 }
 async function deleteAvaliacaoDB(id){await sb.from('avaliacoes').delete().eq('id',id);}
-async function saveGymConfig(){const config={cfgNotif,gymHorario,avalPin:AVAL_PIN};await sb.from('gyms').update({config}).eq('id',GYM_ID);}
+async function saveGymConfig(){const config={...(gymConfig||{}),cfgNotif,gymHorario,avalPin:AVAL_PIN,picagemPin:PICAGEM_PIN};await sb.from('gyms').update({config}).eq('id',GYM_ID);}
 async function saveGymPin(newPin){await sb.from('gyms').update({pin:newPin}).eq('id',GYM_ID);ADMIN_PIN=newPin;const saved=JSON.parse(sessionStorage.getItem('staffa_gym')||'{}');saved.pin=newPin;sessionStorage.setItem('staffa_gym',JSON.stringify(saved));}
 function logout(){if(!confirm('Terminar sessão?'))return;sessionStorage.removeItem('staffa_gym');location.reload();}
 function save(){}
@@ -4672,6 +4676,7 @@ async function saveEscOverrides(){const config={...gymConfig,escOverrides};await
 // ══════════════════════════════════════════════════
 function renderConfig(){document.getElementById('cfg-empresa').value=cfgEmpresa.nome||'5.7CrossFit';document.getElementById('cfg-notif-atraso').checked=cfgNotif.atraso;document.getElementById('cfg-notif-semSaida').checked=cfgNotif.semSaida;document.getElementById('cfg-notif-ferias').checked=cfgNotif.ferias;document.getElementById('cfg-notif-aniv').checked=cfgNotif.aniv;const wrap=document.getElementById('cfg-gym-horario');const diasLabels={seg:'Segunda',ter:'Terça',qua:'Quarta',qui:'Quinta',sex:'Sexta',sab:'Sábado',dom:'Domingo'};wrap.innerHTML=Object.keys(diasLabels).map(key=>{const h=gymHorario[key]||{open:'06:00',close:'22:00',ativo:true};return`<div style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="gym-h-ativo-${key}" ${h.ativo?'checked':''} style="accent-color:var(--accent);width:15px;height:15px;flex-shrink:0" onchange="gymHorario['${key}'].ativo=this.checked"><span style="font-size:.78rem;font-family:'DM Mono',monospace;width:60px;flex-shrink:0">${diasLabels[key]}</span><input type="time" id="gym-h-open-${key}" value="${h.open}" style="flex:1;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:.8rem;outline:none" onchange="gymHorario['${key}'].open=this.value"><span style="color:var(--muted);font-size:.75rem">→</span><input type="time" id="gym-h-close-${key}" value="${h.close}" style="flex:1;padding:5px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-family:'DM Mono',monospace;font-size:.8rem;outline:none" onchange="gymHorario['${key}'].close=this.value"></div>`;}).join('');}
 async function savePin(){const p1=document.getElementById('cfg-pin').value;const p2=document.getElementById('cfg-pin2').value;if(!p1){alert('Insira um PIN.');return;}if(p1!==p2){alert('Os PINs não coincidem.');return;}if(p1.length<4){alert('O PIN deve ter pelo menos 4 caracteres.');return;}await saveGymPin(p1);document.getElementById('cfg-pin').value='';document.getElementById('cfg-pin2').value='';alert('PIN atualizado com sucesso!');}
+async function savePicagemPin(){const p1=document.getElementById('cfg-pic-pin').value;const p2=document.getElementById('cfg-pic-pin2').value;if(!p1){alert('Insira um PIN.');return;}if(p1!==p2){alert('Os PINs não coincidem.');return;}if(p1.length<4){alert('O PIN deve ter pelo menos 4 caracteres.');return;}PICAGEM_PIN=p1;await saveGymConfig();document.getElementById('cfg-pic-pin').value='';document.getElementById('cfg-pic-pin2').value='';alert('PIN de entrada atualizado!');}
 async function saveAvalPin(){const p1=document.getElementById('cfg-aval-pin').value;const p2=document.getElementById('cfg-aval-pin2').value;if(!p1){alert('Insira um PIN.');return;}if(p1!==p2){alert('Os PINs não coincidem.');return;}if(p1.length<4){alert('O PIN deve ter pelo menos 4 caracteres.');return;}AVAL_PIN=p1;await saveGymConfig();document.getElementById('cfg-aval-pin').value='';document.getElementById('cfg-aval-pin2').value='';alert('PIN de avaliações atualizado!');}
 async function saveConfig(){cfgNotif.atraso=document.getElementById('cfg-notif-atraso').checked;cfgNotif.semSaida=document.getElementById('cfg-notif-semSaida').checked;cfgNotif.ferias=document.getElementById('cfg-notif-ferias').checked;cfgNotif.aniv=document.getElementById('cfg-notif-aniv').checked;cfgEmpresa.nome=document.getElementById('cfg-empresa').value;await saveGymConfig();alert('Configurações guardadas!');}
 function openExportRelatorioModal(){const selMes=document.getElementById('rel-mes');const selAno=document.getElementById('rel-ano');selMes.innerHTML=MONTHS_PT.map((m,i)=>`<option value="${i}" ${i===new Date().getMonth()?'selected':''}>${m}</option>`).join('');const thisYear=new Date().getFullYear();selAno.innerHTML=[thisYear-2,thisYear-1,thisYear,thisYear+1].map(y=>`<option value="${y}" ${y===thisYear?'selected':''}>${y}</option>`).join('');document.getElementById('export-relatorio-modal').classList.add('open');}
